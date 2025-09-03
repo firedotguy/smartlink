@@ -125,7 +125,7 @@ class BoxCard extends StatelessWidget {
                         ]
                       ),
                       const Divider(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 4),
                       Expanded(child: child)
                     ]
                   )
@@ -515,6 +515,23 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  void _openONT() {
+    if (customerData == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Дождитесь загрузки абонента', style: TextStyle(color: AppColors.warning))));
+      return;
+    }
+    if (customerData!['sn'] == null){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('У абонента нет ТМЦ с SN', style: TextStyle(color: AppColors.warning))));
+      return;
+    }
+    if (customerData!['olt_id'] == null){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('OLT не найден', style: TextStyle(color: AppColors.error))));
+      return;
+    }
+    showDialog(context: context, builder: (context){
+      return OntDialog(oltId: customerData!['olt_id'], sn: customerData!['sn']);
+    });
+  }
 
   @override
   void initState() {
@@ -616,6 +633,14 @@ class _HomePageState extends State<HomePage> {
                         child: customerData == null? const Center(child: AngularProgressBar()) :
                         Column(
                           children: [
+                            if (customerData!['olt_id'] == null)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.warning_amber, color: AppColors.warning),
+                                Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
+                              ],
+                            ),
                             InfoTile(
                               title: 'ФИО',
                               value: customerData!['name']
@@ -812,19 +837,7 @@ class _HomePageState extends State<HomePage> {
                                           SizedBox(
                                             width: 270,
                                             child: ElevatedButton.icon(
-                                              onPressed: () {
-                                                if (customerData == null) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Дождитесь зашрузки абонента', style: TextStyle(color: AppColors.warning))));
-                                                  return;
-                                                }
-                                                if (customerData!['inventory'].where((e) => e['sn'] != null).isEmpty){
-                                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('У абонента нет ТМЦ с SN', style: TextStyle(color: AppColors.warning))));
-                                                  return;
-                                                }
-                                                showDialog(context: context, builder: (context){
-                                                  return OntDialog(customerId: customerData!['id'], sn: customerData!['inventory'].firstWhere((e) => e['sn'] != null)['sn']);
-                                                });
-                                              },
+                                              onPressed: _openONT,
                                               icon: const Icon(Icons.router_outlined),
                                               label: const Text('Загрузить данные по модему')
                                             )
@@ -984,7 +997,15 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                     Expanded(
                                                       flex: 6,
-                                                      child: Text(equipment['sn'] ?? '-', softWrap: true, textAlign: TextAlign.center)
+                                                      child: equipment['sn'] == null?
+                                                        const Text('-', softWrap: true, textAlign: TextAlign.center)
+                                                        : InkWell(
+                                                        onTap: _openONT,
+                                                        child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                                                          style: const TextStyle(color: AppColors.neo,
+                                                          decorationColor: AppColors.neo,
+                                                          decoration: TextDecoration.underline)),
+                                                      )
                                                     ),
                                                     Expanded(
                                                       flex: 2,

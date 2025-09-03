@@ -81,8 +81,8 @@ Future<String> getEmployeeName(int id) async {
 }
 
 /// get ont&olt data
-Future<Map> getOnt(int customerId, String sn) async {
+Future<Map> getOnt(int oltId, String sn) async {
   l.i('API: get ont data');
-  final res = await http.get(Uri.parse('$api/ont?apikey=$key&customer_id=$customerId&sn=$sn'));
+  final res = await http.get(Uri.parse('$api/ont?apikey=$key&olt_id=$oltId&sn=$sn'));
   return jsonDecode(res.body);
 }

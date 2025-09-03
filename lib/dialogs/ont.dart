@@ -3,8 +3,8 @@ import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
 class OntDialog extends StatefulWidget {
-  const OntDialog({required this.customerId, required this.sn, super.key});
-  final int customerId;
+  const OntDialog({required this.oltId, required this.sn, super.key});
+  final int oltId;
   final String sn;
 
   @override
@@ -16,7 +16,7 @@ class _OntDialogState extends State<OntDialog> {
 
   void getData() async {
     try{
-      data = await getOnt(widget.customerId, widget.sn);
+      data = await getOnt(widget.oltId, widget.sn);
       setState(() {});
     } catch (e) {
       if (mounted){
@@ -94,7 +94,7 @@ class _OntDialogState extends State<OntDialog> {
               _Section(
                 icon: Icons.memory,
                 title: 'ONT',
-                child: Column(
+                child: data!['data']['status'] == 'online'? Column(
                   children: [
                     _KV('SN', data!['sn']),
                     _KV('IP', data!['data']?['ip']),
@@ -112,9 +112,10 @@ class _OntDialogState extends State<OntDialog> {
                     const SizedBox(height: 8),
                     _KV('Аптайм', '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
                   ]
-                )
+                ) : Text('Ошибка подключения к OLT: ${data!['data']['error'] ?? 'неизвестная ошибка'}', style: const TextStyle(color: AppColors.error))
               ),
               const SizedBox(height: 12),
+              if (data!['data']['status'] == 'online')
               _Section(
                 icon: Icons.wifi_tethering,
                 title: 'Оптические параметры',
@@ -144,7 +145,9 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
+              if (data!['data']['status'] == 'online')
               const SizedBox(height: 12),
+              if (data!['data']['status'] == 'online')
               _Section(
                 icon: Icons.tv,
                 title: 'CATV',
