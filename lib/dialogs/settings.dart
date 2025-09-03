@@ -1,0 +1,252 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartlink/main.dart';
+import 'package:smartlink/pages/home.dart';
+import 'package:smartlink/pages/sign.dart';
+
+/// A modal settings dialog that allows users to configure SmartLink Viewer behavior.
+///
+/// This dialog is typically shown when the user taps the "⚙️" button located
+/// in the top-right corner of the app interface. It supports configuration options such as:
+///
+/// - Debounce delay for API calls
+/// - Theme (dark/light/system - planned)
+/// - Auto-load neighbors behavior
+/// - Changelog
+///
+/// The dialog is implemented as a stateful widget to allow live updating of settings.
+class SettingsDialog extends StatefulWidget{
+  /// Creates a new instance of the settings dialog.
+  ///
+  /// All state is handled internally, and no parameters are required.
+  const SettingsDialog({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _SettingsDialogState();
+}
+
+class _SettingsDialogState extends State<SettingsDialog>{
+  bool theme = true;
+  int debounce = 300;
+  String loadNeighbours = 'onWrong';
+  bool logined = false;
+
+  TextEditingController debounceController = TextEditingController(text: '0');
+  bool debounceError = false;
+  bool changed = false;
+
+  void _getSettings() async {
+    l.i('get settings');
+    final prefs = await SharedPreferences.getInstance();
+    l.i('available keys: ${prefs.getKeys()}');
+    theme = prefs.getBool('theme') ?? true;
+    debounce = prefs.getInt('debounce') ?? 300;
+    debounceController.text = debounce.toString();
+    loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
+    logined = (prefs.getString('login') ?? '') != '';
+    setState(() {});
+  }
+
+  void _updateBool(String key, bool value) async {
+    setState(() {
+      changed = true;
+    });
+    l.i('update bool setting $key to $value');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  void _updateInt(String key, int value) async {
+    setState(() {
+      changed = true;
+    });
+    l.i('update int setting $key to $value');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(key, value);
+  }
+
+  void _updateString(String key, String value) async {
+    setState(() {
+      changed = true;
+    });
+    l.i('update string setting $key to $value');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
+  void _logOut() async {
+    l.i('logging out');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('login', '');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getSettings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Настройки'),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: 600
+        ),
+        child: Column(
+          spacing: 10,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Тема', style: TextStyle(color: AppColors.secondary)),
+                Row(
+                  spacing: 5,
+                  children: [
+                    const Text('Светлая'),
+                    Transform.scale(
+                      scale: 0.8,
+                      child: Switch(
+                        value: theme,
+                        onChanged: (v){
+                          setState(() {
+                            theme = v;
+                          });
+                          _updateBool('theme', v);
+                        }
+                      )
+                    ),
+                    const Text('Тёмная')
+                  ]
+                )
+              ]
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Загрузка соседей', style: TextStyle(color: AppColors.secondary)),
+                IntrinsicWidth(
+                  child: DropdownButtonFormField(
+                    value: loadNeighbours,
+                    items: const [
+                      DropdownMenuItem(value: 'never', child: Text('Никогда')),
+                      DropdownMenuItem(value: 'onWrong', child: Text('При неполадках у абонента')),
+                      DropdownMenuItem(value: 'always', child: Text('Всегда'))
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        loadNeighbours = v!;
+                      });
+                      _updateString('loadNeighbours', v!);
+                    }
+                  )
+                )
+              ]
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text('Задержка при вводе', style: TextStyle(color: AppColors.secondary)),
+                    Text('Время ожидания после поиска перед загрузкой абонентов', style: TextStyle(color: Color(0xFF6E7681), fontSize: 12))
+                  ]
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    controller: debounceController,
+                    decoration: InputDecoration(
+                      hintText: 'мс',
+                      errorText: debounceError? 'Неправильное значение' : null
+                    ),
+                    onChanged: (v){
+                      if (int.tryParse(v) == null){
+                        setState(() {
+                          debounceError = true;
+                        });
+                      } else {
+                        setState(() {
+                          debounceError = false;
+                          debounce = int.parse(v);
+                        });
+                        _updateInt('debounce', int.parse(v));
+                      }
+                    }
+                  )
+                )
+              ]
+            ),
+            ElevatedButton.icon(
+              onPressed: logined? (){
+                _logOut();
+                Navigator.pop(context);
+                l.i('push to sign page, reason: sign out');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: SignPage())));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Вы вышли из аккаунта', style: TextStyle(color: AppColors.success))
+                ));
+              } : null,
+              label: const Text('Выйти из аккаунта'),
+              icon: const Icon(Icons.logout)
+            ),
+            if (changed)
+            const SizedBox(height: 10),
+            if (changed)
+            const Text('Для применения изменений перезагрузите страницу', style: TextStyle(color: AppColors.warning)),
+            const SizedBox(height: 15),
+            const Divider(),
+            const Align(
+              alignment: Alignment.topLeft,
+              child: Text('Developer mode', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+            ),
+            ElevatedButton(
+              onPressed: (){
+                Navigator.pop(context);
+                l.i('push to sign page, reason: manual pushing');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: SignPage())));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Перевод на SignPage', style: TextStyle(color: AppColors.success))
+                ));
+              },
+              child: const Text('Перейти на страницу входа')
+            ),
+            ElevatedButton(
+              onPressed: (){
+                Navigator.pop(context);
+                l.i('push to home page, manual pushing');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage())));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Перевод на HomePage', style: TextStyle(color: AppColors.success))
+                ));
+              },
+              child: const Text('Перейти на домашюю страницу')
+            ),
+            ElevatedButton(
+              onPressed: (){
+                Navigator.pop(context);
+                l.i('push to home page, reason: manual pushing');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage(customerId: 42025))));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Перевод на HomePage with search', style: TextStyle(color: AppColors.success))
+                ));
+              },
+              child: const Text('Перейти на домашнюю страницу с абонентом')
+            )
+          ]
+        )
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: (){
+            Navigator.pop(context);
+          },
+          child: const Text('Ок')
+        )
+      ]
+    );
+  }
+}

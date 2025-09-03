@@ -1,0 +1,44 @@
+name: smartlink
+description: "SmartLinkViewer application for Neotelecom operators"
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.0-265.0.dev
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_native_splash: ^2.4.6
+  pdfrx: ^1.3.4
+  http: ^1.4.0
+  shared_preferences: ^2.5.3
+  url_launcher: ^6.3.2
+  logger: ^2.6.1
+  mask_text_input_formatter: ^2.9.0
+  flutter_dotenv: ^6.0.0
+  firebase_core: ^4.0.0
+  cloud_firestore: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - .env
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: fonts/Jost-Medium.ttf
+
+flutter_native_splash:
+  color: "#030910"
+  image: assets/logo.png
+  android_12:
+    image: assets/logo.png
+    color: "#030910"
+  ios: false

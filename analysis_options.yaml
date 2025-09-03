@@ -1,0 +1,28 @@
+include: package:flutter_lints/flutter.yaml
+linter:
+  rules:
+    # Безопасность
+    avoid_print: true                        # Запрещает использование print
+    cancel_subscriptions: true               # Не забывай отменять StreamSubscription
+    close_sinks: true                        # Закрывай потоки (например, StreamController)
+    use_build_context_synchronously: true    # Предупреждает про использование context после await
+
+    # Стиль кода
+    always_declare_return_types: true        # Явно указывай возвращаемые типы
+    always_put_required_named_parameters_first: true
+    annotate_overrides: true
+    avoid_returning_null_for_future: true    # Нельзя возвращать null в async
+    prefer_const_constructors: true          # Используй const где можно
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true                # Используй final для локальных переменных
+    unnecessary_lambdas: true
+    unnecessary_this: true
+
+    # Читаемость
+    sort_constructors_first: true            # Упорядочивает код
+    sort_unnamed_constructors_first: true
+    directives_ordering: true                # Импорты в правильном порядке
+
+    # Flutter specific
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true           # Показывает где лучше SizedBox, чем Container
