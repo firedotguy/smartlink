@@ -20,8 +20,9 @@ class _OntDialogState extends State<OntDialog> {
       setState(() {});
     } catch (e) {
       if (mounted){
+        l.e('error getting ont data: $e');
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка получения данных ONT: $e'), backgroundColor: AppColors.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка получения данных ONT: $e', style: const TextStyle(color: AppColors.error))));
       }
     }
   }
@@ -94,28 +95,31 @@ class _OntDialogState extends State<OntDialog> {
               _Section(
                 icon: Icons.memory,
                 title: 'ONT',
-                child: data!['data']['status'] == 'online'? Column(
+                child: data?['data'] == null?
+                  const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
+                  Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
+                  Column(
                   children: [
-                    _KV('SN', data!['sn']),
-                    _KV('IP', data!['data']?['ip']),
-                    _KV('ONT ID', data!['data']['ont_id']),
-                    _KV('Интерфейс', data!['data']['interface']['name']),
-                    Wrap(
+                    _KV('SN', data!['sn'] ?? '-'),
+                    _KV('IP', data!['data']?['ip'] ?? '-'),
+                    _KV('ONT ID', data!['data']?['ont_id'] ?? '-'),
+                    _KV('Интерфейс', data!['data']['interface']?['name'] ?? '-'),
+                    Row(
                       spacing: 8,
-                      runSpacing: 8,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
-                        if ((data!['data']['last_down_cause'] ?? '').isNotEmpty)
-                          _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})')
+                        _Chip(icon: Icons.speed, text: 'Ping ${data!['data']?['ping']?.toStringAsFixed(1) ?? '-1'} ms'),
+                        if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty)
+                          _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']?['last_down_cause']} (${data!['data']?['last_down']})')
                       ]
                     ),
                     const SizedBox(height: 8),
-                    _KV('Аптайм', '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
+                    _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
                   ]
-                ) : Text('Ошибка подключения к OLT: ${data!['data']['error'] ?? 'неизвестная ошибка'}', style: const TextStyle(color: AppColors.error))
+                )
               ),
               const SizedBox(height: 12),
-              if (data!['data']['status'] == 'online')
+              if (data!['data']?['status'] == 'online')
               _Section(
                 icon: Icons.wifi_tethering,
                 title: 'Оптические параметры',
@@ -124,7 +128,7 @@ class _OntDialogState extends State<OntDialog> {
                     Expanded(
                       child: _StatCard(
                         label: 'RX (dBm)',
-                        value: data!['data']['optical']['rx'].toStringAsFixed(2),
+                        value: data!['data']?['optical']?['rx']?.toStringAsFixed(2) ?? '-',
                         color: _rxColor(data!['data']['optical']['rx'])
                       )
                     ),
@@ -132,22 +136,22 @@ class _OntDialogState extends State<OntDialog> {
                     Expanded(
                       child: _StatCard(
                         label: 'TX (dBm)',
-                        value: data!['data']['optical']['tx'].toStringAsFixed(2)
+                        value: data!['data']?['optical']?['tx']?.toStringAsFixed(2) ?? '-'
                       )
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: _StatCard(
                         label: 'ONT T°',
-                        value: '${data!['data']['optical']['temp'].toStringAsFixed(0)}°C'
+                        value: '${data!['data']?['optical']?['temp']?.toStringAsFixed(0) ?? '-'}°C'
                       )
                     )
                   ]
                 )
               ),
-              if (data!['data']['status'] == 'online')
+              if (data!['data']?['status'] == 'online')
               const SizedBox(height: 12),
-              if (data!['data']['status'] == 'online')
+              if (data!['data']?['status'] == 'online')
               _Section(
                 icon: Icons.tv,
                 title: 'CATV',
@@ -157,13 +161,13 @@ class _OntDialogState extends State<OntDialog> {
                   children: [
                     _Chip(
                       icon: Icons.circle,
-                      text: 'Port 1: ${data!['data']['catv'][0]? "Вкл" : "Выкл"}',
-                      color: data!['data']['catv'][0]? AppColors.success : AppColors.error
+                      text: 'Port 1: ${data!['data']?['catv']?[0] ?? false? "Вкл" : "Выкл"}',
+                      color: data!['data']?['catv']?[0] ?? false? AppColors.success : AppColors.error
                     ),
                     _Chip(
                       icon: Icons.circle,
-                      text: 'Port 2: ${data!['data']['catv'][1]? "Вкл" : "Выкл"}',
-                      color: data!['data']['catv'][1]? AppColors.success : AppColors.error
+                      text: 'Port 2: ${data!['data']?['catv']?[1] ?? false? "Вкл" : "Выкл"}',
+                      color: data!['data']?['catv']?[1] ?? false? AppColors.success : AppColors.error
                     )
                   ]
                 )
