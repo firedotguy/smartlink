@@ -48,8 +48,8 @@ class _TaskDialogState extends State<TaskDialog> {
       if (mounted) {
         l.e('error while loading additional_data/divisions: $e');
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Ошибка загрузки данных: $e', style: const TextStyle(color: AppColors.error))
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Ошибка загрузки данных', style: TextStyle(color: AppColors.error))
         ));
       }
     }
@@ -82,8 +82,8 @@ class _TaskDialogState extends State<TaskDialog> {
         l.e('error while creating task: $e');
         if (context.mounted){
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Ошибка при создании задания: $e', style: const TextStyle(color: AppColors.error))
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Ошибка при создании задания', style: TextStyle(color: AppColors.error))
           ));
         }
       }

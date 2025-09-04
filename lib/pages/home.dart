@@ -168,7 +168,6 @@ class _HomePageState extends State<HomePage> {
 
   Map? customerData;
   Map? boxData;
-  Map? ontData;
   Map? attachData;
   List<Map>? taskData;
 
@@ -179,6 +178,7 @@ class _HomePageState extends State<HomePage> {
   int debounce = 300;
   String loadNeighbours = 'onWrong';
   int searchVersion = 0;
+  bool searching = false;
 
 
   Future<void> _openUrl(link) async {
@@ -215,8 +215,8 @@ class _HomePageState extends State<HomePage> {
                   });
                 } catch (e) {
                   l.e('error getting attachments $e');
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Ошибка получения вложений: $e', style: const TextStyle(color: AppColors.error))
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Ошибка получения вложений', style: TextStyle(color: AppColors.error))
                     )
                   );
                   Navigator.pop(context);
@@ -371,7 +371,7 @@ class _HomePageState extends State<HomePage> {
             noBox = true;
           });
         }
-        // remove searching customer from neighbours
+        // remove search customer from neighbours
         boxData!['customers']?.removeWhere(
           (n) => n['id'] == customerData!['id']
         );
@@ -400,12 +400,16 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           load = true;
           customerData = null;
+          taskData = null;
+          attachData = null;
           search = false;
+          searching = false;
         });
         customerData = await getCustomer(e['id']);
         taskData = List<Map>.from(customerData!['tasks']);
         setState(() {
           load = false;
+          customers.clear();
         });
         if (loadNeighbours != 'never'){
           if (customerData!['status'] == 'Отключен' || _getActivityColor(customerData!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
@@ -429,12 +433,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _onSearchSubmit(v) async {
+  Future<void> _onSearchSubmit(String v) async {
     l.i('search submitted - value: $v');
+    if (searching) return;
     if (customers.isNotEmpty) {
       await _loadCustomerData(customers.first);
     } else {
-      l.w('no customer selected');
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Абонент не выбран', style: TextStyle(color: AppColors.warning)))
@@ -442,63 +446,61 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onSearchChange(v) {
-    l.i('search changed - value: $v');
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    final int currentVersion = ++searchVersion;
-    _debounce = Timer(Duration(milliseconds: debounce), () async { //debouncing for {debounce}ms to prevent too many requests at once
-      final int requestVersion = currentVersion;
-      //clearing fields
-      setState(() {
-        customerNotFound = false;
-        customerData = null;
-        boxData = null;
-        ontData = null;
-        search = true;
-        attachData = null;
-        showBox = false;
-      });
-      if (v.isNotEmpty) {
-        try {
-          customers = await find(v);
+  void _onSearchChange(String v) {
+  l.i('search changed - value: $v');
+  _debounce?.cancel();
 
-          if (searchVersion != requestVersion) {
-            l.w('search response ignored due to newer request');
-            return;
-          }
-
-          setState(() {});
-          if (customers.isEmpty && mounted) {
-            l.w('no customers found');
-            setState(() {
-              customerNotFound = true;
-            });
-            ScaffoldMessenger.of(context).removeCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Абонент не найден', style: TextStyle(color: AppColors.warning)))
-            );
-          } else {
-            l.i('found ${customers.length} customers');
-          }
-        } catch (e) {
-          l.e('error getting customers: $e');
-          setState(() {
-            customerNotFound = true;
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).removeCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Ошибка получения абонентов: $e', style: const TextStyle(color: AppColors.error)))
-            );
-          }
-        }
-      } else {
-        setState(() {
-          customers.clear();
-        });
-      }
+  if (v.trim().isEmpty) {
+    setState(() {
+      customers.clear();
+      customerNotFound = false;
+      search = true;
+      searching = false;
+      load = false;
     });
+    return;
   }
+
+  final int mySeq = ++searchVersion;
+  _debounce = Timer(Duration(milliseconds: debounce), () async {
+    setState(() {
+      searching = true;
+      customerNotFound = false;
+      search = true;
+      load = false;
+    });
+
+    try {
+      final List<Map> res = await find(v);
+
+      if (mySeq != searchVersion) {
+        l.w('ignored outdated search response');
+        return;
+      }
+
+      setState(() {
+        customers = res;
+        customerNotFound = res.isEmpty;
+        searching = false;
+      });
+
+      l.i('found ${res.length} customers');
+    } catch (e) {
+      if (mySeq != searchVersion) return;
+      l.e('error getting customers: $e');
+      setState(() {
+        customerNotFound = true;
+        searching = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка получения абонентов', style: TextStyle(color: AppColors.error)))
+        );
+      }
+    }
+  });
+}
 
   void _getSettings() async {
     l.i('get settings data');
@@ -579,7 +581,13 @@ class _HomePageState extends State<HomePage> {
                           decoration: InputDecoration(
                             hintText: 'ФИО или ЛС абонента',
                             errorText: customerNotFound? ' ' : null,
-                            helperText: customerNotFound? ' ' : null
+                            helperText: customerNotFound? ' ' : null,
+                            suffixIcon: !search? IconButton(
+                              onPressed: (){
+                                searchController.clear();
+                              },
+                              icon: const Icon(Icons.close, color: AppColors.error)
+                            ) : null
                           ),
                           controller: searchController,
                           onSubmitted: _onSearchSubmit,
@@ -595,25 +603,25 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 10),
                 if (search == true && customers.isNotEmpty)
                 // search results
+                const SizedBox(height: 10),
+                if (search == true)
                 SizedBox(
                   width: 450,
                   height: 250,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: customers.length,
-                    itemBuilder: (context, index) {
-                      final e = customers[index];
-                      return InkWell(
-                        onTap: () async {
-                          await _loadCustomerData(e);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text('${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
-                        )
-                      );
-                    }
-                  )
+                  child: searching? const Center(child: AngularProgressBar()) : (customers.isEmpty? const Center(
+                    child: Text('Нет результатов', style: TextStyle(color: AppColors.secondary))) : ListView.builder(
+                      itemCount: customers.length,
+                      itemBuilder: (context, index) {
+                        final e = customers[index];
+                        return InkWell(
+                          onTap: () async => await _loadCustomerData(e),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text('${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15)),
+                          ),
+                        );
+                      },
+                    )),
                 ),
                 const SizedBox(height: 10),
                 // if (customer != null && customerData == null)

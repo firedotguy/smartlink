@@ -61,8 +61,8 @@ class _SignPageState extends State<SignPage>{
       });
       if (mounted){
         l.e('error while login: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Ошибка авторизации: $e', style: const TextStyle(color: AppColors.error))
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Ошибка авторизации', style: TextStyle(color: AppColors.error))
         ));
       }
     }
@@ -109,6 +109,7 @@ class _SignPageState extends State<SignPage>{
                     decoration: const InputDecoration(hintText: 'Пароль'),
                     obscureText: true,
                     controller: passController,
+                    onSubmitted: (v) => _login(),
                   ),
                   const SizedBox(height: 15),
                   ElevatedButton(

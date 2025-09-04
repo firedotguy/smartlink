@@ -22,7 +22,7 @@ class _OntDialogState extends State<OntDialog> {
       if (mounted){
         l.e('error getting ont data: $e');
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка получения данных ONT: $e', style: const TextStyle(color: AppColors.error))));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка получения данных ONT', style: TextStyle(color: AppColors.error))));
       }
     }
   }
@@ -108,9 +108,10 @@ class _OntDialogState extends State<OntDialog> {
                       spacing: 8,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _Chip(icon: Icons.speed, text: 'Ping ${data!['data']?['ping']?.toStringAsFixed(1) ?? '-1'} ms'),
+                        if (data!['data']?['ping'] != null)
+                        _Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty)
-                          _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']?['last_down_cause']} (${data!['data']?['last_down']})')
+                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']?['last_down_cause']} (${data!['data']?['last_down']})')
                       ]
                     ),
                     const SizedBox(height: 8),

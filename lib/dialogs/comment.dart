@@ -24,8 +24,8 @@ class _CommentDialogState extends State<CommentDialog> {
       l.i('error while loading comments: $e');
       if (mounted){
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Ошибка получения комментариев задания: $e', style: const TextStyle(color: AppColors.error))
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Ошибка получения комментариев задания', style: TextStyle(color: AppColors.error))
         ));
       }
     }
