@@ -85,9 +85,8 @@ class _OntDialogState extends State<OntDialog> {
                 child: Column(
                   children: [
                     _KV('Имя', data!['olt']['name']),
-                    _KV('IP', data!['olt']['ip']),
-                    if ((data!['olt']['location'] ?? '').toString().isNotEmpty)
-                      _KV('Локация', data!['olt']['location']),
+                    // _KV('IP', data!['olt']['ip']),
+                    _KV('Локация', data!['olt']?['location'] ?? '-'),
                   ]
                 )
               ),
@@ -120,17 +119,17 @@ class _OntDialogState extends State<OntDialog> {
                 )
               ),
               const SizedBox(height: 12),
-              if (data!['data']?['status'] == 'online')
               _Section(
                 icon: Icons.wifi_tethering,
                 title: 'Оптические параметры',
-                child: Row(
+                child: data!['data']?['optical'] == null?
+                  const Text('Нет оптических параметров', style: TextStyle(color: AppColors.error)) : Row(
                   children: [
                     Expanded(
                       child: _StatCard(
                         label: 'RX (dBm)',
                         value: data!['data']?['optical']?['rx']?.toStringAsFixed(2) ?? '-',
-                        color: _rxColor(data!['data']['optical']['rx'])
+                        color: data!['data']?['optical']?['rx'] == null? AppColors.neo : _rxColor(data!['data']['optical']['rx'])
                       )
                     ),
                     const SizedBox(width: 8),
@@ -150,9 +149,7 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
-              if (data!['data']?['status'] == 'online')
               const SizedBox(height: 12),
-              if (data!['data']?['status'] == 'online')
               _Section(
                 icon: Icons.tv,
                 title: 'CATV',
@@ -200,7 +197,7 @@ class _Section extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
@@ -270,7 +267,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = color ?? Theme.of(context).colorScheme.primary;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade200),
         borderRadius: BorderRadius.circular(10)
