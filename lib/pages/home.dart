@@ -395,13 +395,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadCustomerData(Map e) async {
     try {
       l.i('load customer ${e['id']}');
-      searchController.text = e['name'];
+      searchController.clear();
       if (!load) {
         setState(() {
           load = true;
           customerData = null;
           taskData = null;
           attachData = null;
+          boxData = null;
+          showBox = false;
           search = false;
           searching = false;
         });
@@ -581,13 +583,7 @@ class _HomePageState extends State<HomePage> {
                           decoration: InputDecoration(
                             hintText: 'ФИО или ЛС абонента',
                             errorText: customerNotFound? ' ' : null,
-                            helperText: customerNotFound? ' ' : null,
-                            suffixIcon: !search? IconButton(
-                              onPressed: (){
-                                searchController.clear();
-                              },
-                              icon: const Icon(Icons.close, color: AppColors.error)
-                            ) : null
+                            helperText: customerNotFound? ' ' : null
                           ),
                           controller: searchController,
                           onSubmitted: _onSearchSubmit,
