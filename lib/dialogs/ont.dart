@@ -13,16 +13,50 @@ class OntDialog extends StatefulWidget {
 
 class _OntDialogState extends State<OntDialog> {
   Map? data;
+  bool restarting = false;
 
   void getData() async {
     try{
       data = await getOnt(widget.oltId, widget.sn);
       setState(() {});
     } catch (e) {
+      l.e('error getting ont data: $e');
       if (mounted){
-        l.e('error getting ont data: $e');
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка получения данных ONT', style: TextStyle(color: AppColors.error))));
+      }
+    }
+  }
+
+  void _restartONT() async {
+    if (restarting) return;
+    try {
+      setState(() {
+        restarting = true;
+      });
+      final String? res = await restartOnt(data!['data']['ont_id'], data!['olt']['host'], data!['data']['interface']);
+      if (res != null) {
+        l.e('error restarting ont: $res');
+        if (mounted){
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезапуска ONT: $res', style: const TextStyle(color: AppColors.error))));
+        }
+      }
+      setState(() {
+        restarting = false;
+      });
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ONT перезапущен', style: TextStyle(color: AppColors.success))));
+      }
+    } catch (e) {
+      setState(() {
+        restarting = false;
+      });
+      l.e('error restarting ont: $e');
+      if (mounted){
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезапуска ONT', style: TextStyle(color: AppColors.error))));
       }
     }
   }
@@ -64,7 +98,7 @@ class _OntDialogState extends State<OntDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: _statusColor(data?['data']?['status']).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(color: _statusColor(data?['data']?['status']))
             ),
             child: Text(data?['data']?['status']?.toUpperCase() ?? 'Загрузка',
@@ -95,13 +129,13 @@ class _OntDialogState extends State<OntDialog> {
                 icon: Icons.memory,
                 title: 'ONT',
                 child: data?['data'] == null?
-                  const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
-                  Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
-                  Column(
+                const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
+                Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
+                Column(
                   children: [
                     _KV('SN', data!['sn'] ?? '-'),
-                    _KV('IP', data!['data']?['ip'] ?? '-'),
-                    _KV('ONT ID', data!['data']?['ont_id'] ?? '-'),
+                    _KV('IP', data!['data']['ip'] ?? '-'),
+                    _KV('ONT ID', data!['data']['ont_id'] ?? '-'),
                     _KV('Интерфейс', data!['data']['interface']?['name'] ?? '-'),
                     Row(
                       spacing: 8,
@@ -169,6 +203,21 @@ class _OntDialogState extends State<OntDialog> {
                     )
                   ]
                 )
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 200,
+                    child: ElevatedButton.icon(
+                      onPressed: _restartONT,
+                      label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
+                      icon: restarting? null : const Icon(Icons.restart_alt),
+                    ),
+                  ),
+                  // more buttons soon
+                ],
               )
             ]
           )

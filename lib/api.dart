@@ -86,3 +86,13 @@ Future<Map> getOnt(int oltId, String sn) async {
   final res = await http.get(Uri.parse('$api/ont?apikey=$key&olt_id=$oltId&sn=$sn'));
   return jsonDecode(res.body);
 }
+
+/// restart ONT
+Future<String?> restartOnt(int ontId, String host, Map interface) async {
+  l.i('API: restart ont');
+  final res = await http.get(Uri.parse('$api/ont/restart?apikey=$key&id=$ontId&host=$host&fibre=${interface['fibre']}&service=${interface['service']}&port=${interface['port']}'));
+  if (jsonDecode(res.body)['status'] != 'success'){
+    return jsonDecode(res.body)['detail'] ?? 'unknown error';
+  }
+  return null;
+}
