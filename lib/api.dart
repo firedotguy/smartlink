@@ -69,7 +69,6 @@ Future<List<Map>> getDivisions() async {
 Future<int> createTask(int customerId, int authorId, String reason, bool box, int? boxId, String description, List<int> divisions, String phone, String type) async {
   l.i('API: create task');
   final res = await http.post(Uri.parse('$api/task?apikey=$key&customer_id=$customerId&author_id=$authorId&reason=$reason&box=$box&description=$description&divisions=$divisions&phone=$phone&type=$type${boxId != null? '&box_id=$boxId' : ""}'));
-  l.i(jsonDecode(res.body));
   return jsonDecode(res.body)['id'];
 }
 
