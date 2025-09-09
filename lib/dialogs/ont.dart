@@ -112,6 +112,7 @@ class _OntDialogState extends State<OntDialog> {
         !data!.containsKey('data')? const Center(child: Text('У абонента нет коммутации', style: TextStyle(color: AppColors.error))) : SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
             children: [
               _Section(
                 icon: Icons.dns_rounded,
@@ -124,7 +125,6 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
-              const SizedBox(height: 12),
               _Section(
                 icon: Icons.memory,
                 title: 'ONT',
@@ -152,7 +152,6 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
-              const SizedBox(height: 12),
               _Section(
                 icon: Icons.wifi_tethering,
                 title: 'Оптические параметры',
@@ -183,7 +182,6 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
-              const SizedBox(height: 12),
               _Section(
                 icon: Icons.tv,
                 title: 'CATV',
@@ -247,15 +245,20 @@ class _Section extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600))
-          ]),
-          const SizedBox(height: 8),
-          child
-        ])
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Row(
+              spacing: 4,
+              children: [
+                Icon(icon, size: 18, color: AppColors.neo),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600))
+              ]
+            ),
+            child
+          ]
+        )
       )
     );
   }
@@ -268,15 +271,11 @@ class _KV extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Expanded(child: Text(k, style: TextStyle(color: Colors.grey.shade600))),
-          const SizedBox(width: 12),
-          Flexible(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
-        ]
-      )
+    return Row(
+      children: [
+        Text(k, style: const TextStyle(color: AppColors.secondary)),
+        Expanded(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
+      ]
     );
   }
 }
@@ -289,7 +288,7 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Theme.of(context).colorScheme.primary;
+    final c = color ?? AppColors.neo;
     return Container(
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.08),
@@ -318,11 +317,11 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.main),
         borderRadius: BorderRadius.circular(10)
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+        Text(label, style: const TextStyle(color: AppColors.secondary, fontSize: 12)),
         const SizedBox(height: 6),
         Text(value, style: TextStyle(fontWeight: FontWeight.w700, color: c))
       ])
