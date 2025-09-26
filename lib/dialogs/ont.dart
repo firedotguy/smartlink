@@ -84,27 +84,30 @@ class _OntDialogState extends State<OntDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.router_outlined),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'ONT / OLT',
-              style: TextStyle(fontWeight: FontWeight.w600)
-            )
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _statusColor(data?['data']?['status']).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _statusColor(data?['data']?['status']))
+      title: SelectionArea(
+        child: Row(
+          children: [
+            const Icon(Icons.router_outlined),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'ONT / OLT',
+                style: TextStyle(fontWeight: FontWeight.w600)
+              )
             ),
-            child: Text(data?['data']?['status']?.toUpperCase() ?? 'Загрузка',
-              style: TextStyle(color: _statusColor(data?['data']?['status']), fontWeight: FontWeight.w600, fontSize: 12))
-          )
-        ]
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _statusColor(data?['data']?['status']).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _statusColor(data?['data']?['status']))
+              ),
+              child: Text(data?['data']?['status']?.toUpperCase() ?? 'Загрузка',
+                style: TextStyle(color: _statusColor(data?['data']?['status']), fontWeight: FontWeight.w600, fontSize: 12)
+              )
+            )
+          ]
+        ),
       ),
       content: SizedBox(
         width: 600,
@@ -119,7 +122,8 @@ class _OntDialogState extends State<OntDialog> {
                 title: 'OLT',
                 child: Column(
                   children: [
-                    _KV('Имя', data!['olt']['name']),
+                    _KV('Имя', data!['olt']['name'] ?? '-'),
+                    _KV('Девайс', data!['olt']['device'] ?? '-'),
                     // _KV('IP', data!['olt']['ip']),
                     _KV('Локация', data!['olt']?['location'] ?? '-'),
                   ]

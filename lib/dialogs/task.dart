@@ -1,400 +1,288 @@
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
-class TaskDialog extends StatefulWidget{
-  const TaskDialog({required this.customerId, required this.boxId, required this.phones, super.key});
-  final int customerId;
-  final int boxId;
-  final List phones;
+class TaskDialog extends StatefulWidget {
+  const TaskDialog({required this.taskId, super.key});
+  final int taskId;
 
   @override
   State<TaskDialog> createState() => _TaskDialogState();
 }
 
 class _TaskDialogState extends State<TaskDialog> {
-  TextEditingController phoneController = TextEditingController();
-  MaskTextInputFormatter phoneMask = MaskTextInputFormatter(
-    mask: '+996 (###) ###-###',
-    filter: {"#": RegExp(r'[0-9]')}
-  );
-  late String reason;
-  List<String> reasons = [];
-  late String type;
-  List<String> types = [];
-  late String boxReason;
-  List<String> boxReasons = [];
-  List<Map> divisions = [];
-  TextEditingController commentController = TextEditingController();
+  Map<String, dynamic>? task;
   bool load = true;
-
-  void _getReasons() async {
-    try {
-      final result = await getAdditionalData();
-      reasons = List<String>.from(result['30']);
-      reason = reasons.first;
-      boxReasons = List<String>.from(result['33']);
-      boxReason = boxReasons.first;
-      types = List<String>.from(result['28']);
-      type = types.first;
-      divisions = List<Map>.from(await getDivisions());
-
-      setState(() {
-        load = false;
-      });
-    } catch (e) {
-      if (mounted) {
-        l.e('error while loading additional_data/divisions: $e');
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Ошибка загрузки данных', style: TextStyle(color: AppColors.error))
-        ));
-      }
-    }
-  }
-
-  void _createTask(context) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int? employee = prefs.getInt('userId');
-    if (employee == null){
-      l.e('error while creating task: no employeeId');
-      if (context.mounted){
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Ошибка при создании задания: ID автора не найден. Пожалуйста, авторизуйтесь', style: TextStyle(color: AppColors.error))
-        ));
-      }
-    } else {
-      try{
-        final bool isBox = context.mounted? DefaultTabController.of(context).index == 1 : false;
-        final int id = await createTask(widget.customerId, employee, reason, isBox, widget.boxId, commentController.text,
-          List<int>.from(divisions.where((e) => e['checked']).map((e) => e['id']).toList()), phoneMask.unmaskText(phoneController.text), type);
-        l.i('task created successfully, id: $id');
-        if (context.mounted){
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Задание создано', style: TextStyle(color: AppColors.success))
-          ));
-        }
-      } catch (e){
-        l.e('error while creating task: $e');
-        if (context.mounted){
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Ошибка при создании задания', style: TextStyle(color: AppColors.error))
-          ));
-        }
-      }
-    }
-  }
+  bool loadSend = false;
+  int? employeeId;
+  final TextEditingController commentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _getReasons();
+    _load();
+  }
+
+  DateTime _toDateTime(dynamic v) {
+    if (v == null) return DateTime.fromMillisecondsSinceEpoch(0);
+    if (v is DateTime) return v;
+    if (v is String) return DateTime.parse(v);
+    return DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  String _formatTime(dynamic v) {
+    final d = _toDateTime(v).toLocal();
+    final hh = d.hour.toString().padLeft(2, '0');
+    final mm = d.minute.toString().padLeft(2, '0');
+    if (d.year == 1970) return '';
+    return '$hh:$mm';
+  }
+
+  Future<void> _load() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    employeeId = prefs.getInt('userId');
+    try {
+      final data = await getTask(widget.taskId);
+      setState(() { task = data['data'] ?? data; load = false; });
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка загрузки: $e'))
+      );
+    }
+  }
+
+  Future<void> _send() async {
+    final text = commentController.text.trim();
+    if (text.isEmpty || loadSend) return;
+    setState(() => loadSend = true);
+    try {
+      final String content = commentController.text;
+      commentController.clear();
+      await addComent(task!['id'], content, employeeId ?? 0);
+      task!['comments'].add({'id': 0, 'content': content, 'author_id': employeeId, 'created_at': DateTime.now()});
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Не удалось отправить: $e'))
+        );
+      }
+    } finally {
+      if (mounted) setState(() => loadSend = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: AlertDialog(
-        title: const Text('Создать задание'),
-        content: !load? SizedBox(
-          width: 500,
+    return AlertDialog(
+      title: Row(children: [
+        const Icon(Icons.assignment_outlined),
+        const SizedBox(width: 8),
+        const Expanded(child: Text('Задание')),
+        if (task != null)
+        _StatusChip(text: task!['status']?['name'] ?? '-', color: _statusColor(task!['status']?['id']))
+      ]),
+      content: SizedBox(
+        width: 640,
+        child: load? const Center(child: AngularProgressBar()) : SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TabBar(
-                tabs: [
-                  Tab(text: 'Ремонт', icon: Icon(Icons.home_repair_service)),
-                  Tab(text: 'Магистральный ремонт', icon: Icon(Icons.cable))
-                ]
-              ),
-              Expanded(
-                child: TabBarView(
+              _KV('Тип', task?['type']?['name']),
+              _KV('Адрес', task?['address']),
+              _KV('Клиент', task?['customer']?.toString()),
+              _KV('Автор', task?['author_id']?.toString()),
+              const SizedBox(height: 8),
+              _Section(
+                title: 'Детали',
+                child: Column(
                   children: [
-                    SingleChildScrollView(
-                      child: Column(
-                        spacing: 5,
-                        children: [
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Обращение с номера', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: TextField(
-                              style: const TextStyle(fontSize: 13), //shit
-                              decoration: const InputDecoration(
-                                hintText: 'Введите номер телефона'
-                              ),
-                              controller: phoneController,
-                              inputFormatters: [phoneMask],
-                              onChanged: (v){
-                                l.i('phone value changed to $v');
-                                setState(() {});
-                              }
-                            )
-                          ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('или выберите из следующих', style: TextStyle(color: AppColors.secondary))
-                          ),
-                          Row(
-                            spacing: 5,
-                            children: widget.phones.map((e){
-                              final String phone = phoneMask.maskText(e);
-                              return ChoiceChip(
-                                label: Text(phone),
-                                selected: phone == phoneController.text,
-                                onSelected: (v){
-                                  l.i('select phone $e using ChoiceChip');
-                                  setState(() {
-                                    phoneController.text = phone;
-                                  });
-                                }
-                              );
-                            }).toList()
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
-                              value: reason,
-                              items: reasons.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  reason = v!;
-                                });
-                              }
-                            )
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
-                              value: type,
-                              items: types.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  type = v!;
-                                });
-                              }
-                            )
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          TextField(
-                            controller: commentController,
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 13), //shit
-                            decoration: const InputDecoration(
-                              hintText: 'Введите описание (необязательно)'
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: divisions.length,
-                            itemBuilder: (c, i){
-                              final division = divisions[i];
-                              if (division['checked'] == null){
-                                division['checked'] = false;
-                                divisions[i]['checked'] = false;
-                              }
-                              return Row(
-                                spacing: 5,
-                                children: [
-                                  Checkbox(
-                                    value: division['checked'],
-                                    onChanged: (v){
-                                      setState(() {
-                                        division['checked'] = v!;
-                                      });
-                                    },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                  ),
-                                  Expanded(child: Text(division['name']))
-                                ]
-                              );
-                            }
-                          )
-                        ]
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      child: Column(
-                        spacing: 5,
-                        children: [
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Обращение с номера', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: TextField(
-                              style: const TextStyle(fontSize: 13), //shit
-                              decoration: const InputDecoration(
-                                hintText: 'Введите номер телефона'
-                              ),
-                              controller: phoneController,
-                              inputFormatters: [phoneMask],
-                              onChanged: (v){
-                                l.i('phone value changed to $v');
-                                setState(() {});
-                              }
-                            )
-                          ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('или выберите из следующих', style: TextStyle(color: AppColors.secondary))
-                          ),
-                          Row(
-                            spacing: 5,
-                            children: widget.phones.map((e){
-                              final String phone = phoneMask.maskText(e);
-                              return ChoiceChip(
-                                label: Text(phone),
-                                selected: phone == phoneController.text,
-                                onSelected: (v){
-                                  l.i('select phone $e using ChoiceChip');
-                                  setState(() {
-                                    phoneController.text = phone;
-                                  });
-                                }
-                              );
-                            }).toList()
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
-                              value: boxReason,
-                              items: boxReasons.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  boxReason = v!;
-                                });
-                              }
-                            )
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //shit
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
-                              value: type,
-                              items: types.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  type = v!;
-                                });
-                              }
-                            )
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          TextField(
-                            controller: commentController,
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 13), //shit
-                            decoration: const InputDecoration(
-                              hintText: 'Введите описание (необязательно)'
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: divisions.length,
-                            itemBuilder: (c, i){
-                              final division = divisions[i];
-                              if (division['checked'] == null){
-                                division['checked'] = false;
-                                divisions[i]['checked'] = false;
-                              }
-                              return Row(
-                                spacing: 5,
-                                children: [
-                                  Checkbox(
-                                    value: division['checked'],
-                                    onChanged: (v){
-                                      setState(() {
-                                        division['checked'] = v!;
-                                      });
-                                    },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                  ),
-                                  Expanded(child: Text(division['name']))
-                                ]
-                              );
-                            }
-                          )
-                        ]
-                      ),
-                    ),
-                  ],
-                ),
+                    if (task?['addata']?['reason'] != null)
+                    _KV('Причина', task!['addata']['reason']),
+
+                    if (task?['addata']?['solve'] != null)
+                    _KV('Решение', task!['addata']['solve']),
+
+                    if (task?['addata']?['appeal']?['phone'] != null)
+                    _KV('Номер телефона обращения', task!['addata']['appeal']['phone']),
+
+                    if (task?['addata']?['appeal']?['type'] != null)
+                    _KV('Тип обращения', task!['addata']['appeal']['type']),
+
+                    if (task?['addata']?['cost'] != null)
+                    _KV('Стоимость работ', task!['addata']['cost']),
+
+                    if (task?['addata']?['info'] != null)
+                    _KV('Информация', task!['addata']['info']),
+
+                    if (task?['addata']?['tariff'] != null)
+                    _KV('Тариф', task!['addata']['tariff']),
+
+                    if (task?['addata']?['coord'] != null)
+                    _KV('Коордианты', task!['addata']['coord'].join(',')),
+
+                    if (task?['addata']?['connect_type'] != null)
+                    _KV('Тип подключения', task!['addata']['connect_type']),
+
+                    const Divider(),
+                    _KV('Создано', task?['timestamps']?['created_at']),
+                    _KV('Запланировано', task?['timestamps']?['planned_at']),
+                    _KV('Обновлено', task?['timestamps']?['updated_at']),
+                    // _KV('Дедлайн (ч)', task?['timestamps']?['deadline']?.toString())
+                  ]
+                )
               ),
-            ],
-          ),
-        ) : const Center(child: AngularProgressBar()),
-        actions: [
-          Builder(
-            builder: (context) {
-              return ElevatedButton(
-                onPressed: () => _createTask(context),
-                child: const Text('Создать')
-              );
-            }
+              const SizedBox(height: 8),
+              _Section(
+                title: 'Комментарии',
+                child: (task?['data']?['comments'] ?? []).isEmpty? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: SizedBox(
+                    height: double.infinity,
+                    child: Text('Комментариев нет', style: TextStyle(color: Colors.grey))
+                  )
+                ) : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: task!['comments'].length,
+                  itemBuilder: (_, i) {
+                    final message = task!['comments'][i];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Align(
+                        alignment: employeeId == task!['author_id']? Alignment.topLeft : Alignment.topRight,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                          decoration: BoxDecoration(
+                            color: employeeId != message['author_id']? AppColors.bg2 : AppColors.neo,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.04))
+                          ),
+                          child: IntrinsicWidth(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 4,
+                              children: [
+                                if (employeeId != message['author_id'] && message['author_id'] != null)
+                                Text(message['author_id'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(message['content']),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Text(
+                                    _formatTime(message['created_at']),
+                                    style: TextStyle(color: employeeId != message['author_id']? AppColors.secondary : AppColors.main, fontSize: 10)
+                                  )
+                                )
+                              ],
+                            ),
+                          )
+                        )
+                      ),
+                    );
+                  }
+                )
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: commentController,
+                      minLines: 1,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: 'Написать комментарий...',
+                        isDense: true,
+                        border: OutlineInputBorder()
+                      )
+                    )
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _send,
+                    icon: loadSend? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator()) : const Icon(Icons.send, size: 18),
+                    label: const Text('Отправить')
+                  )
+                ]
+              )
+            ]
           )
-        ],
+        )
       ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Закрыть'))
+      ]
+    );
+  }
+
+  Color _statusColor(int? id) {
+    if (id == 10 || id == 9) return Colors.red;
+    return Colors.blue;
+  }
+}
+
+class _KV extends StatelessWidget {
+  const _KV(this.k, this.v);
+  final String k;
+  final dynamic v;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(children: [
+        Expanded(child: Text(k, style: TextStyle(color: Colors.grey.shade600))),
+        const SizedBox(width: 12),
+        Flexible(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
+      ])
     );
   }
 }
+
+class _Section extends StatelessWidget {
+  const _Section({required this.title, required this.child});
+  final String title;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: Colors.grey.shade200)
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            child
+          ]
+        )
+      )
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.text, required this.color});
+  final String text;
+  final Color color;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color)
+      ),
+      child: Text(text, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12))
+    );
+  }
+}
+

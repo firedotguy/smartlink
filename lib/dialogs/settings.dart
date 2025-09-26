@@ -109,12 +109,12 @@ class _SettingsDialogState extends State<SettingsDialog>{
                       scale: 0.8,
                       child: Switch(
                         value: theme,
-                        onChanged: (v){
-                          setState(() {
-                            theme = v;
-                          });
-                          _updateBool('theme', v);
-                        }
+                        onChanged: null//(v){
+                        //   setState(() {
+                        //     theme = v;
+                        //   });
+                        //   _updateBool('theme', v);
+                        // }
                       )
                     ),
                     const Text('Тёмная')

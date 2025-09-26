@@ -8,31 +8,21 @@ final String _base = dotenv.env['API_BASE']!;
 final String _key  = dotenv.env['API_KEY']!;
 final Client _client = Client();
 
-Uri _u(String action, Map<String, String> qp, {bool direct = false}) {
+Uri _u(String action, Map<String, String> qp) {
   final params = {'apikey': _key, ...qp};
   final base = Uri.parse(_base);
   final act = action.startsWith('/') ? action.substring(1) : action;
 
-  Uri uri;
-  if (direct) {
-    final origin = Uri(
-      scheme: base.scheme,
-      host: base.host,
-      port: base.hasPort ? base.port : null,
-    );
-    uri = origin.replace(path: act, queryParameters: params);
-  } else {
-    final basePath = base.path.replaceAll(RegExp(r'/+$'), '');
-    uri = base.replace(path: '$basePath/$act', queryParameters: params);
-  }
+  final basePath = base.path.replaceAll(RegExp(r'/+$'), '');
+  final Uri uri = base.replace(path: '$basePath/$act', queryParameters: params);
 
-  l.d('API: action="$action" qp=$qp direct=$direct -> $uri');
+  l.d('API: action="$action" qp=$qp -> $uri');
   return uri;
 }
 
-Future<Map<String, dynamic>> _get(String action, Map<String, String> qp, {bool direct = false}) async {
+Future<Map<String, dynamic>> _get(String action, Map<String, String> qp) async {
   l.d('API GET: $action $qp');
-  final uri = _u(action, qp, direct: direct);
+  final uri = _u(action, qp);
   final resp = await _client.get(uri).timeout(const Duration(seconds: 20));
 
   if (resp.statusCode != 200) {
@@ -46,9 +36,9 @@ Future<Map<String, dynamic>> _get(String action, Map<String, String> qp, {bool d
   throw Exception('Unexpected response');
 }
 
-Future<Map<String, dynamic>> _post(String action, Map<String, String> qp, {bool direct = false}) async {
+Future<Map<String, dynamic>> _post(String action, Map<String, String> qp) async {
   l.d('API POST: $action $qp');
-  final uri = _u(action, qp, direct: direct);
+  final uri = _u(action, qp);
   final resp = await _client.post(uri).timeout(const Duration(seconds: 20));
 
   if (resp.statusCode != 200) {
@@ -159,4 +149,14 @@ Future<String?> restartOnt(int ontId, String host, Map interface) async {
   });
   if (raw['status'] == 'success') return null;
   return (raw['detail'] ?? 'unknown error').toString();
+}
+
+Future<Map<String, dynamic>> getTask(int id) async {
+  l.i('API: get task id=$id');
+  return await _get('task/$id', {});
+}
+
+Future addComent(int id, String content, int authorId) async {
+  l.i('API: add comment id=$id content=$content authorId=$authorId');
+  await _post('task/$id/comment', {'content': content, 'author_id': authorId.toString()});
 }

@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
 import 'package:smartlink/chat.dart';
 import 'package:smartlink/dialogs/attach.dart';
-import 'package:smartlink/dialogs/comment.dart';
+import 'package:smartlink/dialogs/newtask.dart';
 import 'package:smartlink/dialogs/ont.dart';
 import 'package:smartlink/dialogs/task.dart';
 import 'package:smartlink/main.dart';
@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage> {
           showBox = true;
           noBox = false;
         });
-        boxData = await getBox(customerData!['house_id']);
+        boxData = await getBox(customerData!['box_id']);
         if (boxData!['status'] == 'fail'){
           l.w('box not found');
           setState(() {
@@ -822,7 +822,7 @@ class _HomePageState extends State<HomePage> {
                                                 if (customerData != null){
                                                   l.i('show task dialog, reason: create task');
                                                   showDialog(context: context, builder: (context){
-                                                    return TaskDialog(
+                                                    return NewTaskDialog(
                                                       customerId: customerData!['id'],
                                                       boxId: customerData!['house_id'],
                                                       phones: customerData!['phones']
@@ -853,7 +853,17 @@ class _HomePageState extends State<HomePage> {
                                               icon: const Icon(Icons.open_in_browser),
                                               label: const Text('Открыть абонента в UserSide')
                                             )
-                                          )
+                                          ),
+                                          SizedBox(
+                                            width: 270,
+                                            child: ElevatedButton.icon(
+                                              onPressed: (){
+                                                //TODO
+                                              },
+                                              icon: const Icon(Icons.copy),
+                                              label: const Text('Скопировать ссылку')
+                                            )
+                                          ),
                                         ]
                                       )
                                     )
@@ -897,19 +907,19 @@ class _HomePageState extends State<HomePage> {
                                           const Row(
                                             children: [
                                               Expanded(
-                                                flex: 12,
+                                                flex: 6,
                                                 child: Text('Имя', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                               ),
                                               Expanded(
-                                                flex: 8,
+                                                flex: 4,
                                                 child: Text('Активность', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                               ),
                                               Expanded(
-                                                flex: 7,
+                                                flex: 3,
                                                 child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                               ),
                                               Expanded(
-                                                flex: 4,
+                                                flex: 1,
                                                 child: Text('rx', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
                                               )
                                             ]
@@ -925,24 +935,24 @@ class _HomePageState extends State<HomePage> {
                                                   child: Row(
                                                     children: [
                                                       Expanded(
-                                                        flex: 12,
+                                                        flex: 6,
                                                         child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
                                                       ),
                                                       Expanded(
-                                                        flex: 8,
+                                                        flex: 4,
                                                         child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
                                                           style: TextStyle(color: _getActivityColor(neighbour['last_activity']))
                                                         )
                                                       ),
                                                       Expanded(
-                                                        flex: 7,
+                                                        flex: 3,
                                                         child: Text(
                                                           neighbour['status'], textAlign: TextAlign.center,
                                                           style: TextStyle(color: _getStatusColor(neighbour['status']))
                                                         )
                                                       ),
                                                       Expanded(
-                                                        flex: 4,
+                                                        flex: 1,
                                                         child: Text(
                                                           _convertSignal(neighbour['onu_level']), textAlign: TextAlign.end,
                                                           style: TextStyle(color: _getSignalColor(neighbour['onu_level']))
@@ -1049,9 +1059,7 @@ class _HomePageState extends State<HomePage> {
                                               flex: 4,
                                               child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                             ),
-                                            Expanded(
-                                              child: Text('', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                                            )
+                                            Expanded(child: SizedBox())
                                           ]
                                         ),
                                         if (taskData!.isNotEmpty)
@@ -1081,12 +1089,14 @@ class _HomePageState extends State<HomePage> {
                                                     Expanded(
                                                       child: IconButton(
                                                         onPressed: (){
-                                                          l.i('show comment dialog, reason: open comments');
-                                                          showDialog(context: context, builder: (context){
-                                                            return CommentDialog(taskId: task['id']);
-                                                          });
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (context){
+                                                              return TaskDialog(taskId: task['id']);
+                                                            }
+                                                          );
                                                         },
-                                                        icon: const Icon(Icons.message_outlined, size: 16, color: AppColors.neo)
+                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
                                                       )
                                                     )
                                                   ]
