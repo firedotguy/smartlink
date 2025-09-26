@@ -75,6 +75,13 @@ class _OntDialogState extends State<OntDialog> {
     return AppColors.error;
   }
 
+  Color _txColor(double tx) {
+    if (tx > 7) return AppColors.warning; // overload
+    if (tx >= -3) return AppColors.success;
+    if (tx > -8) return AppColors.warning;
+    return AppColors.error;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -175,7 +182,8 @@ class _OntDialogState extends State<OntDialog> {
                     Expanded(
                       child: _StatCard(
                         label: 'TX (dBm)',
-                        value: data!['data']?['optical']?['tx']?.toStringAsFixed(2) ?? '-'
+                        value: data!['data']?['optical']?['tx']?.toStringAsFixed(2) ?? '-',
+                        color: data!['data']?['optical']?['tx'] == null? AppColors.neo : _txColor(data!['data']['optical']['tx'])
                       )
                     ),
                     const SizedBox(width: 8),
