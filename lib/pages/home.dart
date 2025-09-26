@@ -830,7 +830,7 @@ class _HomePageState extends State<HomePage> {
                                                   });
                                                 } else {
                                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                    content: Text('Дождитесь загрузки абонента', style: TextStyle(color: AppColors.warning))
+                                                    content: Text('Абонент не загружен', style: TextStyle(color: AppColors.warning))
                                                   ));
                                                 }
                                               },

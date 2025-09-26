@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TaskDialog extends StatefulWidget {
   const TaskDialog({required this.taskId, super.key});
@@ -44,13 +47,31 @@ class _TaskDialogState extends State<TaskDialog> {
     employeeId = prefs.getInt('userId');
     try {
       final data = await getTask(widget.taskId);
-      setState(() { task = data['data'] ?? data; load = false; });
+      setState(() {
+        task = data['data'];
+        load = false;
+      });
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки: $e'))
       );
+    }
+  }
+
+  Future<void> _openUrl(link) async {
+    final url = Uri.parse(link);
+    if (await canLaunchUrl(url)) {
+      l.i('open link: $link');
+      await launchUrl(url, mode: kIsWeb? LaunchMode.platformDefault : LaunchMode.externalApplication);
+    } else {
+      l.e('unclickable link: $link');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка открытия ссылки: Ссылка некликабельна', style: TextStyle(color: AppColors.error)))
+        );
+      }
     }
   }
 
@@ -64,9 +85,10 @@ class _TaskDialogState extends State<TaskDialog> {
       await addComent(task!['id'], content, employeeId ?? 0);
       task!['comments'].add({'id': 0, 'content': content, 'author_id': employeeId, 'created_at': DateTime.now()});
     } catch (e) {
+      l.e('error adding comment: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Не удалось отправить: $e'))
+          SnackBar(content: Text('Ошибка отправки комментария: $e', style: const TextStyle(color: AppColors.error)))
         );
       }
     } finally {
@@ -77,13 +99,48 @@ class _TaskDialogState extends State<TaskDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(children: [
-        const Icon(Icons.assignment_outlined),
-        const SizedBox(width: 8),
-        const Expanded(child: Text('Задание')),
-        if (task != null)
-        _StatusChip(text: task!['status']?['name'] ?? '-', color: _statusColor(task!['status']?['id']))
-      ]),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            spacing: 8,
+            children: [
+              Icon(Icons.assignment_outlined),
+              Text('Задание')
+            ]
+          ),
+          Row(
+            spacing: 4,
+            children: [
+              Tooltip(
+                message: 'Скопировать ссылку на задание в UserSide',
+                child: IconButton(
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: 'https://us.neotelecom.kg/task/${widget.taskId}'));
+                    if (context.mounted){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Ссылка скопирована', style: TextStyle(color: AppColors.success)))
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.copy, size: 16, color: AppColors.neo),
+                  splashRadius: 14,
+                ),
+              ),
+              Tooltip(
+                message: 'Открыть в UserSide',
+                child: IconButton(
+                  onPressed: () async {
+                    await _openUrl('https://us.neotelecom.kg/task/${widget.taskId}');
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 16, color: AppColors.neo),
+                  splashRadius: 14,
+                ),
+              ),
+            ]
+          )
+        ],
+      ),
       content: SizedBox(
         width: 640,
         child: load? const Center(child: AngularProgressBar()) : SingleChildScrollView(
@@ -106,7 +163,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     _KV('Решение', task!['addata']['solve']),
 
                     if (task?['addata']?['appeal']?['phone'] != null)
-                    _KV('Номер телефона обращения', task!['addata']['appeal']['phone']),
+                    _KV('Телефон обратившегося', task!['addata']['appeal']['phone']),
 
                     if (task?['addata']?['appeal']?['type'] != null)
                     _KV('Тип обращения', task!['addata']['appeal']['type']),
@@ -115,7 +172,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     _KV('Стоимость работ', task!['addata']['cost']),
 
                     if (task?['addata']?['info'] != null)
-                    _KV('Информация', task!['addata']['info']),
+                    _KV('Суть обращения', task!['addata']['info']),
 
                     if (task?['addata']?['tariff'] != null)
                     _KV('Тариф', task!['addata']['tariff']),
@@ -127,9 +184,9 @@ class _TaskDialogState extends State<TaskDialog> {
                     _KV('Тип подключения', task!['addata']['connect_type']),
 
                     const Divider(),
-                    _KV('Создано', task?['timestamps']?['created_at']),
-                    _KV('Запланировано', task?['timestamps']?['planned_at']),
-                    _KV('Обновлено', task?['timestamps']?['updated_at']),
+                    _KV('Создано', formatDate(task?['timestamps']?['created_at'])),
+                    _KV('Запланировано', formatDate(task?['timestamps']?['planned_at'])),
+                    _KV('Обновлено', formatDate(task?['timestamps']?['updated_at'])),
                     // _KV('Дедлайн (ч)', task?['timestamps']?['deadline']?.toString())
                   ]
                 )
@@ -137,12 +194,9 @@ class _TaskDialogState extends State<TaskDialog> {
               const SizedBox(height: 8),
               _Section(
                 title: 'Комментарии',
-                child: (task?['data']?['comments'] ?? []).isEmpty? const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: SizedBox(
-                    height: double.infinity,
-                    child: Text('Комментариев нет', style: TextStyle(color: Colors.grey))
-                  )
+                child: (task?['comments'] ?? []).isEmpty? const Align(
+                  alignment: Alignment.topCenter,
+                  child: Text('Комментариев нет', style: TextStyle(color: Colors.grey)),
                 ) : ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -150,11 +204,10 @@ class _TaskDialogState extends State<TaskDialog> {
                   itemBuilder: (_, i) {
                     final message = task!['comments'][i];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Align(
-                        alignment: employeeId == task!['author_id']? Alignment.topLeft : Alignment.topRight,
+                        alignment: employeeId != message!['author_id']? Alignment.topLeft : Alignment.topRight,
                         child: Container(
-                          width: double.infinity,
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
                           decoration: BoxDecoration(
                             color: employeeId != message['author_id']? AppColors.bg2 : AppColors.neo,
@@ -217,11 +270,6 @@ class _TaskDialogState extends State<TaskDialog> {
       ]
     );
   }
-
-  Color _statusColor(int? id) {
-    if (id == 10 || id == 9) return Colors.red;
-    return Colors.blue;
-  }
 }
 
 class _KV extends StatelessWidget {
@@ -232,11 +280,13 @@ class _KV extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(children: [
-        Expanded(child: Text(k, style: TextStyle(color: Colors.grey.shade600))),
-        const SizedBox(width: 12),
-        Flexible(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
-      ])
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: Text(k, style: const TextStyle(color: AppColors.secondary))),
+          Flexible(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
+        ]
+      )
     );
   }
 }
@@ -267,22 +317,3 @@ class _Section extends StatelessWidget {
     );
   }
 }
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.text, required this.color});
-  final String text;
-  final Color color;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color)
-      ),
-      child: Text(text, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12))
-    );
-  }
-}
-

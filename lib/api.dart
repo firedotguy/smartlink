@@ -158,5 +158,5 @@ Future<Map<String, dynamic>> getTask(int id) async {
 
 Future addComent(int id, String content, int authorId) async {
   l.i('API: add comment id=$id content=$content authorId=$authorId');
-  await _post('task/$id/comment', {'content': content, 'author_id': authorId.toString()});
+  await _post('task/$id/comment', {'content': content, 'author': authorId.toString()});
 }

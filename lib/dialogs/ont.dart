@@ -93,9 +93,9 @@ class _OntDialogState extends State<OntDialog> {
     return AlertDialog(
       title: SelectionArea(
         child: Row(
+          spacing: 8,
           children: [
             const Icon(Icons.router_outlined),
-            const SizedBox(width: 8),
             const Expanded(
               child: Text(
                 'ONT / OLT',
@@ -122,7 +122,7 @@ class _OntDialogState extends State<OntDialog> {
         !data!.containsKey('data')? const Center(child: Text('У абонента нет коммутации', style: TextStyle(color: AppColors.error))) : SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 10,
+            spacing: 8,
             children: [
               _Section(
                 icon: Icons.dns_rounded,
@@ -160,7 +160,6 @@ class _OntDialogState extends State<OntDialog> {
                         _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']}')
                       ]
                     ),
-                    const SizedBox(height: 8),
                     _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
                   ]
                 )
@@ -223,7 +222,7 @@ class _OntDialogState extends State<OntDialog> {
                   SizedBox(
                     width: 200,
                     child: ElevatedButton.icon(
-                      onPressed: _restartONT,
+                      onPressed: data?['data']?['status'] == 'online'? _restartONT : null,
                       label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
                       icon: restarting? null : const Icon(Icons.restart_alt),
                     ),
