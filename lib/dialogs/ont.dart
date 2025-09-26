@@ -147,8 +147,10 @@ class _OntDialogState extends State<OntDialog> {
                       children: [
                         if (data!['data']?['ping'] != null)
                         _Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
-                        if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty)
-                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']?['last_down_cause']} (${data!['data']?['last_down']})')
+                        if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] != null)
+                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})'),
+                        if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] == null)
+                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']}')
                       ]
                     ),
                     const SizedBox(height: 8),
