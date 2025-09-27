@@ -1059,7 +1059,7 @@ class _HomePageState extends State<HomePage> {
                                               flex: 4,
                                               child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                             ),
-                                            Expanded(child: SizedBox())
+                                            Expanded(child: SizedBox()) // space for open button
                                           ]
                                         ),
                                         if (taskData!.isNotEmpty)

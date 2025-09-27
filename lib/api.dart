@@ -1,11 +1,18 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:smartlink/main.dart';
 
-final String _base = dotenv.env['API_BASE']!;
-final String _key  = dotenv.env['API_KEY']!;
+const String _base = String.fromEnvironment(
+  'API_BASE',
+  defaultValue: 'http://localhost:8000/api',
+);
+
+const String _key = String.fromEnvironment(
+  'API_KEY',
+  defaultValue: '',
+);
+
 final Client _client = Client();
 
 Uri _u(String action, Map<String, String> qp) {
