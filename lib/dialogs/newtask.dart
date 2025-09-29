@@ -5,30 +5,44 @@ import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
 class NewTaskDialog extends StatefulWidget{
-  const NewTaskDialog({required this.customerId, required this.boxId, required this.phones, super.key});
+  const NewTaskDialog({required this.customerId, required this.boxId, required this.phones, this.box = false, super.key});
   final int customerId;
   final int boxId;
   final List phones;
+  final bool box;
 
   @override
   State<NewTaskDialog> createState() => _NewTaskDialogState();
 }
 
 class _NewTaskDialogState extends State<NewTaskDialog> {
+  bool load = true;
+
+  // Номер обратившегося
   TextEditingController phoneController = TextEditingController();
   MaskTextInputFormatter phoneMask = MaskTextInputFormatter(
     mask: '+996 (###) ###-###',
     filter: {"#": RegExp(r'[0-9]')}
   );
+
+  // Причина обращения
   late String reason;
   List<String> reasons = [];
+
+  // Тип обращения (ремонт)
   late String type;
   List<String> types = [];
+
+  // Тип обращения (магистральный ремонт)
   late String boxReason;
   List<String> boxReasons = [];
-  List<Map> divisions = [];
+
+  // Описание
   TextEditingController commentController = TextEditingController();
-  bool load = true;
+
+  // Исполнители
+  List<Map> divisions = [];
+  bool showDivisions = false;
 
   void _getReasons() async {
     try {
@@ -99,11 +113,12 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
+      initialIndex: widget.box? 1 : 0,
       length: 2,
       child: AlertDialog(
         title: const Text('Создать задание'),
         content: !load? SizedBox(
-          width: 500,
+          width: 600,
           child: Column(
             children: [
               const TabBar(
@@ -119,14 +134,15 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                       child: Column(
                         spacing: 5,
                         children: [
+                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
-                            child: Text('Обращение с номера', style: TextStyle(fontWeight: FontWeight.bold))
+                            child: Text('Номер обратившегося', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: TextField(
-                              style: const TextStyle(fontSize: 13), //shit
+                              style: const TextStyle(fontSize: 13), //
                               decoration: const InputDecoration(
                                 hintText: 'Введите номер телефона'
                               ),
@@ -136,12 +152,14 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                 l.i('phone value changed to $v');
                                 setState(() {});
                               }
-                            )
+                            ),
                           ),
+                          if (widget.phones.isNotEmpty)
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('или выберите из следующих', style: TextStyle(color: AppColors.secondary))
                           ),
+                          if (widget.phones.isNotEmpty)
                           Row(
                             spacing: 5,
                             children: widget.phones.map((e){
@@ -158,15 +176,14 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               );
                             }).toList()
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
+                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
                               value: reason,
                               items: reasons.map((e) {
                                 return DropdownMenuItem(value: e, child: Text(e));
@@ -176,18 +193,17 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                   reason = v!;
                                 });
                               }
-                            )
+                            ),
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
                               value: type,
+                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
                               items: types.map((e) {
                                 return DropdownMenuItem(value: e, child: Text(e));
                               }).toList(),
@@ -196,9 +212,8 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                   type = v!;
                                 });
                               }
-                            )
+                            ),
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
@@ -206,43 +221,56 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                           TextField(
                             controller: commentController,
                             maxLines: 3,
-                            style: const TextStyle(fontSize: 13), //shit
+                            style: const TextStyle(fontSize: 13), //
                             decoration: const InputDecoration(
                               hintText: 'Введите описание (необязательно)'
                             ),
                           ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold))
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold)),
+                              IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    showDivisions = !showDivisions;
+                                  });
+                                },
+                                icon: Icon(showDivisions? Icons.arrow_drop_down_sharp : Icons.arrow_drop_up_sharp, color: AppColors.secondary)
+                              )
+                            ],
                           ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: divisions.length,
-                            itemBuilder: (c, i){
-                              final division = divisions[i];
-                              if (division['checked'] == null){
-                                division['checked'] = false;
-                                divisions[i]['checked'] = false;
+                          if (showDivisions)
+                          SizedBox(
+                            height: 250,
+                            width: 580,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: divisions.length,
+                              itemBuilder: (c, i){
+                                final division = divisions[i];
+                                if (division['checked'] == null){
+                                  division['checked'] = false;
+                                  divisions[i]['checked'] = false;
+                                }
+                                return Row(
+                                  spacing: 5,
+                                  children: [
+                                    Checkbox(
+                                      value: division['checked'],
+                                      onChanged: (v){
+                                        setState(() {
+                                          division['checked'] = v!;
+                                        });
+                                      },
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                    ),
+                                    Expanded(child: Text(division['name']))
+                                  ]
+                                );
                               }
-                              return Row(
-                                spacing: 5,
-                                children: [
-                                  Checkbox(
-                                    value: division['checked'],
-                                    onChanged: (v){
-                                      setState(() {
-                                        division['checked'] = v!;
-                                      });
-                                    },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                  ),
-                                  Expanded(child: Text(division['name']))
-                                ]
-                              );
-                            }
+                            ),
                           )
                         ]
                       ),
@@ -251,14 +279,15 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                       child: Column(
                         spacing: 5,
                         children: [
+                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Обращение с номера', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: TextField(
-                              style: const TextStyle(fontSize: 13), //shit
+                              style: const TextStyle(fontSize: 13), //
                               decoration: const InputDecoration(
                                 hintText: 'Введите номер телефона'
                               ),
@@ -268,7 +297,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                 l.i('phone value changed to $v');
                                 setState(() {});
                               }
-                            )
+                            ),
                           ),
                           const Align(
                             alignment: Alignment.topLeft,
@@ -290,15 +319,14 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               );
                             }).toList()
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
+                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
                               value: boxReason,
                               items: boxReasons.map((e) {
                                 return DropdownMenuItem(value: e, child: Text(e));
@@ -310,15 +338,14 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               }
                             )
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
-                            height: 40, //shit
+                            height: 40, //
                             child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //shit
+                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
                               value: type,
                               items: types.map((e) {
                                 return DropdownMenuItem(value: e, child: Text(e));
@@ -330,7 +357,6 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               }
                             )
                           ),
-                          const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
@@ -338,42 +364,56 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                           TextField(
                             controller: commentController,
                             maxLines: 3,
-                            style: const TextStyle(fontSize: 13), //shit
+                            style: const TextStyle(fontSize: 13), //
                             decoration: const InputDecoration(
                               hintText: 'Введите описание (необязательно)'
                             ),
                           ),
-                          const SizedBox(height: 5),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold))
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Исполнители', style: TextStyle(fontWeight: FontWeight.bold)),
+                              IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    showDivisions = !showDivisions;
+                                  });
+                                },
+                                icon: Icon(showDivisions? Icons.arrow_drop_down_sharp : Icons.arrow_drop_up_sharp, color: AppColors.secondary)
+                              )
+                            ],
                           ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: divisions.length,
-                            itemBuilder: (c, i){
-                              final division = divisions[i];
-                              if (division['checked'] == null){
-                                division['checked'] = false;
-                                divisions[i]['checked'] = false;
+                          if (showDivisions)
+                          SizedBox(
+                            height: 250,
+                            width: 580,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: divisions.length,
+                              itemBuilder: (c, i){
+                                final division = divisions[i];
+                                if (division['checked'] == null){
+                                  division['checked'] = false;
+                                  divisions[i]['checked'] = false;
+                                }
+                                return Row(
+                                  spacing: 5,
+                                  children: [
+                                    Checkbox(
+                                      value: division['checked'],
+                                      onChanged: (v){
+                                        setState(() {
+                                          division['checked'] = v!;
+                                        });
+                                      },
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                    ),
+                                    Expanded(child: Text(division['name']))
+                                  ]
+                                );
                               }
-                              return Row(
-                                spacing: 5,
-                                children: [
-                                  Checkbox(
-                                    value: division['checked'],
-                                    onChanged: (v){
-                                      setState(() {
-                                        division['checked'] = v!;
-                                      });
-                                    },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                  ),
-                                  Expanded(child: Text(division['name']))
-                                ]
-                              );
-                            }
+                            ),
                           )
                         ]
                       ),

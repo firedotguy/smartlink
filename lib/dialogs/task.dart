@@ -124,8 +124,8 @@ class _TaskDialogState extends State<TaskDialog> {
                     }
                   },
                   icon: const Icon(Icons.copy, size: 16, color: AppColors.neo),
-                  splashRadius: 14,
-                ),
+                  splashRadius: 14
+                )
               ),
               Tooltip(
                 message: 'Открыть в UserSide',
@@ -134,12 +134,12 @@ class _TaskDialogState extends State<TaskDialog> {
                     await _openUrl('https://us.neotelecom.kg/task/${widget.taskId}');
                   },
                   icon: const Icon(Icons.open_in_new, size: 16, color: AppColors.neo),
-                  splashRadius: 14,
-                ),
-              ),
+                  splashRadius: 14
+                )
+              )
             ]
           )
-        ],
+        ]
       ),
       content: SizedBox(
         width: 640,

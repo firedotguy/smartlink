@@ -153,13 +153,9 @@ class AngularClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-/// Global logger used throughout the application for info, warning, and error output.
-///
-/// Uses the `logger` package with a simple printer for console-friendly output.
+
 final l = Logger(printer: SimplePrinter());
-/// The default dark theme used across the SmartLink Viewer application.
-///
-/// Defines colors, fonts, button styles, input fields, and card appearance.
+
 final ThemeData darkTheme = ThemeData(
   fontFamily: 'Jost',
   brightness: Brightness.dark,
@@ -267,32 +263,20 @@ final ThemeData darkTheme = ThemeData(
         return AppColors.secondary;
       }
     })
-  ),
+  )
 );
 
-/// A collection of static color constants used throughout the UI for consistent styling.
-///
-/// Includes colors for background, text, buttons, alerts, and highlights.
 class AppColors {
-  /// Green used to indicate success or positive state.
   static const success = Color(0xFF58d68d);
-  /// Yellow used to indicate warnings or paused statuses.
   static const warning = Color(0xFFf1c40f);
-  /// Red used to indicate errors or critical states.
   static const error = Color(0xFFe74c3c);
-  /// Bright blue used for highlights, buttons, and important interactive elements.
   static const neo = Color(0xFF009bde);
-  /// Main foreground color, used for most text elements.
   static const main = Color(0xFFe6edf3);
-  /// Secondary text color, used for hints, descriptions, and lower emphasis.
   static const secondary = Color(0xFF8b949e);
-  /// Primary background color for the entire app.
   static const bg = Color(0xFF1e252d);
-  /// Secondary background color for cards, inputs, etc.
   static const bg2 = Color(0xFF2c333a);
 }
 
-/// Function that format date from YYYY-MM-DD HH:MM:SS to DD.MM.YY HH:MM:SS
 String formatDate(String? date) {
   if (date == null){
     return '-';
@@ -301,32 +285,8 @@ String formatDate(String? date) {
   return '${parsed.day.toString().padLeft(2, '0')}.${parsed.month.toString().padLeft(2, '0')}.${parsed.year.toString().substring(2)} ${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}:${parsed.second.toString().padLeft(2, '0')}';
 }
 
-/// AppLayout — a reusable shell widget that wraps all SmartLink pages.
-///
-/// It provides a consistent layout across the app, including:
-///
-/// - The floating ⚙️ settings button in the top-right corner
-/// - The "SmartLink viewer v0.1" label in the bottom-right corner
-///
-/// This layout ensures that all core UI elements remain visible across routes,
-/// including login, home, and debug pages.
-///
-/// Usage:
-/// ```dart
-/// Navigator.pushReplacement(
-///   context,
-///   MaterialPageRoute(builder: (_) => AppLayout(child: HomePage())),
-/// );
-/// ```
-///
-/// **Note:** The [child] widget is expected to include its own `Scaffold` or `SafeArea`
-/// if needed. [AppLayout] only provides the floating UI and persistent footer.
 class AppLayout extends StatelessWidget {
-  /// Creates a new `AppLayout` shell.
-  ///
-  /// Wrap any page with this to include floating settings and footer.
   const AppLayout({required this.child, super.key});
-  /// The main content of the screen.
   final Widget child;
 
   @override
