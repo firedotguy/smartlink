@@ -613,7 +613,7 @@ class _HomePageState extends State<HomePage> {
                           onTap: () async => await _loadCustomerData(e),
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 2),
-                            child: Text('${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15)),
+                            child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15)),
                           ),
                         );
                       },
