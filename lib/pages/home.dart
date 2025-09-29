@@ -824,7 +824,7 @@ class _HomePageState extends State<HomePage> {
                                                   showDialog(context: context, builder: (context){
                                                     return NewTaskDialog(
                                                       customerId: customerData!['id'],
-                                                      boxId: customerData!['house_id'],
+                                                      boxId: customerData!['box_id'],
                                                       phones: customerData!['phones']
                                                     );
                                                   });
