@@ -981,7 +981,9 @@ class _HomePageState extends State<HomePage> {
                                     Column(
                                       children: [
                                         if (customerData!['inventory'].isEmpty)
-                                        const Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary)),
+                                        const Center(
+                                          child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                                        ),
                                         if (customerData!['inventory'].isNotEmpty)
                                         const Row(
                                           children: [
@@ -1047,7 +1049,9 @@ class _HomePageState extends State<HomePage> {
                                     Column(
                                       children: [
                                         if (taskData!.isEmpty)
-                                        const Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary))
+                                        const Center(
+                                          child: Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary))
+                                        )
                                         else
                                         const Row(
                                           children: [
