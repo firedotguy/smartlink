@@ -980,6 +980,9 @@ class _HomePageState extends State<HomePage> {
                                     child: customerData == null? const Center(child: AngularProgressBar()) :
                                     Column(
                                       children: [
+                                        if (customerData!['inventory'].isEmpty)
+                                        const Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary)),
+                                        if (customerData!['inventory'].isNotEmpty)
                                         const Row(
                                           children: [
                                             Expanded(
@@ -996,6 +999,7 @@ class _HomePageState extends State<HomePage> {
                                             )
                                           ]
                                         ),
+                                        if (customerData!['inventory'].isNotEmpty)
                                         Expanded(
                                           child: ListView.builder(
                                             itemCount: customerData!['inventory'].length,
