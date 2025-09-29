@@ -220,7 +220,7 @@ class _TaskDialogState extends State<TaskDialog> {
                               spacing: 4,
                               children: [
                                 if (employeeId != message['author_id'] && message['author_id'] != null)
-                                Text(message['author_id'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(message['author_id'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
                                 Text(message['content']),
                                 Align(
                                   alignment: Alignment.bottomRight,
