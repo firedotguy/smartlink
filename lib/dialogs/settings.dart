@@ -26,7 +26,7 @@ class SettingsDialog extends StatefulWidget{
 }
 
 class _SettingsDialogState extends State<SettingsDialog>{
-  bool theme = true;
+  String theme = 'smartlink-dark';
   int debounce = 300;
   String loadNeighbours = 'onWrong';
   bool logined = false;
@@ -39,7 +39,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
     l.i('get settings');
     final prefs = await SharedPreferences.getInstance();
     l.i('available keys: ${prefs.getKeys()}');
-    theme = prefs.getBool('theme') ?? true;
+    // theme = prefs.getString('theme') ?? 'smartlink-dark';
     debounce = prefs.getInt('debounce') ?? 300;
     debounceController.text = debounce.toString();
     loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
@@ -100,25 +100,31 @@ class _SettingsDialogState extends State<SettingsDialog>{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Тема', style: TextStyle(color: AppColors.secondary)),
-                Row(
-                  spacing: 5,
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
                   children: [
-                    const Text('Светлая'),
-                    Transform.scale(
-                      scale: 0.8,
-                      child: Switch(
-                        value: theme,
-                        onChanged: null//(v){
-                        //   setState(() {
-                        //     theme = v;
-                        //   });
-                        //   _updateBool('theme', v);
-                        // }
-                      )
-                    ),
-                    const Text('Тёмная')
+                    Text('Тема', style: TextStyle(color: AppColors.secondary)),
+                    Text('Пока недоступно', style: TextStyle(color: Color(0xFF6E7681), fontSize: 12))
                   ]
+                ),
+                IntrinsicWidth(
+                  child: DropdownButtonFormField(
+                    value: theme,
+                    items: const [
+                      DropdownMenuItem(value: 'smartlink-dark', child: Text('SmartLink (dark)')),
+                      DropdownMenuItem(value: 'smartlink-light', child: Text('SmartLink (light)', style: TextStyle(color: Color(0xFF121212), backgroundColor: Color(0xFFD1D5DC)))),
+                      DropdownMenuItem(value: 'smartlink-dark-high', child: Text('SmartLink (dark) high-contrast', style: TextStyle(color: Colors.white, backgroundColor: Colors.black))),
+                      DropdownMenuItem(value: 'smartlink-green', child: Text('SmartLink (green)', style: TextStyle(backgroundColor: Color(0xFF162515), color: Colors.white))),
+                      DropdownMenuItem(value: 'smartlink-red', child: Text('SmartLink (red)', style: TextStyle(backgroundColor: Color(0xFF251515), color: Colors.white))),
+                      DropdownMenuItem(value: 'userside', child: Text('UserSide', style: TextStyle(color: Colors.black, backgroundColor: Colors.white))),
+                      DropdownMenuItem(value: 'ember-dark', child: Text('Ember', style: TextStyle(color: Color(0xFFFBEADB), backgroundColor: Color(0xFF1E1C1A)))),
+                      DropdownMenuItem(value: 'dracula', child: Text('Dracula', style: TextStyle(color: Color(0xFFE3E2E9), backgroundColor: Color(0xFF0E0D11)))),
+                      DropdownMenuItem(value: 'monokai', child: Text('Monokai', style: TextStyle(color: Color(0xFFFCFCFA), backgroundColor: Color(0xFF221F22))))
+                    ],
+                    onChanged: (v) {
+                    }
+                  )
                 )
               ]
             ),
