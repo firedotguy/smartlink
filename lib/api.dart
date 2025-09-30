@@ -66,7 +66,7 @@ Future<Map<String, dynamic>> getCustomer(int id) async {
 
 Future<Map<String, dynamic>> getBox(int id) async {
   l.i('API: get box, id=$id');
-  return await _get('box/$id', {});
+  return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'false'}); // turn to true when tasks count ready
 }
 
 Future<Map<String, dynamic>> getAttach(int customerId) async {
