@@ -136,6 +136,16 @@ class _TaskDialogState extends State<TaskDialog> {
                   icon: const Icon(Icons.open_in_new, size: 16, color: AppColors.neo),
                   splashRadius: 14
                 )
+              ),
+              Tooltip(
+                message: 'Закрыть диалог',
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close, size: 16, color: AppColors.error),
+                  splashRadius: 14
+                )
               )
             ]
           )

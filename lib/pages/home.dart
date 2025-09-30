@@ -520,17 +520,18 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 16, bottom: 32),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width / 3.5,
-          child: id==null? const Text('Чат не доступен в debug режиме', style: TextStyle(color: AppColors.secondary), textAlign: TextAlign.right) : ChatWidget(
-            employeeId: id!,
-            initialChatId: widget.initialChatId,
-            initialOpenChat: widget.initialOpenChat
-          )
-        )
-      ),
+      // TODO: refactor to make button smaller
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.only(right: 16, bottom: 32),
+      //   child: SizedBox(
+      //     width: MediaQuery.of(context).size.width / 3.5,
+      //     child: id==null? const Text('Чат не доступен в debug режиме', style: TextStyle(color: AppColors.secondary), textAlign: TextAlign.right) : ChatWidget(
+      //       employeeId: id!,
+      //       initialChatId: widget.initialChatId,
+      //       initialOpenChat: widget.initialOpenChat
+      //     )
+      //   )
+      // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       body: SafeArea(
         child: Padding(
@@ -875,6 +876,11 @@ class _HomePageState extends State<HomePage> {
                                               title: 'Название коробки',
                                               value: boxData?['name'] ?? '-'
                                             ),
+                                            InfoTile(
+                                              title: 'Открытые задания',
+                                              value: boxData?['box_tasks']?.length.toString() ?? '-',
+                                              valueColor: boxData?['box_tasks'] == null? AppColors.main : boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error,
+                                            ),
                                             const SizedBox(height: 6),
                                             const Row(
                                               children: [
@@ -888,19 +894,23 @@ class _HomePageState extends State<HomePage> {
                                             const Row(
                                               children: [
                                                 Expanded(
-                                                  flex: 6,
+                                                  flex: 7,
                                                   child: Text('Имя', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                                 ),
                                                 Expanded(
-                                                  flex: 4,
+                                                  flex: 3,
+                                                  child: Text('Задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                                ),
+                                                Expanded(
+                                                  flex: 6,
                                                   child: Text('Активность', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                                 ),
                                                 Expanded(
-                                                  flex: 3,
+                                                  flex: 4,
                                                   child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                                 ),
                                                 Expanded(
-                                                  flex: 1,
+                                                  flex: 2,
                                                   child: Text('rx', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
                                                 )
                                               ]
@@ -916,24 +926,34 @@ class _HomePageState extends State<HomePage> {
                                                     child: Row(
                                                       children: [
                                                         Expanded(
-                                                          flex: 6,
+                                                          flex: 7,
                                                           child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
                                                         ),
                                                         Expanded(
-                                                          flex: 4,
+                                                          flex: 3,
+                                                          child: Text(
+                                                            neighbour['tasks']?.length.toString() ?? '-',
+                                                            textAlign: TextAlign.center,
+                                                            style: TextStyle(
+                                                              color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
+                                                            )
+                                                          )
+                                                        ),
+                                                        Expanded(
+                                                          flex: 6,
                                                           child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
                                                             style: TextStyle(color: _getActivityColor(neighbour['last_activity']))
                                                           )
                                                         ),
                                                         Expanded(
-                                                          flex: 3,
+                                                          flex: 4,
                                                           child: Text(
                                                             neighbour['status'], textAlign: TextAlign.center,
                                                             style: TextStyle(color: _getStatusColor(neighbour['status']))
                                                           )
                                                         ),
                                                         Expanded(
-                                                          flex: 1,
+                                                          flex: 2,
                                                           child: Text(
                                                             _convertSignal(neighbour['onu_level']), textAlign: TextAlign.end,
                                                             style: TextStyle(color: _getSignalColor(neighbour['onu_level']))
