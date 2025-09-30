@@ -55,7 +55,7 @@ class _TaskDialogState extends State<TaskDialog> {
       if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: $e'))
+        SnackBar(content: Text('Ошибка загрузки задания: $e', style: const TextStyle(color: AppColors.error)))
       );
     }
   }

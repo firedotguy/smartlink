@@ -540,7 +540,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                    const Expanded( // simulate card
                       child: Padding(
                         padding: EdgeInsets.only(right: 16)
                       )
@@ -562,7 +562,7 @@ class _HomePageState extends State<HomePage> {
                         )
                       )
                     ),
-                    const Expanded(
+                    const Expanded( // simulate another card
                       child: SizedBox()
                     )
                   ]
@@ -840,18 +840,22 @@ class _HomePageState extends State<HomePage> {
                                     title: 'Информация по коробке',
                                     last: true,
                                     miniButtons: [
-                                      IconButton(
-                                        onPressed: (){
-                                          showDialog(context: context, builder: (context){
-                                            return NewTaskDialog(
-                                              customerId: customerData!['id'],
-                                              boxId: customerData!['box_id'],
-                                              phones: customerData!['phones'],
-                                              box: true,
-                                            );
-                                          });
-                                        },
-                                        icon: Icon(Icons.assignment_add, color: noBox? AppColors.secondary : AppColors.neo)
+                                      Tooltip(
+                                        message: 'Создать задание (Магистральный ремонт)',
+                                        child: IconButton(
+                                          onPressed: (){
+                                            showDialog(context: context, builder: (context){
+                                              return NewTaskDialog(
+                                                customerId: customerData!['id'],
+                                                boxId: customerData!['box_id'],
+                                                phones: customerData!['phones'],
+                                                box: true,
+                                              );
+                                            });
+                                          },
+                                          icon: Icon(Icons.assignment_add, color: noBox? AppColors.secondary : AppColors.neo, size: 18),
+                                          splashRadius: 14,
+                                        ),
                                       )
                                     ],
                                     child: boxData == null? const Center(child: AngularProgressBar()) :

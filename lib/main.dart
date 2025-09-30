@@ -297,7 +297,7 @@ class AppLayout extends StatelessWidget {
           alignment: Alignment.bottomRight,
           children: [
             child,
-            const Text('SmartLink viewer v0.2.0-3 [beta]', style: TextStyle(color: AppColors.secondary, fontSize: 12))
+            const Text('SmartLinkViewer v0.2.0-3 dev [beta]', style: TextStyle(color: AppColors.secondary, fontSize: 12))
           ]
         ),
         floatingActionButton: Builder(
