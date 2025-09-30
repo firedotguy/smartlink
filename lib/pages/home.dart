@@ -843,7 +843,7 @@ class _HomePageState extends State<HomePage> {
                                       Tooltip(
                                         message: 'Создать задание (Магистральный ремонт)',
                                         child: IconButton(
-                                          onPressed: (){
+                                          onPressed: boxData != null? (){
                                             showDialog(context: context, builder: (context){
                                               return NewTaskDialog(
                                                 customerId: customerData!['id'],
@@ -852,8 +852,8 @@ class _HomePageState extends State<HomePage> {
                                                 box: true,
                                               );
                                             });
-                                          },
-                                          icon: Icon(Icons.assignment_add, color: noBox? AppColors.secondary : AppColors.neo, size: 18),
+                                          } : null,
+                                          icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18),
                                           splashRadius: 14,
                                         ),
                                       )
