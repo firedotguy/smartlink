@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/main.dart';
-import 'package:smartlink/pages/home.dart';
 import 'package:smartlink/pages/sign.dart';
 
 /// A modal settings dialog that allows users to configure SmartLink Viewer behavior.
@@ -47,14 +46,14 @@ class _SettingsDialogState extends State<SettingsDialog>{
     setState(() {});
   }
 
-  void _updateBool(String key, bool value) async {
-    setState(() {
-      changed = true;
-    });
-    l.i('update bool setting $key to $value');
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
-  }
+  // void _updateBool(String key, bool value) async {
+  //   setState(() {
+  //     changed = true;
+  //   });
+  //   l.i('update bool setting $key to $value');
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setBool(key, value);
+  // }
 
   void _updateInt(String key, int value) async {
     setState(() {
@@ -204,44 +203,44 @@ class _SettingsDialogState extends State<SettingsDialog>{
             if (changed)
             const Text('Для применения изменений перезагрузите страницу', style: TextStyle(color: AppColors.warning)),
             const SizedBox(height: 15),
-            const Divider(),
-            const Align(
-              alignment: Alignment.topLeft,
-              child: Text('Developer mode', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
-            ),
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-                l.i('push to sign page, reason: manual pushing');
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: SignPage())));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Перевод на SignPage', style: TextStyle(color: AppColors.success))
-                ));
-              },
-              child: const Text('Перейти на страницу входа')
-            ),
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-                l.i('push to home page, manual pushing');
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage())));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Перевод на HomePage', style: TextStyle(color: AppColors.success))
-                ));
-              },
-              child: const Text('Перейти на домашюю страницу')
-            ),
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-                l.i('push to home page, reason: manual pushing');
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage(customerId: 42025))));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Перевод на HomePage with search', style: TextStyle(color: AppColors.success))
-                ));
-              },
-              child: const Text('Перейти на домашнюю страницу с абонентом')
-            )
+            // const Divider(),
+            // const Align(
+            //   alignment: Alignment.topLeft,
+            //   child: Text('Developer mode', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+            // ),
+            // ElevatedButton(
+            //   onPressed: (){
+            //     Navigator.pop(context);
+            //     l.i('push to sign page, reason: manual pushing');
+            //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: SignPage())));
+            //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            //       content: Text('Перевод на SignPage', style: TextStyle(color: AppColors.success))
+            //     ));
+            //   },
+            //   child: const Text('Перейти на страницу входа')
+            // ),
+            // ElevatedButton(
+            //   onPressed: (){
+            //     Navigator.pop(context);
+            //     l.i('push to home page, manual pushing');
+            //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage())));
+            //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            //       content: Text('Перевод на HomePage', style: TextStyle(color: AppColors.success))
+            //     ));
+            //   },
+            //   child: const Text('Перейти на домашюю страницу')
+            // ),
+            // ElevatedButton(
+            //   onPressed: (){
+            //     Navigator.pop(context);
+            //     l.i('push to home page, reason: manual pushing');
+            //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage(customerId: 42025))));
+            //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            //       content: Text('Перевод на HomePage with search', style: TextStyle(color: AppColors.success))
+            //     ));
+            //   },
+            //   child: const Text('Перейти на домашнюю страницу с абонентом')
+            // )
           ]
         )
       ),
