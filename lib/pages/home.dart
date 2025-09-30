@@ -1038,15 +1038,19 @@ class _HomePageState extends State<HomePage> {
                                         const Row(
                                           children: [
                                             Expanded(
-                                              flex: 5,
-                                              child: Text('Тип задания', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                                              flex: 2,
+                                              child: Text('ID', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                             ),
                                             Expanded(
-                                              flex: 4,
+                                              flex: 5,
+                                              child: Text('Тип задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                            ),
+                                            Expanded(
+                                              flex: 5,
                                               child: Text('Дата создания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                             ),
                                             Expanded(
-                                              flex: 4,
+                                              flex: 3,
                                               child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                             ),
                                             Expanded(child: SizedBox()) // space for open button
@@ -1063,16 +1067,20 @@ class _HomePageState extends State<HomePage> {
                                                 child: Row(
                                                   children: [
                                                     Expanded(
+                                                      flex: 2,
+                                                      child: Text(task['id'].toString(), style: const TextStyle(fontSize: 12)) //
+                                                    ),
+                                                    Expanded(
                                                       flex: 5,
                                                       child: Text(task['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
                                                     ),
                                                     Expanded(
-                                                      flex: 4,
+                                                      flex: 5,
                                                       child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
                                                         style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id'])))
                                                     ),
                                                     Expanded(
-                                                      flex: 4,
+                                                      flex: 3,
                                                       child: Text(task['status']['name'], softWrap: true, textAlign: TextAlign.center,
                                                         style: TextStyle(color: _getTaskStatusColor(task['status']['id'] ?? 0)))
                                                     ),
@@ -1086,7 +1094,8 @@ class _HomePageState extends State<HomePage> {
                                                             }
                                                           );
                                                         },
-                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
+                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo),
+                                                        splashRadius: 12,
                                                       )
                                                     )
                                                   ]
