@@ -51,23 +51,26 @@ class BoxCard extends StatelessWidget {
 
   const BoxCard({
     required this.lineColor,
-    required this.icon,
     required this.title,
     required this.child,
+    this.icon,
     this.last = false,
+    this.flex = 1,
     this.miniButtons = const [],
     super.key
   });
   final Color lineColor;
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final Widget child;
   final bool last;
+  final int flex;
   final List<Widget> miniButtons;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
+      flex: flex,
       child: Card(
         margin: !last? const EdgeInsets.only(bottom: 16, right: 16) : const EdgeInsets.only(bottom: 16),
         child: ClipRRect(
@@ -91,6 +94,7 @@ class BoxCard extends StatelessWidget {
                           Row(
                             spacing: 8,
                             children: [
+                              if (icon != null)
                               Icon(icon, color: AppColors.neo),
                               Text(title, style: const TextStyle(color: AppColors.main, fontSize: 18, fontWeight: FontWeight.bold))
                             ]
@@ -384,14 +388,14 @@ class _HomePageState extends State<HomePage> {
           load = false;
           customers.clear();
         });
-        if (loadNeighbours != 'never'){
-          if (customerData!['status'] == 'Отключен' || _getActivityColor(customerData!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
-            l.i('something wrong with customer or loadNeighbours is "always", automatically load box');
+        // if (loadNeighbours != 'never'){
+        //   if (customerData!['status'] == 'Отключен' || _getActivityColor(customerData!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
+        //     l.i('something wrong with customer or loadNeighbours is "always", automatically load box');
             await _loadBoxData();
-          }
-        } else {
-          l.i('neighbours not load becuase loadNeigbours is "never"');
-        }
+        //   }
+        // } else {
+        //   l.i('neighbours not load becuase loadNeigbours is "never"');
+        // }
       } else {
         l.i('load customer request ignored because load = true');
       }
@@ -627,6 +631,147 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     children: [
                       BoxCard(
+                        lineColor: _getBoxBorderColor(boxData?['customers']),
+                        icon: Icons.dns,
+                        title: 'Коробка',
+                        miniButtons: [
+                          Tooltip(
+                            message: 'Создать задание (Магистральный ремонт)',
+                            child: IconButton(
+                              onPressed: boxData != null? (){
+                                showDialog(context: context, builder: (context){
+                                  return NewTaskDialog(
+                                    customerId: customerData!['id'],
+                                    boxId: customerData!['box_id'],
+                                    phones: customerData!['phones'],
+                                    box: true
+                                  );
+                                });
+                              } : null,
+                              icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18)
+                            )
+                          ),
+                          // Tooltip(
+                          //   message: 'Загрузить данные коробки',
+                          //   child: IconButton(
+                          //     onPressed: boxData == null ? _loadBoxData : null,
+                          //     icon: Icon(Icons.download, size: 18, color: boxData != null? AppColors.secondary : AppColors.neo)
+                          //   )
+                          // )
+                        ],
+                        child: boxData == null? const Center(child: AngularProgressBar()) : Column(
+                          children: [
+                            if (noBox)
+                            const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.warning_amber_outlined, color: AppColors.error),
+                                Text('Коробка не найдена', style: TextStyle(color: AppColors.error))
+                              ]
+                            )
+                            else ...[
+                              InfoTile(
+                                title: 'Название коробки',
+                                value: boxData?['name'] ?? '-'
+                              ),
+                              InfoTile(
+                                title: 'Открытые задания',
+                                value: boxData?['box_tasks']?.length.toString() ?? '-',
+                                valueColor: boxData?['box_tasks'] == null? AppColors.main : boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error
+                              ),
+                              const SizedBox(height: 6),
+                              const Row(
+                                children: [
+                                  Icon(Icons.group, color: AppColors.neo),
+                                  SizedBox(width: 8),
+                                  Text('Соседи', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                                ]
+                              ),
+                              const Divider(),
+                              const SizedBox(height: 8),
+                              const Row(
+                                children: [
+                                  Expanded(
+                                    flex: 7,
+                                    child: Text('Имя', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text('Задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                  ),
+                                  Expanded(
+                                    flex: 6,
+                                    child: Text('Активность', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text('rx', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                                  )
+                                ]
+                              ),
+                              const SizedBox(height: 8),
+                              if (boxData?['customers']?.isNotEmpty ?? false)
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: boxData?['customers']?.length ?? 0,
+                                  itemBuilder: (c, i) {
+                                    final neighbour = boxData!['customers'][i];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 7,
+                                            child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Text(
+                                              neighbour['tasks']?.length.toString() ?? '-',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
+                                              )
+                                            )
+                                          ),
+                                          Expanded(
+                                            flex: 6,
+                                            child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
+                                              style: TextStyle(color: _getActivityColor(neighbour['last_activity']), fontSize: 13)
+                                            )
+                                          ),
+                                          Expanded(
+                                            flex: 4,
+                                            child: Text(
+                                              neighbour['status'], textAlign: TextAlign.center,
+                                              style: TextStyle(color: _getStatusColor(neighbour['status']))
+                                            )
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              _convertSignal(neighbour['onu_level']), textAlign: TextAlign.end,
+                                              style: TextStyle(color: _getSignalColor(neighbour['onu_level']))
+                                            )
+                                          )
+                                        ]
+                                      )
+                                    );
+                                  }
+                                )
+                              )
+                              else
+                              const Text('У абонента нет соседей', style: TextStyle(color: AppColors.secondary))
+                            ]
+                          ]
+                        )
+                      ),
+                      BoxCard(
                         lineColor: _getCustomerBorderColor(customerData),
                         icon: Icons.person,
                         title: 'Абонент',
@@ -679,8 +824,52 @@ class _HomePageState extends State<HomePage> {
                             const Row(
                               spacing: 5,
                               children: [
-                                Icon(Icons.warning_amber, color: AppColors.warning),
+                                Icon(Icons.warning_amber, color: AppColors.warning, size: 18),
                                 Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
+                              ]
+                            ),
+                            if ((customerData!['onu_level'] ?? 0) < -25)
+                            Row(
+                              spacing: 5,
+                              children: [
+                                const Icon(Icons.network_check, color: AppColors.error, size: 18),
+                                Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customerData!['onu_level'])))
+                              ]
+                            ),
+
+                            if (customerData!['status'] == 'Отключен')
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.power_settings_new, color: AppColors.error, size: 18),
+                                Text('Абонент отключен', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+
+                            if (customerData!['status'] == 'Пауза')
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.pause_circle_filled, color: AppColors.warning, size: 18),
+                                Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
+                              ]
+                            ),
+
+                            if (_getActivityColor(customerData!['last_activity']) == AppColors.error)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.access_time, color: AppColors.error, size: 18),
+                                Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+
+                            if (_getBoxBorderColor(boxData?['customers']) == AppColors.error)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.build_circle, color: AppColors.error, size: 18),
+                                Text('Проблемы в коробке', style: TextStyle(color: AppColors.error))
                               ]
                             ),
                             InfoTile(
@@ -789,413 +978,309 @@ class _HomePageState extends State<HomePage> {
                             ),
                             if (customerData!['geodata'] == null)
                             const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 5),
                             const Row(
                               children: [
-                                Icon(Icons.warning_amber_outlined, color: AppColors.neo),
+                                Icon(Icons.device_hub, color: AppColors.neo),
                                 SizedBox(width: 8),
-                                Text('Возможные причины проблем', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                                Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
                               ]
                             ),
                             const Divider(),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if ((customerData!['onu_level'] ?? 0) < -25)
-                                  Text('• Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customerData!['onu_level']))),
-                                  if (customerData!['status'] == 'Отключен')
-                                  const Text('• Абонент отключен', style: TextStyle(color: AppColors.error)),
-                                  if (customerData!['status'] == 'Пауза')
-                                  const Text('• Абонент на паузе', style: TextStyle(color: AppColors.warning)),
-                                  if (_getActivityColor(customerData!['last_activity']) == AppColors.error)
-                                  const Text('• Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error)),
-                                  if (_getBoxBorderColor(boxData?['customers']) == AppColors.error)
-                                  const Text('• Проблемы в коробке', style: TextStyle(color: AppColors.error))
-                                ]
+                            if (customerData!['inventory'].isEmpty)
+                            const Center(
+                              child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                            ),
+                            if (customerData!['inventory'].isNotEmpty)
+                            const Row(
+                              children: [
+                                Expanded(
+                                  flex: 5,
+                                  child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                                ),
+                                Expanded(
+                                  flex: 6,
+                                  child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                                )
+                              ]
+                            ),
+                            if (customerData!['inventory'].isNotEmpty)
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: customerData!['inventory'].length,
+                                itemBuilder: (c, i){
+                                  final equipment = customerData!['inventory'][i];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 5,
+                                          child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                                        ),
+                                        Expanded(
+                                          flex: 6,
+                                          child: equipment['sn'] == null?
+                                            const Text('-', softWrap: true, textAlign: TextAlign.center)
+                                            : InkWell(
+                                            onTap: _openONT,
+                                            child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                                              style: const TextStyle(color: AppColors.neo,
+                                              decorationColor: AppColors.neo,
+                                              decoration: TextDecoration.underline)
+                                            )
+                                          )
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
+                                        )
+                                      ]
+                                    )
+                                  );
+                                }
                               )
                             )
                           ]
                         )
                       ),
                       Expanded(
-                        flex: 2,
                         child: Column(
                           children: [
-                            Expanded(
-                              child: Row(
+                            BoxCard(
+                              lineColor: _getTaskBorderColor(taskData),
+                              icon: Icons.assignment,
+                              title: 'Задания абонента',
+                              last: true,
+                              child: customerData == null? const Center(child: AngularProgressBar()) :
+                              Column(
                                 children: [
-                                  BoxCard(
-                                    lineColor: AppColors.main,
-                                    icon: Icons.menu,
-                                    title: 'Меню действий',
-                                    last: !showBox,
-                                    child: Align(
-                                      alignment: Alignment.topCenter,
-                                      child: Column(
-                                        spacing: 5,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: _openAttachs,
-                                              icon: const Icon(Icons.attach_file),
-                                              label: const Text('Открыть вложения')
-                                            )
-                                          ),
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: !showBox ? _loadBoxData : null,
-                                              icon: const Icon(Icons.group),
-                                              label: Text(!showBox ? 'Загрузить соседей' : 'Соседи загружены')
-                                            )
-                                          ),
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: _openNewTask,
-                                              icon: const Icon(Icons.assignment_add),
-                                              label: const Text('Создать задание')
-                                            )
-                                          ),
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: _openONT,
-                                              icon: const Icon(Icons.router_outlined),
-                                              label: const Text('Загрузить данные по модему')
-                                            )
-                                          ),
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: () => _openCustomerInUS(customerData!['id']),
-                                              icon: const Icon(Icons.open_in_browser),
-                                              label: const Text('Открыть абонента в UserSide')
-                                            )
-                                          ),
-                                          SizedBox(
-                                            width: 270,
-                                            child: ElevatedButton.icon(
-                                              onPressed: () => _copyCustomerLink(customerData!['id']),
-                                              icon: const Icon(Icons.copy),
-                                              label: const Text('Скопировать ссылку')
-                                            )
-                                          )
-                                        ]
-                                      )
-                                    )
+                                  if (taskData!.isEmpty)
+                                  const Center(
+                                    child: Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary))
+                                  )
+                                  else
+                                  const Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text('ID', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(
+                                        flex: 5,
+                                        child: Text('Тип задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(
+                                        flex: 5,
+                                        child: Text('Дата создания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(child: SizedBox()) // space for open button
+                                    ]
                                   ),
-                                  if (showBox)
-                                  BoxCard(
-                                    lineColor: _getBoxBorderColor(boxData?['customers']),
-                                    icon: Icons.dns,
-                                    title: 'Коробка',
-                                    last: true,
-                                    miniButtons: [
-                                      Tooltip(
-                                        message: 'Создать задание (Магистральный ремонт)',
-                                        child: IconButton(
-                                          onPressed: boxData != null? (){
-                                            showDialog(context: context, builder: (context){
-                                              return NewTaskDialog(
-                                                customerId: customerData!['id'],
-                                                boxId: customerData!['box_id'],
-                                                phones: customerData!['phones'],
-                                                box: true,
-                                              );
-                                            });
-                                          } : null,
-                                          icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18)
-                                        )
-                                      ),
-                                      Tooltip(
-                                        message: 'Загрузить данные коробки',
-                                        child: IconButton(
-                                          onPressed: boxData == null ? _loadBoxData : null,
-                                          icon: Icon(Icons.download, size: 18, color: boxData != null? AppColors.secondary : AppColors.neo)
-                                        )
-                                      ),
-                                    ],
-                                    child: boxData == null? const Center(child: AngularProgressBar()) :
-                                      Column(
-                                        children: [
-                                          if (noBox)
-                                          const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            spacing: 5,
+                                  if (taskData!.isNotEmpty)
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: taskData!.length,
+                                      itemBuilder: (c, i){
+                                        final task = taskData![i];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 6),
+                                          child: Row(
                                             children: [
-                                              Icon(Icons.warning_amber_outlined, color: AppColors.error),
-                                              Text('Коробка не найдена', style: TextStyle(color: AppColors.error))
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(task['id'].toString(), style: const TextStyle(fontSize: 12)) //
+                                              ),
+                                              Expanded(
+                                                flex: 5,
+                                                child: Text(task['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                                              ),
+                                              Expanded(
+                                                flex: 5,
+                                                child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
+                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id'])))
+                                              ),
+                                              Expanded(
+                                                flex: 3,
+                                                child: Text(task['status']['name'], softWrap: true, textAlign: TextAlign.center,
+                                                  style: TextStyle(color: _getTaskStatusColor(task['status']['id'] ?? 0)))
+                                              ),
+                                              Expanded(
+                                                child: IconButton(
+                                                  onPressed: (){
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context){
+                                                        return TaskDialog(taskId: task['id']);
+                                                      }
+                                                    );
+                                                  },
+                                                  icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
+                                                )
+                                              )
                                             ]
                                           )
-                                          else ...[
-                                            InfoTile(
-                                              title: 'Название коробки',
-                                              value: boxData?['name'] ?? '-'
-                                            ),
-                                            InfoTile(
-                                              title: 'Открытые задания',
-                                              value: boxData?['box_tasks']?.length.toString() ?? '-',
-                                              valueColor: boxData?['box_tasks'] == null? AppColors.main : boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error,
-                                            ),
-                                            const SizedBox(height: 6),
-                                            const Row(
-                                              children: [
-                                                Icon(Icons.group, color: AppColors.neo),
-                                                SizedBox(width: 8),
-                                                Text('Соседи', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                                              ]
-                                            ),
-                                            const Divider(),
-                                            const SizedBox(height: 8),
-                                            const Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 7,
-                                                  child: Text('Имя', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                                                ),
-                                                Expanded(
-                                                  flex: 3,
-                                                  child: Text('Задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                                ),
-                                                Expanded(
-                                                  flex: 6,
-                                                  child: Text('Активность', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                                ),
-                                                Expanded(
-                                                  flex: 4,
-                                                  child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text('rx', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                                                )
-                                              ]
-                                            ),
-                                            const SizedBox(height: 8),
-                                            if (boxData?['customers']?.isNotEmpty ?? false)
-                                            Expanded(
-                                              child: ListView.builder(
-                                                itemCount: boxData?['customers']?.length ?? 0,
-                                                itemBuilder: (c, i) {
-                                                  final neighbour = boxData!['customers'][i];
-                                                  return Padding(
-                                                    padding: const EdgeInsets.only(bottom: 6),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          flex: 7,
-                                                          child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
-                                                        ),
-                                                        Expanded(
-                                                          flex: 3,
-                                                          child: Text(
-                                                            neighbour['tasks']?.length.toString() ?? '-',
-                                                            textAlign: TextAlign.center,
-                                                            style: TextStyle(
-                                                              color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
-                                                            )
-                                                          )
-                                                        ),
-                                                        Expanded(
-                                                          flex: 6,
-                                                          child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
-                                                            style: TextStyle(color: _getActivityColor(neighbour['last_activity']))
-                                                          )
-                                                        ),
-                                                        Expanded(
-                                                          flex: 4,
-                                                          child: Text(
-                                                            neighbour['status'], textAlign: TextAlign.center,
-                                                            style: TextStyle(color: _getStatusColor(neighbour['status']))
-                                                          )
-                                                        ),
-                                                        Expanded(
-                                                          flex: 2,
-                                                          child: Text(
-                                                            _convertSignal(neighbour['onu_level']), textAlign: TextAlign.end,
-                                                            style: TextStyle(color: _getSignalColor(neighbour['onu_level']))
-                                                          )
-                                                        )
-                                                      ]
-                                                    )
-                                                  );
-                                                }
-                                              )
-                                            )
-                                            else
-                                            const Text('У абонента нет соседей', style: TextStyle(color: AppColors.secondary))
-                                          ]
-                                        ]
-                                      )
+                                        );
+                                      }
+                                    )
                                   )
                                 ]
                               )
                             ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  BoxCard(
-                                    lineColor: AppColors.main,
-                                    icon: Icons.device_hub,
-                                    title: 'Оборудование',
-                                    child: customerData == null? const Center(child: AngularProgressBar()) :
-                                    Column(
-                                      children: [
-                                        if (customerData!['inventory'].isEmpty)
-                                        const Center(
-                                          child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
-                                        ),
-                                        if (customerData!['inventory'].isNotEmpty)
-                                        const Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 5,
-                                              child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(
-                                              flex: 6,
-                                              child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(
-                                              flex: 2,
-                                              child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                                            )
-                                          ]
-                                        ),
-                                        if (customerData!['inventory'].isNotEmpty)
-                                        Expanded(
-                                          child: ListView.builder(
-                                            itemCount: customerData!['inventory'].length,
-                                            itemBuilder: (c, i){
-                                              final equipment = customerData!['inventory'][i];
-                                              return Padding(
-                                                padding: const EdgeInsets.only(bottom: 6),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
-                                                    ),
-                                                    Expanded(
-                                                      flex: 6,
-                                                      child: equipment['sn'] == null?
-                                                        const Text('-', softWrap: true, textAlign: TextAlign.center)
-                                                        : InkWell(
-                                                        onTap: _openONT,
-                                                        child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                                                          style: const TextStyle(color: AppColors.neo,
-                                                          decorationColor: AppColors.neo,
-                                                          decoration: TextDecoration.underline))
-                                                      )
-                                                    ),
-                                                    Expanded(
-                                                      flex: 2,
-                                                      child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
-                                                    )
-                                                  ]
-                                                )
-                                              );
-                                            }
-                                          )
-                                        )
-                                      ]
-                                    )
-                                  ),
-                                  BoxCard(
-                                    lineColor: _getTaskBorderColor(taskData),
-                                    icon: Icons.assignment,
-                                    title: 'Задания абонента',
-                                    last: true,
-                                    child: customerData == null? const Center(child: AngularProgressBar()) :
-                                    Column(
-                                      children: [
-                                        if (taskData!.isEmpty)
-                                        const Center(
-                                          child: Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary))
-                                        )
-                                        else
-                                        const Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 2,
-                                              child: Text('ID', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(
-                                              flex: 5,
-                                              child: Text('Тип задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(
-                                              flex: 5,
-                                              child: Text('Дата создания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(
-                                              flex: 3,
-                                              child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                            ),
-                                            Expanded(child: SizedBox()) // space for open button
-                                          ]
-                                        ),
-                                        if (taskData!.isNotEmpty)
-                                        Expanded(
-                                          child: ListView.builder(
-                                            itemCount: taskData!.length,
-                                            itemBuilder: (c, i){
-                                              final task = taskData![i];
-                                              return Padding(
-                                                padding: const EdgeInsets.only(bottom: 6),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 2,
-                                                      child: Text(task['id'].toString(), style: const TextStyle(fontSize: 12)) //
-                                                    ),
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(task['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
-                                                    ),
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
-                                                        style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id'])))
-                                                    ),
-                                                    Expanded(
-                                                      flex: 3,
-                                                      child: Text(task['status']['name'], softWrap: true, textAlign: TextAlign.center,
-                                                        style: TextStyle(color: _getTaskStatusColor(task['status']['id'] ?? 0)))
-                                                    ),
-                                                    Expanded(
-                                                      child: IconButton(
-                                                        onPressed: (){
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (context){
-                                                              return TaskDialog(taskId: task['id']);
-                                                            }
-                                                          );
-                                                        },
-                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
-                                                      )
-                                                    )
-                                                  ]
-                                                )
-                                              );
-                                            }
-                                          )
-                                        )
-                                      ]
-                                    )
-                                  )
-                                ]
-                              )
+                            const BoxCard(
+                              lineColor: AppColors.neo,
+                              title: '',
+                              last: true,
+                              child: Center(child: Text('coming soon', style: TextStyle(color: AppColors.secondary, fontSize: 12)))
                             )
-                          ]
-                        )
+                          ],
+                        ),
                       )
+                      // Expanded(
+                      //   child: Row(
+                      //     children: [
+                      //       BoxCard(
+                      //         lineColor: AppColors.main,
+                      //         icon: Icons.menu,
+                      //         title: 'Меню действий',
+                      //         last: !showBox,
+                      //         child: Align(
+                      //           alignment: Alignment.topCenter,
+                      //           child: Column(
+                      //             spacing: 5,
+                      //             mainAxisSize: MainAxisSize.min,
+                      //             children: [
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: _openAttachs,
+                      //                   icon: const Icon(Icons.attach_file),
+                      //                   label: const Text('Открыть вложения')
+                      //                 )
+                      //               ),
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: !showBox ? _loadBoxData : null,
+                      //                   icon: const Icon(Icons.group),
+                      //                   label: Text(!showBox ? 'Загрузить соседей' : 'Соседи загружены')
+                      //                 )
+                      //               ),
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: _openNewTask,
+                      //                   icon: const Icon(Icons.assignment_add),
+                      //                   label: const Text('Создать задание')
+                      //                 )
+                      //               ),
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: _openONT,
+                      //                   icon: const Icon(Icons.router_outlined),
+                      //                   label: const Text('Загрузить данные по модему')
+                      //                 )
+                      //               ),
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: () => _openCustomerInUS(customerData!['id']),
+                      //                   icon: const Icon(Icons.open_in_browser),
+                      //                   label: const Text('Открыть абонента в UserSide')
+                      //                 )
+                      //               ),
+                      //               SizedBox(
+                      //                 width: 270,
+                      //                 child: ElevatedButton.icon(
+                      //                   onPressed: () => _copyCustomerLink(customerData!['id']),
+                      //                   icon: const Icon(Icons.copy),
+                      //                   label: const Text('Скопировать ссылку')
+                      //                 )
+                      //               )
+                      //             ]
+                      //           )
+                      //         )
+                      //       ),
+                      //                                       ]
+                      //   )
+                      // ),
+                      // BoxCard(
+                      //   lineColor: AppColors.main,
+                      //   icon: Icons.device_hub,
+                      //   title: 'Оборудование',
+                      //   last: true,
+                      //   child: customerData == null? const Center(child: AngularProgressBar()) :
+                      //   Column(
+                      //     children: [
+                      //       if (customerData!['inventory'].isEmpty)
+                      //       const Center(
+                      //         child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                      //       ),
+                      //       if (customerData!['inventory'].isNotEmpty)
+                      //       const Row(
+                      //         children: [
+                      //           Expanded(
+                      //             flex: 5,
+                      //             child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                      //           ),
+                      //           Expanded(
+                      //             flex: 6,
+                      //             child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                      //           ),
+                      //           Expanded(
+                      //             flex: 2,
+                      //             child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                      //           )
+                      //         ]
+                      //       ),
+                      //       if (customerData!['inventory'].isNotEmpty)
+                      //       Expanded(
+                      //         child: ListView.builder(
+                      //           itemCount: customerData!['inventory'].length,
+                      //           itemBuilder: (c, i){
+                      //             final equipment = customerData!['inventory'][i];
+                      //             return Padding(
+                      //               padding: const EdgeInsets.only(bottom: 6),
+                      //               child: Row(
+                      //                 children: [
+                      //                   Expanded(
+                      //                     flex: 5,
+                      //                     child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                      //                   ),
+                      //                   Expanded(
+                      //                     flex: 6,
+                      //                     child: equipment['sn'] == null?
+                      //                       const Text('-', softWrap: true, textAlign: TextAlign.center)
+                      //                       : InkWell(
+                      //                       onTap: _openONT,
+                      //                       child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                      //                         style: const TextStyle(color: AppColors.neo,
+                      //                         decorationColor: AppColors.neo,
+                      //                         decoration: TextDecoration.underline))
+                      //                     )
+                      //                   ),
+                      //                   Expanded(
+                      //                     flex: 2,
+                      //                     child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
+                      //                   )
+                      //                 ]
+                      //               )
+                      //             );
+                      //           }
+                      //         )
+                      //       )
+                      //     ]
+                      //   )
+                      // ),
                     ]
                   )
                 )
@@ -1207,4 +1292,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 
