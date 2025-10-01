@@ -197,6 +197,8 @@ class _TaskDialogState extends State<TaskDialog> {
                     _KV('Создано', formatDate(task?['timestamps']?['created_at'])),
                     _KV('Запланировано', formatDate(task?['timestamps']?['planned_at'])),
                     _KV('Обновлено', formatDate(task?['timestamps']?['updated_at'])),
+                    _KV('Выполнено', formatDate(task?['timestamps']?['completed_at'])),
+
                     // _KV('Дедлайн (ч)', task?['timestamps']?['deadline']?.toString())
                   ]
                 )
