@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
-import 'package:smartlink/chat.dart';
 import 'package:smartlink/dialogs/attach.dart';
 import 'package:smartlink/dialogs/newtask.dart';
 import 'package:smartlink/dialogs/ont.dart';
@@ -73,12 +73,12 @@ class BoxCard extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Row(
+            spacing: 8,
             children: [
               Container(
                 width: 6,
                 color: lineColor
               ),
-              const SizedBox(width: 8),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 16, right: 16),
@@ -96,7 +96,7 @@ class BoxCard extends StatelessWidget {
                             ]
                           ),
                           Row(
-                            spacing: 4,
+                            spacing: 2,
                             children: miniButtons
                           )
                         ]
@@ -508,6 +508,36 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _openNewTask() {
+    if (customerData != null){
+      l.i('show newtask dialog');
+      showDialog(context: context, builder: (context){
+        return NewTaskDialog(
+          customerId: customerData!['id'],
+          boxId: customerData!['box_id'],
+          phones: customerData!['phones']
+        );
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Абонент не загружен', style: TextStyle(color: AppColors.warning))
+      ));
+    }
+  }
+
+  void _openCustomerInUS(int id) async {
+    await _openUrl('https://us.neotelecom.kg/customer/$id');
+  }
+
+  void _copyCustomerLink(int id) async {
+    await Clipboard.setData(ClipboardData(text: 'https://us.neotelecom.kg/customer/$id'));
+    if (mounted){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ссылка скопирована', style: TextStyle(color: AppColors.success)))
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -599,7 +629,49 @@ class _HomePageState extends State<HomePage> {
                       BoxCard(
                         lineColor: _getCustomerBorderColor(customerData),
                         icon: Icons.person,
-                        title: 'Информация по абоненту',
+                        title: 'Абонент',
+                        miniButtons: [
+                          Tooltip(
+                            message: 'Открыть вложения абонент и его заданий',
+                            child: IconButton(
+                              onPressed: _openAttachs,
+                              icon: const Icon(Icons.attach_file, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
+                          Tooltip(
+                            message: 'Создать задание (Выезд на ремонт)',
+                            child: IconButton(
+                              onPressed: _openNewTask,
+                              icon: const Icon(Icons.assignment_add, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
+                          Tooltip(
+                            message: 'Открыть данные по ONT',
+                            child: IconButton(
+                              onPressed: _openONT,
+                              icon: const Icon(Icons.router_outlined, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
+                          Tooltip(
+                            message: 'Открыть абонента в UserSide',
+                            child: IconButton(
+                              onPressed: () => _openCustomerInUS(customerData!['id']),
+                              icon: const Icon(Icons.open_in_browser, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
+                          Tooltip(
+                            message: 'Копировать ссылку на абонента в UserSide',
+                            child: IconButton(
+                              onPressed: () => _copyCustomerLink(customerData!['id']),
+                              icon: const Icon(Icons.copy, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          )
+                        ],
                         child: customerData == null? const Center(child: AngularProgressBar()) :
                         Column(
                           children: [
@@ -784,22 +856,7 @@ class _HomePageState extends State<HomePage> {
                                           SizedBox(
                                             width: 270,
                                             child: ElevatedButton.icon(
-                                              onPressed: () {
-                                                if (customerData != null){
-                                                  l.i('show task dialog, reason: create task');
-                                                  showDialog(context: context, builder: (context){
-                                                    return NewTaskDialog(
-                                                      customerId: customerData!['id'],
-                                                      boxId: customerData!['box_id'],
-                                                      phones: customerData!['phones']
-                                                    );
-                                                  });
-                                                } else {
-                                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                    content: Text('Абонент не загружен', style: TextStyle(color: AppColors.warning))
-                                                  ));
-                                                }
-                                              },
+                                              onPressed: _openNewTask,
                                               icon: const Icon(Icons.assignment_add),
                                               label: const Text('Создать задание')
                                             )
@@ -815,7 +872,7 @@ class _HomePageState extends State<HomePage> {
                                           SizedBox(
                                             width: 270,
                                             child: ElevatedButton.icon(
-                                              onPressed: () async => await _openUrl('https://us.neotelecom.kg/customer/${customerData!['id']}'),
+                                              onPressed: () => _openCustomerInUS(customerData!['id']),
                                               icon: const Icon(Icons.open_in_browser),
                                               label: const Text('Открыть абонента в UserSide')
                                             )
@@ -823,9 +880,7 @@ class _HomePageState extends State<HomePage> {
                                           SizedBox(
                                             width: 270,
                                             child: ElevatedButton.icon(
-                                              onPressed: (){
-                                                //TODO
-                                              },
+                                              onPressed: () => _copyCustomerLink(customerData!['id']),
                                               icon: const Icon(Icons.copy),
                                               label: const Text('Скопировать ссылку')
                                             )
@@ -838,7 +893,7 @@ class _HomePageState extends State<HomePage> {
                                   BoxCard(
                                     lineColor: _getBoxBorderColor(boxData?['customers']),
                                     icon: Icons.dns,
-                                    title: 'Информация по коробке',
+                                    title: 'Коробка',
                                     last: true,
                                     miniButtons: [
                                       Tooltip(
@@ -854,10 +909,16 @@ class _HomePageState extends State<HomePage> {
                                               );
                                             });
                                           } : null,
-                                          icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18),
-                                          splashRadius: 14,
-                                        ),
-                                      )
+                                          icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18)
+                                        )
+                                      ),
+                                      Tooltip(
+                                        message: 'Загрузить данные коробки',
+                                        child: IconButton(
+                                          onPressed: boxData == null ? _loadBoxData : null,
+                                          icon: Icon(Icons.download, size: 18, color: boxData != null? AppColors.secondary : AppColors.neo)
+                                        )
+                                      ),
                                     ],
                                     child: boxData == null? const Center(child: AngularProgressBar()) :
                                       Column(
@@ -916,6 +977,7 @@ class _HomePageState extends State<HomePage> {
                                               ]
                                             ),
                                             const SizedBox(height: 8),
+                                            if (boxData?['customers']?.isNotEmpty ?? false)
                                             Expanded(
                                               child: ListView.builder(
                                                 itemCount: boxData?['customers']?.length ?? 0,
@@ -965,6 +1027,8 @@ class _HomePageState extends State<HomePage> {
                                                 }
                                               )
                                             )
+                                            else
+                                            const Text('У абонента нет соседей', style: TextStyle(color: AppColors.secondary))
                                           ]
                                         ]
                                       )
@@ -1114,8 +1178,7 @@ class _HomePageState extends State<HomePage> {
                                                             }
                                                           );
                                                         },
-                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo),
-                                                        splashRadius: 12,
+                                                        icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
                                                       )
                                                     )
                                                   ]

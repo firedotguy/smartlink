@@ -124,7 +124,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     }
                   },
                   icon: const Icon(Icons.copy, size: 16, color: AppColors.neo),
-                  splashRadius: 14
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
               Tooltip(
@@ -133,8 +133,8 @@ class _TaskDialogState extends State<TaskDialog> {
                   onPressed: () async {
                     await _openUrl('https://us.neotelecom.kg/task/${widget.taskId}');
                   },
-                  icon: const Icon(Icons.open_in_new, size: 16, color: AppColors.neo),
-                  splashRadius: 14
+                  icon: const Icon(Icons.open_in_browser, size: 16, color: AppColors.neo),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
               Tooltip(
@@ -144,7 +144,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.close, size: 16, color: AppColors.error),
-                  splashRadius: 14
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               )
             ]
@@ -159,7 +159,7 @@ class _TaskDialogState extends State<TaskDialog> {
             children: [
               _KV('Тип', task?['type']?['name']),
               _KV('Адрес', task?['address']),
-              _KV('Клиент', task?['customer']?.toString()),
+              _KV('Абонент', task?['customer']?.toString()),
               _KV('Автор', task?['author_id']?.toString()),
               const SizedBox(height: 8),
               _Section(
