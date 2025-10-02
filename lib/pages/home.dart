@@ -20,13 +20,13 @@ class InfoTile extends StatelessWidget {
     required this.title,
     required this.value,
     this.valueColor,
-    this.underlineColor = AppColors.neo,
+    // this.underlineColor = AppColors.neo,
     this.onTap,
     super.key
   });
   final String title;
   final String value;
-  final Color underlineColor;
+  // final Color underlineColor;
   final VoidCallback? onTap;
   final Color? valueColor;
 
@@ -39,13 +39,13 @@ class InfoTile extends StatelessWidget {
         children: [
           Text(title, style: const TextStyle(color: AppColors.secondary)),
           if (onTap != null)
-          InkWell(
-            onTap: onTap,
-            child: Flexible(
+          Flexible(
+            child: InkWell(
+              onTap: onTap,
               child: Text(
                 value,
                 textAlign: TextAlign.right,
-                style: TextStyle(color: valueColor ?? AppColors.main, decoration: TextDecoration.underline, decorationColor: underlineColor)
+                style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
               )
             )
           )
@@ -151,7 +151,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // TODO: remove unused variables and refactor loading (make Enum class)
+  // TODO: refactor loading (make Enum class)
   bool load = false;
   // search
   bool search = true;
@@ -166,18 +166,18 @@ class _HomePageState extends State<HomePage> {
 
   // customer
   int? id;
-  Map? customerData;
+  Map? customer;
 
   // box
   bool showBox = false;
   bool noBox = false;
-  Map? boxData;
+  Map? box;
 
   // attach
-  Map? attachData;
+  Map? attachs;
 
   // task
-  List<Map>? taskData;
+  List<Map>? tasks;
 
 
   // utils
@@ -310,20 +310,20 @@ class _HomePageState extends State<HomePage> {
         l.i('load box data');
         setState(() {
           load = true;
-          boxData = null;
+          box = null;
           showBox = true;
           noBox = false;
         });
-        boxData = await getBox(customerData!['box_id']);
-        if (boxData!['status'] == 'fail'){
+        box = await getBox(customer!['box_id']);
+        if (box!['status'] == 'fail'){
           l.w('box not found');
           setState(() {
             noBox = true;
           });
         }
         // remove search customer from neighbours
-        boxData!['customers']?.removeWhere(
-          (n) => n['id'] == customerData!['id']
+        box!['customers']?.removeWhere(
+          (n) => n['id'] == customer!['id']
         );
         setState(() {
           load = false;
@@ -342,31 +342,35 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _loadCustomerData(Map e) async {
+  Future<void> _loadCustomerData(int id, {bool loadBox = true}) async {
     try {
-      l.i('load customer ${e['id']}');
+      l.i('load customer $id');
       searchController.clear();
       if (!load) {
         setState(() {
           load = true;
-          customerData = null;
-          taskData = null;
-          attachData = null;
-          boxData = null;
-          showBox = false;
+          customer = null;
+          tasks = null;
+          attachs = null;
+          if (loadBox){
+            box = null;
+            showBox = false;
+          }
           search = false;
           searching = false;
         });
-        customerData = await getCustomer(e['id']);
-        taskData = List<Map>.from(customerData!['tasks']);
+        customer = await getCustomer(id);
+        tasks = List<Map>.from(customer!['tasks']);
         setState(() {
           load = false;
           customers.clear();
         });
         // if (loadNeighbours != 'never'){
-        //   if (customerData!['status'] == 'Отключен' || _getActivityColor(customerData!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
+        //   if (customer!['status'] == 'Отключен' || _getActivityColor(customer!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
         //     l.i('something wrong with customer or loadNeighbours is "always", automatically load box');
+        if (loadBox){
             await _loadBoxData();
+        }
         //   }
         // } else {
         //   l.i('neighbours not load becuase loadNeigbours is "never"');
@@ -389,7 +393,7 @@ class _HomePageState extends State<HomePage> {
     l.i('search submitted - value: $v');
     if (searching) return;
     if (customers.isNotEmpty) {
-      await _loadCustomerData(customers.first);
+      await _loadCustomerData(customers.first['id']);
     } else {
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -472,7 +476,7 @@ class _HomePageState extends State<HomePage> {
 
   // button callbacks
   Future<void> _openAttachs() async {
-    l.i('get attachments for customer ${customerData!['id']}');
+    l.i('get attachments for customer ${customer!['id']}');
     if (context.mounted) {
       l.i('show attach dialog, reason: open attachments');
       showDialog(
@@ -480,11 +484,11 @@ class _HomePageState extends State<HomePage> {
         builder: (context) {
           return StatefulBuilder(
             builder: (context, setStateDialog) {
-              if (attachData == null) {
+              if (attachs == null) {
                 try {
-                  getAttach(customerData!['id']).then((res) {
+                  getAttach(customer!['id']).then((res) {
                     setState(() {
-                      attachData = res;
+                      attachs = res;
                     });
                     setStateDialog(() {});
                   });
@@ -498,8 +502,8 @@ class _HomePageState extends State<HomePage> {
                 }
               }
               return AttachDialog(
-                data: attachData,
-                load: attachData == null
+                data: attachs,
+                load: attachs == null
               );
             }
           );
@@ -509,31 +513,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _openONT() {
-    if (customerData == null) {
+    if (customer == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Дождитесь загрузки абонента', style: TextStyle(color: AppColors.warning))));
       return;
     }
-    if (customerData!['sn'] == null){
+    if (customer!['sn'] == null){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('У абонента нет ТМЦ с SN', style: TextStyle(color: AppColors.warning))));
       return;
     }
-    if (customerData!['olt_id'] == null){
+    if (customer!['olt_id'] == null){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('OLT не найден', style: TextStyle(color: AppColors.error))));
       return;
     }
     showDialog(context: context, builder: (context){
-      return OntDialog(oltId: customerData!['olt_id'], sn: customerData!['sn']);
+      return OntDialog(oltId: customer!['olt_id'], sn: customer!['sn']);
     });
   }
 
   void _openNewTask() {
-    if (customerData != null){
+    if (customer != null){
       l.i('show newtask dialog');
       showDialog(context: context, builder: (context){
         return NewTaskDialog(
-          customerId: customerData!['id'],
-          boxId: customerData!['box_id'],
-          phones: customerData!['phones']
+          customerId: customer!['id'],
+          boxId: customer!['box_id'],
+          phones: customer!['phones']
         );
       });
     } else {
@@ -541,6 +545,17 @@ class _HomePageState extends State<HomePage> {
         content: Text('Абонент не загружен', style: TextStyle(color: AppColors.warning))
       ));
     }
+  }
+
+  void _openNewBoxTask(){
+    showDialog(context: context, builder: (context){
+      return NewTaskDialog(
+        customerId: customer!['id'],
+        boxId: customer!['box_id'],
+        phones: customer!['phones'],
+        box: true
+      );
+    });
   }
 
   void _openCustomerInUS(int id) async {
@@ -578,7 +593,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     if (widget.customerId != null){
-      _loadCustomerData({'id': widget.customerId, 'name': ''});
+      _loadCustomerData(widget.customerId!);
     }
     _getSettings();
   }
@@ -649,7 +664,7 @@ class _HomePageState extends State<HomePage> {
                       itemBuilder: (context, index) {
                         final e = customers[index];
                         return InkWell(
-                          onTap: () async => await _loadCustomerData(e),
+                          onTap: () async => await _loadCustomerData(e['id']),
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 2),
                             child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
@@ -664,35 +679,26 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     children: [
                       BoxCard(
-                        lineColor: _getBoxBorderColor(boxData?['customers']),
+                        lineColor: _getBoxBorderColor(box?['customers']),
                         icon: Icons.dns,
                         title: 'Коробка',
                         miniButtons: [
                           Tooltip(
                             message: 'Создать задание (Магистральный ремонт)',
                             child: IconButton(
-                              onPressed: boxData != null? (){
-                                showDialog(context: context, builder: (context){
-                                  return NewTaskDialog(
-                                    customerId: customerData!['id'],
-                                    boxId: customerData!['box_id'],
-                                    phones: customerData!['phones'],
-                                    box: true
-                                  );
-                                });
-                              } : null,
-                              icon: Icon(Icons.assignment_add, color: boxData == null? AppColors.secondary : AppColors.neo, size: 18)
+                              onPressed: box != null? _openNewBoxTask : null,
+                              icon: Icon(Icons.assignment_add, color: box == null? AppColors.secondary : AppColors.neo, size: 18)
                             )
                           ),
-                          // Tooltip(
-                          //   message: 'Загрузить данные коробки',
-                          //   child: IconButton(
-                          //     onPressed: boxData == null ? _loadBoxData : null,
-                          //     icon: Icon(Icons.download, size: 18, color: boxData != null? AppColors.secondary : AppColors.neo)
-                          //   )
-                          // )
+                          Tooltip(
+                            message: 'Обновить данные',
+                            child: IconButton(
+                              onPressed: box != null? _loadBoxData : null,
+                              icon: Icon(Icons.refresh, size: 18, color: box == null? AppColors.secondary : AppColors.neo)
+                            )
+                          )
                         ],
-                        child: boxData == null? const Center(child: AngularProgressBar()) : Column(
+                        child: box == null? const Center(child: AngularProgressBar()) : Column(
                           children: [
                             if (noBox)
                             const Row(
@@ -706,21 +712,20 @@ class _HomePageState extends State<HomePage> {
                             else ...[
                               InfoTile(
                                 title: 'Название коробки',
-                                value: boxData?['name'] ?? '-'
+                                value: box?['name'] ?? '-'
                               ),
                               InfoTile(
                                 title: 'Открытые задания',
-                                value: boxData?['box_tasks']?.length.toString() ?? '-',
-                                valueColor: boxData?['box_tasks'] == null? AppColors.main :
-                                  boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error,
-                                onTap: boxData?['box_tasks'] == null? null : boxData!['box_tasks'].length == 0? null : (){
-                                  if (boxData!['box_tasks'].length == 1){
-                                    _openTask(boxData!['box_tasks'].first);
+                                value: box?['box_tasks']?.length.toString() ?? '-',
+                                valueColor: box?['box_tasks'] == null? AppColors.main :
+                                  box!['box_tasks'].length == 0? AppColors.success : AppColors.error,
+                                onTap: box?['box_tasks'] == null? null : box!['box_tasks'].length == 0? null : (){
+                                  if (box!['box_tasks'].length == 1){
+                                    _openTask(box!['box_tasks'].first);
                                   } else {
-                                    _openTasks(boxData!['box_tasks']);
+                                    _openTasks(List<int>.from(box!['box_tasks']));
                                   }
-                                },
-                                underlineColor: AppColors.error
+                                }
                               ),
                               const SizedBox(height: 6),
                               const Row(
@@ -757,12 +762,12 @@ class _HomePageState extends State<HomePage> {
                                 ]
                               ),
                               const SizedBox(height: 8),
-                              if (boxData?['customers']?.isNotEmpty ?? false)
+                              if (box?['customers']?.isNotEmpty ?? false)
                               Expanded(
                                 child: ListView.builder(
-                                  itemCount: boxData?['customers']?.length ?? 0,
+                                  itemCount: box?['customers']?.length ?? 0,
                                   itemBuilder: (c, i) {
-                                    final neighbour = boxData!['customers'][i];
+                                    final neighbour = box!['customers'][i];
                                     return Padding(
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: Row(
@@ -771,22 +776,30 @@ class _HomePageState extends State<HomePage> {
                                             flex: 7,
                                             child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
                                           ),
-                                          InkWell(
-                                            onTap: () {
-                                              if (neighbour['tasks'].length == 1){
-                                                _openTask(neighbour['tasks'].first);
-                                              } else {
-                                                _openTasks(neighbour!['tasks']);
-                                              }
-                                            },
-                                            child: Expanded(
-                                              flex: 3,
+                                          if (neighbour['tasks']?.isEmpty ?? true)
+                                          Expanded(
+                                            flex: 3,
+                                            child: Text(
+                                              neighbour['tasks']?.length.toString() ?? '-',
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(color: AppColors.success)
+                                            )
+                                          )
+                                          else
+                                          Expanded(
+                                            flex: 3,
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (neighbour['tasks'].length == 1){
+                                                  _openTask(neighbour['tasks'].first);
+                                                } else {
+                                                  _openTasks(List<int>.from(neighbour!['tasks']));
+                                                }
+                                              },
                                               child: Text(
                                                 neighbour['tasks']?.length.toString() ?? '-',
                                                 textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
-                                                )
+                                                style: const TextStyle(color: AppColors.error)
                                               )
                                             )
                                           ),
@@ -823,10 +836,18 @@ class _HomePageState extends State<HomePage> {
                         )
                       ),
                       BoxCard(
-                        lineColor: _getCustomerBorderColor(customerData),
+                        lineColor: _getCustomerBorderColor(customer),
                         icon: Icons.person,
                         title: 'Абонент',
                         miniButtons: [
+                          Tooltip(
+                            message: 'Открыть данные по ONT',
+                            child: IconButton(
+                              onPressed: _openONT,
+                              icon: const Icon(Icons.router_outlined, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
                           Tooltip(
                             message: 'Открыть вложения абонент и его заданий',
                             child: IconButton(
@@ -844,17 +865,9 @@ class _HomePageState extends State<HomePage> {
                             )
                           ),
                           Tooltip(
-                            message: 'Открыть данные по ONT',
-                            child: IconButton(
-                              onPressed: _openONT,
-                              icon: const Icon(Icons.router_outlined, size: 18, color: AppColors.neo),
-                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
-                            )
-                          ),
-                          Tooltip(
                             message: 'Открыть абонента в UserSide',
                             child: IconButton(
-                              onPressed: () => _openCustomerInUS(customerData!['id']),
+                              onPressed: () => _openCustomerInUS(customer!['id']),
                               icon: const Icon(Icons.open_in_browser, size: 18, color: AppColors.neo),
                               constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                             )
@@ -862,16 +875,24 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Копировать ссылку на абонента в UserSide',
                             child: IconButton(
-                              onPressed: () => _copyCustomerLink(customerData!['id']),
+                              onPressed: () => _copyCustomerLink(customer!['id']),
                               icon: const Icon(Icons.copy, size: 18, color: AppColors.neo),
+                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                            )
+                          ),
+                          Tooltip(
+                            message: 'Обновить данные',
+                            child: IconButton(
+                              onPressed: customer != null? () => _loadCustomerData(customer!['id'], loadBox: false) : null,
+                              icon: Icon(Icons.refresh, size: 18, color: customer == null? AppColors.secondary : AppColors.neo),
                               constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                             )
                           )
                         ],
-                        child: customerData == null? const Center(child: AngularProgressBar()) :
+                        child: customer == null? const Center(child: AngularProgressBar()) :
                         Column(
                           children: [
-                            if (customerData!['olt_id'] == null)
+                            if (customer!['olt_id'] == null)
                             const Row(
                               spacing: 5,
                               children: [
@@ -879,16 +900,16 @@ class _HomePageState extends State<HomePage> {
                                 Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
                               ]
                             ),
-                            if ((customerData!['onu_level'] ?? 0) < -25)
+                            if ((customer!['onu_level'] ?? 0) < -25)
                             Row(
                               spacing: 5,
                               children: [
                                 const Icon(Icons.network_check, color: AppColors.error, size: 18),
-                                Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customerData!['onu_level'])))
+                                Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
                               ]
                             ),
 
-                            if (customerData!['status'] == 'Отключен')
+                            if (customer!['status'] == 'Отключен')
                             const Row(
                               spacing: 5,
                               children: [
@@ -897,7 +918,7 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
 
-                            if (customerData!['status'] == 'Пауза')
+                            if (customer!['status'] == 'Пауза')
                             const Row(
                               spacing: 5,
                               children: [
@@ -906,7 +927,7 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
 
-                            if (_getActivityColor(customerData!['last_activity']) == AppColors.error)
+                            if (_getActivityColor(customer!['last_activity']) == AppColors.error)
                             const Row(
                               spacing: 5,
                               children: [
@@ -915,7 +936,7 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
 
-                            if (_getBoxBorderColor(boxData?['customers']) == AppColors.error)
+                            if (_getBoxBorderColor(box?['customers']) == AppColors.error)
                             const Row(
                               spacing: 5,
                               children: [
@@ -925,36 +946,36 @@ class _HomePageState extends State<HomePage> {
                             ),
                             InfoTile(
                               title: 'ФИО',
-                              value: customerData!['name']
+                              value: customer!['name']
                             ),
                             InfoTile(
                               title: 'Лицевой счёт',
-                              value: customerData!['agreement'].toString()
+                              value: customer!['agreement'].toString()
                             ),
                             InfoTile(
                               title: 'Баланс',
-                              value: '${customerData!['balance']} сом',
-                              valueColor: _getBalanceColor(customerData!['balance'])
+                              value: '${customer!['balance']} сом',
+                              valueColor: _getBalanceColor(customer!['balance'])
                             ),
                             InfoTile(
                               title: 'Статус',
-                              value: customerData!['status'],
-                              valueColor: _getStatusColor(customerData!['status'])
+                              value: customer!['status'],
+                              valueColor: _getStatusColor(customer!['status'])
                             ),
                             InfoTile(
                               title: 'Группа',
-                              value: customerData!['group']?['name'] ?? '-'
+                              value: customer!['group']?['name'] ?? '-'
                             ),
                             InfoTile(
                               title: 'Последняя активность',
-                              value: formatDate(customerData!['last_activity']),
-                              valueColor: _getActivityColor(customerData!['last_activity'])
+                              value: formatDate(customer!['last_activity']),
+                              valueColor: _getActivityColor(customer!['last_activity'])
                             ),
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             //   children: [
                             //     Text('Уровень сигнала:'),
-                            //     Text((customerData!['onu_level'] ?? '-').toString(), style: TextStyle(color: _getSignalColor(customerData!['onu_level'])))
+                            //     Text((customer!['onu_level'] ?? '-').toString(), style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
                             //   ]
                             // ),
                             const SizedBox(height: 5),
@@ -964,7 +985,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 const Text('Номер телефона', style: TextStyle(color: AppColors.secondary)),
                                 Column(
-                                  children: customerData!['phones'].map<Widget>((phone) {
+                                  children: customer!['phones'].map<Widget>((phone) {
                                     return Row(
                                       children: [
                                         const Icon(Icons.phone, size: 18, color: AppColors.neo),
@@ -985,7 +1006,7 @@ class _HomePageState extends State<HomePage> {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: customerData!['tariffs'].map<Widget>((tariff) {
+                                    children: customer!['tariffs'].map<Widget>((tariff) {
                                       return Text(tariff['name'], softWrap: true, textAlign: TextAlign.right);
                                     }).toList()
                                   )
@@ -1001,33 +1022,33 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
                             const Divider(),
-                            if (customerData!['geodata']?['coord'] != null)
-                            InfoTile(title: 'Координаты', value: customerData!['geodata']['coord'].join(', ')),
-                            if (customerData!['geodata']?['address'] != null)
-                            InfoTile(title: 'Адрес', value: customerData!['geodata']['address']),
-                            if (customerData!['geodata']?['2gis_link'] != null)
+                            if (customer!['geodata']?['coord'] != null)
+                            InfoTile(title: 'Координаты', value: customer!['geodata']['coord'].join(', ')),
+                            if (customer!['geodata']?['address'] != null)
+                            InfoTile(title: 'Адрес', value: customer!['geodata']['address']),
+                            if (customer!['geodata']?['2gis_link'] != null)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
                                 InkWell(
-                                  onTap: () async => await _openUrl(customerData!['geodata']['2gis_link']),
+                                  onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
                                   child: const Icon(Icons.public, size: 18, color: AppColors.neo)
                                 )
                               ]
                             ),
-                            if (customerData!['geodata']?['neo_link'] != null)
+                            if (customer!['geodata']?['neo_link'] != null)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
                                 InkWell(
-                                  onTap: () async => await _openUrl(customerData!['geodata']['neo_link']),
+                                  onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
                                   child: const Icon(Icons.public, size: 18, color: AppColors.neo)
                                 )
                               ]
                             ),
-                            if (customerData!['geodata'] == null)
+                            if (customer!['geodata'] == null)
                             const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
                             const SizedBox(height: 5),
                             const Row(
@@ -1038,11 +1059,11 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
                             const Divider(),
-                            if (customerData!['inventory'].isEmpty)
+                            if (customer!['inventory'].isEmpty)
                             const Center(
                               child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
                             ),
-                            if (customerData!['inventory'].isNotEmpty)
+                            if (customer!['inventory'].isNotEmpty)
                             const Row(
                               children: [
                                 Expanded(
@@ -1059,12 +1080,12 @@ class _HomePageState extends State<HomePage> {
                                 )
                               ]
                             ),
-                            if (customerData!['inventory'].isNotEmpty)
+                            if (customer!['inventory'].isNotEmpty)
                             Expanded(
                               child: ListView.builder(
-                                itemCount: customerData!['inventory'].length,
+                                itemCount: customer!['inventory'].length,
                                 itemBuilder: (c, i){
-                                  final equipment = customerData!['inventory'][i];
+                                  final equipment = customer!['inventory'][i];
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 6),
                                     child: Row(
@@ -1103,14 +1124,14 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           children: [
                             BoxCard(
-                              lineColor: _getTaskBorderColor(taskData),
+                              lineColor: _getTaskBorderColor(tasks),
                               icon: Icons.assignment,
                               title: 'Задания абонента',
                               last: true,
-                              child: customerData == null? const Center(child: AngularProgressBar()) :
+                              child: customer == null? const Center(child: AngularProgressBar()) :
                               Column(
                                 children: [
-                                  if (taskData!.isEmpty)
+                                  if (tasks!.isEmpty)
                                   const Center(
                                     child: Text('У абонента нет заданий', style: TextStyle(color: AppColors.secondary))
                                   )
@@ -1118,55 +1139,59 @@ class _HomePageState extends State<HomePage> {
                                   const Row(
                                     children: [
                                       Expanded(
-                                        flex: 2,
+                                        flex: 3,
                                         child: Text('ID', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                       ),
                                       Expanded(
-                                        flex: 5,
+                                        flex: 7,
                                         child: Text('Тип задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                       ),
                                       Expanded(
-                                        flex: 5,
+                                        flex: 6,
                                         child: Text('Дата создания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                       ),
                                       Expanded(
-                                        flex: 3,
+                                        flex: 5,
                                         child: Text('Статус', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                       ),
-                                      Expanded(child: SizedBox()) // space for open button
+                                      Expanded( // space for open button
+                                        flex: 2,
+                                        child: SizedBox()
+                                      )
                                     ]
                                   ),
-                                  if (taskData!.isNotEmpty)
+                                  if (tasks!.isNotEmpty)
                                   Expanded(
                                     child: ListView.builder(
-                                      itemCount: taskData!.length,
+                                      itemCount: tasks!.length,
                                       itemBuilder: (c, i){
-                                        final task = taskData![i];
+                                        final task = tasks![i];
                                         return Padding(
                                           padding: const EdgeInsets.only(bottom: 6),
                                           child: Row(
                                             children: [
                                               Expanded(
-                                                flex: 2,
-                                                child: Text(task['id'].toString(), style: const TextStyle(fontSize: 12)) //
+                                                flex: 3,
+                                                child: Text(task['id'].toString(), style: const TextStyle(fontSize: 13)) //
                                               ),
                                               Expanded(
-                                                flex: 5,
+                                                flex: 7,
                                                 child: Text(task['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
                                               ),
                                               Expanded(
-                                                flex: 5,
+                                                flex: 6,
                                                 child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id']))
+                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id']), fontSize: 13)
                                                 )
                                               ),
                                               Expanded(
-                                                flex: 3,
+                                                flex: 5,
                                                 child: Text(task['status']['name'], softWrap: true, textAlign: TextAlign.center,
                                                   style: TextStyle(color: getTaskStatusColor(task['status']['id'] ?? 0))
                                                 )
                                               ),
-                                              Expanded(
+                                              Flexible(
+                                                flex: 2,
                                                 child: IconButton(
                                                   onPressed: () => _openTask(task['id']),
                                                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
@@ -1239,7 +1264,7 @@ class _HomePageState extends State<HomePage> {
                       //               SizedBox(
                       //                 width: 270,
                       //                 child: ElevatedButton.icon(
-                      //                   onPressed: () => _openCustomerInUS(customerData!['id']),
+                      //                   onPressed: () => _openCustomerInUS(customer!['id']),
                       //                   icon: const Icon(Icons.open_in_browser),
                       //                   label: const Text('Открыть абонента в UserSide')
                       //                 )
@@ -1247,7 +1272,7 @@ class _HomePageState extends State<HomePage> {
                       //               SizedBox(
                       //                 width: 270,
                       //                 child: ElevatedButton.icon(
-                      //                   onPressed: () => _copyCustomerLink(customerData!['id']),
+                      //                   onPressed: () => _copyCustomerLink(customer!['id']),
                       //                   icon: const Icon(Icons.copy),
                       //                   label: const Text('Скопировать ссылку')
                       //                 )
@@ -1264,14 +1289,14 @@ class _HomePageState extends State<HomePage> {
                       //   icon: Icons.device_hub,
                       //   title: 'Оборудование',
                       //   last: true,
-                      //   child: customerData == null? const Center(child: AngularProgressBar()) :
+                      //   child: customer == null? const Center(child: AngularProgressBar()) :
                       //   Column(
                       //     children: [
-                      //       if (customerData!['inventory'].isEmpty)
+                      //       if (customer!['inventory'].isEmpty)
                       //       const Center(
                       //         child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
                       //       ),
-                      //       if (customerData!['inventory'].isNotEmpty)
+                      //       if (customer!['inventory'].isNotEmpty)
                       //       const Row(
                       //         children: [
                       //           Expanded(
@@ -1288,12 +1313,12 @@ class _HomePageState extends State<HomePage> {
                       //           )
                       //         ]
                       //       ),
-                      //       if (customerData!['inventory'].isNotEmpty)
+                      //       if (customer!['inventory'].isNotEmpty)
                       //       Expanded(
                       //         child: ListView.builder(
-                      //           itemCount: customerData!['inventory'].length,
+                      //           itemCount: customer!['inventory'].length,
                       //           itemBuilder: (c, i){
-                      //             final equipment = customerData!['inventory'][i];
+                      //             final equipment = customer!['inventory'][i];
                       //             return Padding(
                       //               padding: const EdgeInsets.only(bottom: 6),
                       //               child: Row(
@@ -1338,6 +1363,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
 

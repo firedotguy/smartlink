@@ -12,25 +12,15 @@ class TasksDialog extends StatefulWidget{
 }
 
 class _TasksDialogState extends State<TasksDialog> {
-  bool load = true;
-
   // tasks
-  List<Map<String, dynamic>>? tasks;
+  List<Map<String, dynamic>> tasks = [];
 
   void _getTasks() async {
-    setState(() {
-      load = true;
-    });
-    if (!load){
-      tasks ??= [];
-      tasks!.clear();
-      for (int task in widget.tasks){
-        tasks!.add(await getTask(task));
-      }
-      setState(() {
-        load = false;
-      });
+    tasks.clear();
+    for (int task in widget.tasks){
+      tasks.add(await getTask(task));
     }
+    setState(() {});
   }
 
   void _checkCount() {
@@ -58,15 +48,40 @@ class _TasksDialogState extends State<TasksDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Задания'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            spacing: 8,
+            children: [
+              Icon(Icons.assignment_outlined),
+              Text('Задания')
+            ]
+          ),
+          Tooltip(
+            message: 'Закрыть диалог',
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.close, size: 16, color: AppColors.error),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+            )
+          )
+        ]
+      ),
       content: SizedBox(
-        width: 600,
-        child: tasks == null? const Center(child: AngularProgressBar()) : ListView.builder(
-          itemCount: tasks!.length,
+        width: 550,
+        child: tasks.isEmpty? const Center(child: AngularProgressBar()) : ListView.builder(
+          shrinkWrap: true,
+          itemCount: tasks.length,
           itemBuilder: (c, i) {
-            final task = tasks![i]['data'];
+            final task = tasks[i]['data'];
 
             return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               margin: const EdgeInsets.symmetric(vertical: 6),
               child: ListTile(
                 leading: const Icon(Icons.assignment_outlined, color: AppColors.neo),
@@ -78,14 +93,15 @@ class _TasksDialogState extends State<TasksDialog> {
                       child: Text(
                         task['type']?['name'] ?? '-',
                         style: const TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        overflow: TextOverflow.ellipsis
+                      )
                     ),
                     Chip(
                       text: task['status']?['name'] ?? '-',
                       color: getTaskStatusColor(task['status']?['id']),
-                    ),
-                  ],
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3)
+                    )
+                  ]
                 ),
                 subtitle: Text.rich(
                   TextSpan(
@@ -95,24 +111,27 @@ class _TasksDialogState extends State<TasksDialog> {
                       const TextSpan(text: '  •  '),
                       TextSpan(text: 'Создано: ${formatDate(task['timestamps']?['created_at'])}'),
                       if (task['timestamps']?['completed_at'] != null) ...[
-                        const TextSpan(text: '  •  '),
-                        TextSpan(text: 'Выполнено: ${formatDate(task['timestamps']?['completed_at'])}'),
+                      const TextSpan(text: '  •  '),
+                      TextSpan(text: 'Выполнено: ${formatDate(task['timestamps']?['completed_at'])}')
                       ],
                       const TextSpan(text: '  •  '),
-                      TextSpan(text: 'Автор: ${task['author_id'] ?? '-'}'),
-                    ],
-                  ),
+                      TextSpan(text: 'Автор: ${task['author_id'] ?? '-'}')
+                    ]
+                  )
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                   showDialog(
                     context: context,
-                    builder: (_) => TaskDialog(taskId: task['id']),
+                    builder: (_) => TaskDialog(taskId: task['id'])
                   );
                 },
-              ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              )
             );
-          },
+          }
         )
       )
     );

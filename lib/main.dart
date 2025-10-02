@@ -302,10 +302,11 @@ Color getTaskStatusColor(int status) {
   }
 
 class Chip extends StatelessWidget {
-  const Chip({required this.text, this.icon, super.key, this.color});
+  const Chip({required this.text, this.icon, super.key, this.color, this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 6)});
   final IconData? icon;
   final String text;
   final Color? color;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +317,7 @@ class Chip extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: c.withValues(alpha: .45))
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: padding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 6,
@@ -342,7 +343,7 @@ class AppLayout extends StatelessWidget {
           alignment: Alignment.bottomRight,
           children: [
             child,
-            const Text('SmartLinkViewer v0.3.0-pre.1 [γ]', style: TextStyle(color: AppColors.secondary, fontSize: 12))
+            const Text('SmartLinkViewer v0.3.0-pre.2 [γ]', style: TextStyle(color: AppColors.secondary, fontSize: 12))
           ]
         ),
         floatingActionButton: Builder(
