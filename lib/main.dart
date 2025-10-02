@@ -285,6 +285,51 @@ String formatDate(String? date) {
   return '${parsed.day.toString().padLeft(2, '0')}.${parsed.month.toString().padLeft(2, '0')}.${parsed.year.toString().substring(2)} ${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}:${parsed.second.toString().padLeft(2, '0')}';
 }
 
+Color getTaskStatusColor(int status) {
+    return switch (status) {
+      18 => const Color(0xFFfff100),
+      12 || 20 => const Color(0xFF00a650),
+      3 || 17 => const Color(0xFF438ccb),
+      15 => const Color(0xFFee1d24),
+      14 || 11 => AppColors.secondary,
+      1 => const Color(0xFFf7941d),
+      10 => const Color(0xFFef6ea8),
+      16 => const Color(0xFF00aeef),
+      9 => const Color(0xFF00f000),
+
+      _ => AppColors.main
+    };
+  }
+
+class Chip extends StatelessWidget {
+  const Chip({required this.text, this.icon, super.key, this.color});
+  final IconData? icon;
+  final String text;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? AppColors.neo;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: c.withValues(alpha: .45))
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 6,
+        children: [
+          if (icon != null)
+          Icon(icon, size: 14, color: c),
+          Text(text, style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w600))
+        ]
+      )
+    );
+  }
+}
+
 class AppLayout extends StatelessWidget {
   const AppLayout({required this.child, super.key});
   final Widget child;
@@ -318,12 +363,7 @@ class AppLayout extends StatelessWidget {
   }
 }
 
-/// The root widget of the SmartLink Viewer application.
-///
-/// Handles initialization and routing to either the [HomePage] or [SignPage]
-/// depending on whether login credentials are stored in local preferences.
 class MainApp extends StatefulWidget {
-  /// Creates the main application widget.
   const MainApp({super.key});
 
   @override

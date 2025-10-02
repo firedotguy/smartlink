@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Chip;
 import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
@@ -153,11 +153,11 @@ class _OntDialogState extends State<OntDialog> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (data!['data']?['ping'] != null)
-                        _Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
+                        Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] != null)
-                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})'),
+                        Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})'),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] == null)
-                        _Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']}')
+                        Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']}')
                       ]
                     ),
                     _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
@@ -202,12 +202,12 @@ class _OntDialogState extends State<OntDialog> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _Chip(
+                    Chip(
                       icon: Icons.circle,
                       text: 'Port 1: ${data!['data']?['catv']?[0] ?? false? "Вкл" : "Выкл"}',
                       color: data!['data']?['catv']?[0] ?? false? AppColors.success : AppColors.error
                     ),
-                    _Chip(
+                    Chip(
                       icon: Icons.circle,
                       text: 'Port 2: ${data!['data']?['catv']?[1] ?? false? "Вкл" : "Выкл"}',
                       color: data!['data']?['catv']?[1] ?? false? AppColors.success : AppColors.error
@@ -289,31 +289,6 @@ class _KV extends StatelessWidget {
         Text(k, style: const TextStyle(color: AppColors.secondary)),
         Expanded(child: Text('${v ?? "-"}', textAlign: TextAlign.right))
       ]
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.icon, required this.text, this.color});
-  final IconData icon;
-  final String text;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = color ?? AppColors.neo;
-    return Container(
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: c.withValues(alpha: .45))
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: c),
-        const SizedBox(width: 6),
-        Text(text, style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w600))
-      ])
     );
   }
 }

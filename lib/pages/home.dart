@@ -9,6 +9,7 @@ import 'package:smartlink/dialogs/attach.dart';
 import 'package:smartlink/dialogs/newtask.dart';
 import 'package:smartlink/dialogs/ont.dart';
 import 'package:smartlink/dialogs/task.dart';
+import 'package:smartlink/dialogs/tasks.dart';
 import 'package:smartlink/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,10 +20,14 @@ class InfoTile extends StatelessWidget {
     required this.title,
     required this.value,
     this.valueColor,
+    this.underlineColor = AppColors.neo,
+    this.onTap,
     super.key
   });
   final String title;
   final String value;
+  final Color underlineColor;
+  final VoidCallback? onTap;
   final Color? valueColor;
 
   @override
@@ -33,6 +38,18 @@ class InfoTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(color: AppColors.secondary)),
+          if (onTap != null)
+          InkWell(
+            onTap: onTap,
+            child: Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                style: TextStyle(color: valueColor ?? AppColors.main, decoration: TextDecoration.underline, decorationColor: underlineColor)
+              )
+            )
+          )
+          else
           Flexible(
             child: Text(
               value,
@@ -134,28 +151,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int? id;
-  List<Map> customers = [];
+  // TODO: remove unused variables and refactor loading (make Enum class)
   bool load = false;
+  // search
   bool search = true;
-  bool showBox = false;
-  bool noBox = false;
-
-  Map? customerData;
-  Map? boxData;
-  Map? attachData;
-  List<Map>? taskData;
-
+  bool searching = false;
+  List<Map> customers = [];
   TextEditingController searchController = TextEditingController();
   Timer? _debounce;
   bool customerNotFound = false;
-
+  int searchVersion = 0;
   int debounce = 300;
   String loadNeighbours = 'onWrong';
-  int searchVersion = 0;
-  bool searching = false;
+
+  // customer
+  int? id;
+  Map? customerData;
+
+  // box
+  bool showBox = false;
+  bool noBox = false;
+  Map? boxData;
+
+  // attach
+  Map? attachData;
+
+  // task
+  List<Map>? taskData;
 
 
+  // utils
   Future<void> _openUrl(link) async {
     final url = Uri.parse(link);
     if (await canLaunchUrl(url)) {
@@ -171,43 +196,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _openAttachs() async {
-    l.i('get attachments for customer ${customerData!['id']}');
-    if (context.mounted) {
-      l.i('show attach dialog, reason: open attachments');
-      showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setStateDialog) {
-              if (attachData == null) {
-                try {
-                  getAttach(customerData!['id']).then((res) {
-                    setState(() {
-                      attachData = res;
-                    });
-                    setStateDialog(() {});
-                  });
-                } catch (e) {
-                  l.e('error getting attachments $e');
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Ошибка получения вложений', style: TextStyle(color: AppColors.error))
-                    )
-                  );
-                  Navigator.pop(context);
-                }
-              }
-              return AttachDialog(
-                data: attachData,
-                load: attachData == null
-              );
-            }
-          );
-        }
-      );
+  String _convertSignal(double? signal) {
+    if (signal != null) {
+      return (-signal).toStringAsFixed(1);
     }
+    return '-';
   }
 
+  // color getters
   Color _getActivityColor(String lastActivity) {
     try {
       final parsed = DateTime.parse(lastActivity);
@@ -284,22 +280,6 @@ class _HomePageState extends State<HomePage> {
     return AppColors.main;
   }
 
-  Color _getTaskStatusColor(int status) {
-    return switch (status) {
-      18 => const Color(0xFFfff100),
-      12 || 20 => const Color(0xFF00a650),
-      3 || 17 => const Color(0xFF438ccb),
-      15 => const Color(0xFFee1d24),
-      14 || 11 => AppColors.secondary,
-      1 => const Color(0xFFf7941d),
-      10 => const Color(0xFFef6ea8),
-      16 => const Color(0xFF00aeef),
-      9 => const Color(0xFF00f000),
-
-      _ => AppColors.main
-    };
-  }
-
   Color _getTaskDateColor(String date, int taskStatus){
     if (taskStatus == 12 || taskStatus == 10){
       return AppColors.success;
@@ -322,13 +302,8 @@ class _HomePageState extends State<HomePage> {
     return AppColors.main;
   }
 
-  String _convertSignal(double? signal) {
-    if (signal != null) {
-      return (-signal).toStringAsFixed(1);
-    }
-    return '-';
-  }
 
+  // API calls
   Future<void> _loadBoxData() async {
     try{
       if (!load){
@@ -494,6 +469,45 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+
+  // button callbacks
+  Future<void> _openAttachs() async {
+    l.i('get attachments for customer ${customerData!['id']}');
+    if (context.mounted) {
+      l.i('show attach dialog, reason: open attachments');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              if (attachData == null) {
+                try {
+                  getAttach(customerData!['id']).then((res) {
+                    setState(() {
+                      attachData = res;
+                    });
+                    setStateDialog(() {});
+                  });
+                } catch (e) {
+                  l.e('error getting attachments $e');
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Ошибка получения вложений', style: TextStyle(color: AppColors.error))
+                    )
+                  );
+                  Navigator.pop(context);
+                }
+              }
+              return AttachDialog(
+                data: attachData,
+                load: attachData == null
+              );
+            }
+          );
+        }
+      );
+    }
+  }
+
   void _openONT() {
     if (customerData == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Дождитесь загрузки абонента', style: TextStyle(color: AppColors.warning))));
@@ -542,6 +556,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _openTask(int id){
+    showDialog(
+      context: context,
+      builder: (context){
+        return TaskDialog(taskId: id);
+      }
+    );
+  }
+
+  void _openTasks(List<int> ids){
+    showDialog(
+      context: context,
+      builder: (context){
+        return TasksDialog(tasks: ids);
+      }
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -550,6 +582,7 @@ class _HomePageState extends State<HomePage> {
     }
     _getSettings();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -678,7 +711,16 @@ class _HomePageState extends State<HomePage> {
                               InfoTile(
                                 title: 'Открытые задания',
                                 value: boxData?['box_tasks']?.length.toString() ?? '-',
-                                valueColor: boxData?['box_tasks'] == null? AppColors.main : boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error
+                                valueColor: boxData?['box_tasks'] == null? AppColors.main :
+                                  boxData!['box_tasks'].length == 0? AppColors.success : AppColors.error,
+                                onTap: boxData?['box_tasks'] == null? null : boxData!['box_tasks'].length == 0? null : (){
+                                  if (boxData!['box_tasks'].length == 1){
+                                    _openTask(boxData!['box_tasks'].first);
+                                  } else {
+                                    _openTasks(boxData!['box_tasks']);
+                                  }
+                                },
+                                underlineColor: AppColors.error
                               ),
                               const SizedBox(height: 6),
                               const Row(
@@ -729,13 +771,22 @@ class _HomePageState extends State<HomePage> {
                                             flex: 7,
                                             child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
                                           ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              neighbour['tasks']?.length.toString() ?? '-',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
+                                          InkWell(
+                                            onTap: () {
+                                              if (neighbour['tasks'].length == 1){
+                                                _openTask(neighbour['tasks'].first);
+                                              } else {
+                                                _openTasks(neighbour!['tasks']);
+                                              }
+                                            },
+                                            child: Expanded(
+                                              flex: 3,
+                                              child: Text(
+                                                neighbour['tasks']?.length.toString() ?? '-',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: neighbour['tasks'].length == 0? AppColors.success : AppColors.error
+                                                )
                                               )
                                             )
                                           ),
@@ -1106,23 +1157,18 @@ class _HomePageState extends State<HomePage> {
                                               Expanded(
                                                 flex: 5,
                                                 child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id'])))
+                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id']))
+                                                )
                                               ),
                                               Expanded(
                                                 flex: 3,
                                                 child: Text(task['status']['name'], softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskStatusColor(task['status']['id'] ?? 0)))
+                                                  style: TextStyle(color: getTaskStatusColor(task['status']['id'] ?? 0))
+                                                )
                                               ),
                                               Expanded(
                                                 child: IconButton(
-                                                  onPressed: (){
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context){
-                                                        return TaskDialog(taskId: task['id']);
-                                                      }
-                                                    );
-                                                  },
+                                                  onPressed: () => _openTask(task['id']),
                                                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
                                                 )
                                               )
@@ -1141,8 +1187,8 @@ class _HomePageState extends State<HomePage> {
                               last: true,
                               child: Center(child: Text('coming soon', style: TextStyle(color: AppColors.secondary, fontSize: 12)))
                             )
-                          ],
-                        ),
+                          ]
+                        )
                       )
                       // Expanded(
                       //   child: Row(
@@ -1280,7 +1326,7 @@ class _HomePageState extends State<HomePage> {
                       //       )
                       //     ]
                       //   )
-                      // ),
+                      // )
                     ]
                   )
                 )
@@ -1292,5 +1338,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 
 
