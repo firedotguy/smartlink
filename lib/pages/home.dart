@@ -526,7 +526,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     showDialog(context: context, builder: (context){
-      return OntDialog(oltId: customer!['olt_id'], sn: customer!['sn']);
+      return OntDialog(oltId: customer!['olt_id'], sn: customer!['sn'], ls: customer!['agreement'], customerId: customer!['id']);
     });
   }
 
@@ -1067,7 +1067,7 @@ class _HomePageState extends State<HomePage> {
                             const Row(
                               children: [
                                 Expanded(
-                                  flex: 5,
+                                  flex: 7,
                                   child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                 ),
                                 Expanded(
@@ -1091,7 +1091,7 @@ class _HomePageState extends State<HomePage> {
                                     child: Row(
                                       children: [
                                         Expanded(
-                                          flex: 5,
+                                          flex: 7,
                                           child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
                                         ),
                                         Expanded(

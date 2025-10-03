@@ -98,8 +98,7 @@ class _TasksDialogState extends State<TasksDialog> {
                     ),
                     Chip(
                       text: task['status']?['name'] ?? '-',
-                      color: getTaskStatusColor(task['status']?['id']),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3)
+                      color: getTaskStatusColor(task['status']?['id'])
                     )
                   ]
                 ),

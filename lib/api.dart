@@ -43,10 +43,10 @@ Future<Map<String, dynamic>> _get(String action, Map<String, String> qp) async {
   throw Exception('Unexpected response');
 }
 
-Future<Map<String, dynamic>> _post(String action, Map<String, String> qp) async {
+Future<Map<String, dynamic>> _post(String action, Map<String, String> qp, {int timeout = 20}) async {
   l.d('API POST: $action $qp');
   final uri = _u(action, qp);
-  final resp = await _client.post(uri).timeout(const Duration(seconds: 20));
+  final resp = await _client.post(uri).timeout(Duration(seconds: timeout));
 
   if (resp.statusCode != 200) {
     l.e('API POST $action -> HTTP ${resp.statusCode}, body: ${resp.body}');
@@ -60,30 +60,30 @@ Future<Map<String, dynamic>> _post(String action, Map<String, String> qp) async 
 }
 
 Future<Map<String, dynamic>> getCustomer(int id) async {
-  l.i('API: get customer, id=$id');
+  l.i('API: get customer id=$id');
   return await _get('customer/$id', {});
 }
 
 Future<Map<String, dynamic>> getBox(int id) async {
-  l.i('API: get box, id=$id');
+  l.i('API: get box id=$id');
   return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'true'});
 }
 
 Future<Map<String, dynamic>> getAttach(int customerId) async {
-  l.i('API: get attachs, customerId=$customerId');
+  l.i('API: get attachs customerId=$customerId');
   return await _get('attachs/customer/$customerId', {
     'include_task': 'true',
   });
 }
 
 Future<List<Map>> find(String query) async {
-  l.i('API: find customers, query="$query"');
+  l.i('API: find customers query="$query"');
   final raw = await _get('customer/search', {'query': query});
   return List<Map>.from(raw['customers'] ?? const []);
 }
 
 Future<Map> login(String login, String password) async {
-  l.i('API: employee login, login="$login"');
+  l.i('API: employee login login="$login"');
   return await _get('employee/login', {
     'login': login,
     'password': password,
@@ -132,13 +132,13 @@ Future<int> createTask(
 }
 
 Future<String> getEmployeeName(int id) async {
-  l.i('API: get employee name, id=$id');
+  l.i('API: get employee name id=$id');
   final raw = await _get('employee/name', {'id': id.toString()});
   return (raw['name'] ?? '').toString();
 }
 
 Future<Map> getOnt(int oltId, String sn) async {
-  l.i('API: get ont data, oltId=$oltId sn=$sn');
+  l.i('API: get ont data oltId=$oltId sn=$sn');
   return await _get('ont', {
     'olt_id': oltId.toString(),
     'sn': sn,
@@ -156,6 +156,15 @@ Future<String?> restartOnt(int ontId, String host, Map interface) async {
   });
   if (raw['status'] == 'success') return null;
   return (raw['detail'] ?? 'unknown error').toString();
+}
+
+Future<Map> rewriteSN(String sn, int customerId, int ls) async {
+  l.i('API: get ont data sn=$sn customerId=$customerId ls=$ls');
+  return await _post('ont/rewrite_sn', {
+    'customer_id': customerId.toString(),
+    'sn': sn,
+    'ls': ls.toString()
+  }, timeout: 360);
 }
 
 Future<Map<String, dynamic>> getTask(int id) async {

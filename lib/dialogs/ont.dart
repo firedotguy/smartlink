@@ -3,9 +3,11 @@ import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
 class OntDialog extends StatefulWidget {
-  const OntDialog({required this.oltId, required this.sn, super.key});
+  const OntDialog({required this.oltId, required this.sn, required this.customerId, required this.ls, super.key});
   final int oltId;
   final String sn;
+  final int customerId;
+  final int ls;
 
   @override
   State<OntDialog> createState() => _OntDialogState();
@@ -14,6 +16,7 @@ class OntDialog extends StatefulWidget {
 class _OntDialogState extends State<OntDialog> {
   Map? data;
   bool restarting = false;
+  bool rewriting = false;
 
   void getData() async {
     try{
@@ -61,11 +64,40 @@ class _OntDialogState extends State<OntDialog> {
     }
   }
 
-  Color _statusColor(String? s) {
-    switch (s) {
-      case 'online': return AppColors.success;
-      case 'offline': return AppColors.error;
-      default: return Colors.grey;
+  void _rewriteSN() async {
+    if (rewriting) return;
+    try {
+      setState(() {
+        rewriting = true;
+      });
+      final Map res = await rewriteSN(widget.sn, widget.customerId, widget.ls);
+      if (res['status'] == 'fail'){
+        l.e('error rewriting sn: ${res['detail']}');
+        if (mounted){
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезаписи SN: ${res['detail']}',
+            style: const TextStyle(color: AppColors.error)
+          )));
+        }
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('SN перезаписан: ${res['message']}',
+            style: const TextStyle(color: AppColors.success)
+          )));
+        }
+      }
+    } catch (e) {
+      setState(() {
+        rewriting = false;
+      });
+      l.e('error rewriting sn: $e');
+      if (mounted){
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезаписи SN',
+          style: TextStyle(color: AppColors.error)
+        )));
+      }
     }
   }
 
@@ -91,30 +123,51 @@ class _OntDialogState extends State<OntDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: SelectionArea(
-        child: Row(
-          spacing: 8,
-          children: [
-            const Icon(Icons.router_outlined),
-            const Expanded(
-              child: Text(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            spacing: 8,
+            children: [
+              Icon(Icons.router_outlined),
+              Text(
                 'ONT / OLT',
                 style: TextStyle(fontWeight: FontWeight.w600)
               )
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: _statusColor(data?['data']?['status']).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _statusColor(data?['data']?['status']))
+            ]
+          ),
+          Row(
+            spacing: 2,
+            children: [
+              Tooltip(
+                message: 'Перезагрузить ONT',
+                child: IconButton(
+                  onPressed: restarting || data == null || data?['data']?['status'] == 'online'? null : _restartONT,
+                  icon: Icon(Icons.restart_alt, color: restarting || data == null || data?['data']?['status'] != 'online'? AppColors.secondary : AppColors.neo, size: 16),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                )
               ),
-              child: Text(data?['data']?['status']?.toUpperCase() ?? 'Загрузка',
-                style: TextStyle(color: _statusColor(data?['data']?['status']), fontWeight: FontWeight.w600, fontSize: 12)
+              Tooltip(
+                message: 'Перезаписать SN',
+                child: IconButton(
+                  onPressed: rewriting || data == null? null : _rewriteSN,
+                  icon: Icon(Icons.rebase_edit, color: rewriting || data == null? AppColors.secondary : AppColors.neo, size: 16),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                )
+              ),
+              Tooltip(
+                message: 'Закрыть диалог',
+                child: IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close, color: AppColors.error, size: 16),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                )
               )
-            )
-          ]
-        ),
+            ]
+          )
+        ]
       ),
       content: SizedBox(
         width: 600,
@@ -127,21 +180,23 @@ class _OntDialogState extends State<OntDialog> {
               _Section(
                 icon: Icons.dns_rounded,
                 title: 'OLT',
+                online: data!['olt']['online'],
                 child: Column(
                   children: [
                     _KV('Имя', data!['olt']['name'] ?? '-'),
                     _KV('Девайс', data!['olt']['device'] ?? '-'),
                     // _KV('IP', data!['olt']['ip']),
-                    _KV('Локация', data!['olt']?['location'] ?? '-'),
+                    _KV('Локация', data!['olt']?['location'] ?? '-')
                   ]
                 )
               ),
               _Section(
                 icon: Icons.memory,
                 title: 'ONT',
+                online: data?['data']?['status'] == 'online',
                 child: data?['data'] == null?
-                const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
-                Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
+                  const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
+                  Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
                 Column(
                   children: [
                     _KV('SN', data!['sn'] ?? '-'),
@@ -153,11 +208,23 @@ class _OntDialogState extends State<OntDialog> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (data!['data']?['ping'] != null)
-                        Chip(icon: Icons.speed, text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms'),
+                        Chip(
+                          icon: Icons.speed,
+                          text: 'Ping ${data!['data']['ping'].toStringAsFixed(1)} ms',
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                        ),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] != null)
-                        Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})'),
+                        Chip(
+                          icon: Icons.report_gmailerrorred,
+                          text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})',
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                        ),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] == null)
-                        Chip(icon: Icons.report_gmailerrorred, text: 'Last down: ${data!['data']['last_down_cause']}')
+                        Chip(
+                          icon: Icons.report_gmailerrorred,
+                          text: 'Last down: ${data!['data']['last_down_cause']}',
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                        )
                       ]
                     ),
                     _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
@@ -205,12 +272,14 @@ class _OntDialogState extends State<OntDialog> {
                     Chip(
                       icon: Icons.circle,
                       text: 'Port 1: ${data!['data']?['catv']?[0] ?? false? "Вкл" : "Выкл"}',
-                      color: data!['data']?['catv']?[0] ?? false? AppColors.success : AppColors.error
+                      color: data!['data']?['catv']?[0] ?? false? AppColors.success : AppColors.error,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     ),
                     Chip(
                       icon: Icons.circle,
                       text: 'Port 2: ${data!['data']?['catv']?[1] ?? false? "Вкл" : "Выкл"}',
-                      color: data!['data']?['catv']?[1] ?? false? AppColors.success : AppColors.error
+                      color: data!['data']?['catv']?[1] ?? false? AppColors.success : AppColors.error,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
                     )
                   ]
                 )
@@ -218,38 +287,41 @@ class _OntDialogState extends State<OntDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
                 children: [
-                  SizedBox(
-                    width: 200,
-                    child: ElevatedButton.icon(
-                      onPressed: data?['data']?['status'] == 'online'? _restartONT : null,
-                      label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
-                      icon: restarting? null : const Icon(Icons.restart_alt),
-                    ),
+                  ElevatedButton.icon(
+                    onPressed: data?['data']?['status'] == 'online'? _restartONT : null,
+                    label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
+                    icon: restarting? null : const Icon(Icons.restart_alt)
                   ),
-                  // more buttons soon
-                ],
+                  ElevatedButton.icon(
+                    onPressed: _rewriteSN,
+                    label: rewriting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать SN'),
+                    icon: rewriting? null : const Icon(Icons.rebase_edit)
+                  )
+                ]
               )
             ]
           )
         )
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Закрыть')
-        )
-      ]
+      // actions: [
+      //   TextButton(
+      //     onPressed: () => Navigator.pop(context),
+      //     child: const Text('Закрыть')
+      //   )
+      // ]
     );
   }
 }
 
 
 class _Section extends StatelessWidget {
-  const _Section({required this.icon, required this.title, required this.child});
+  const _Section({required this.icon, required this.title, required this.child, this.online});
   final IconData icon;
   final String title;
   final Widget child;
+  final bool? online;
 
   @override
   Widget build(BuildContext context) {
@@ -263,10 +335,20 @@ class _Section extends StatelessWidget {
           spacing: 4,
           children: [
             Row(
-              spacing: 4,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, size: 18, color: AppColors.neo),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600))
+                Row(
+                  spacing: 4,
+                  children: [
+                    Icon(icon, size: 18, color: AppColors.neo),
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w600))
+                  ]
+                ),
+                if (online != null)
+                Chip(
+                  text: online!? 'ONLINE' : 'OFFLINE',
+                  color: online!? AppColors.success : AppColors.error
+                )
               ]
             ),
             child
@@ -316,3 +398,4 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+
