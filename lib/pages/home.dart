@@ -550,7 +550,7 @@ class _HomePageState extends State<HomePage> {
           'status': {'id': 11, 'name': 'Не выполнено'}
         });
       } else {
-        box?['box_tasks']?.add(res['id']);
+        box?['tasks']?.add(res['id']);
       }
       setState(() {});
     } else {
@@ -718,14 +718,14 @@ class _HomePageState extends State<HomePage> {
                               ),
                               InfoTile(
                                 title: 'Открытые задания',
-                                value: box?['box_tasks']?.length.toString() ?? '-',
-                                valueColor: box?['box_tasks'] == null? AppColors.main :
-                                  box!['box_tasks'].length == 0? AppColors.success : AppColors.error,
-                                onTap: box?['box_tasks'] == null? null : box!['box_tasks'].length == 0? null : (){
-                                  if (box!['box_tasks'].length == 1){
-                                    _openTask(box!['box_tasks'].first);
+                                value: box?['tasks']?.length.toString() ?? '-',
+                                valueColor: box?['tasks'] == null? AppColors.main :
+                                  box!['tasks'].length == 0? AppColors.success : AppColors.error,
+                                onTap: box?['tasks'] == null? null : box!['tasks'].length == 0? null : (){
+                                  if (box!['tasks'].length == 1){
+                                    _openTask(box!['tasks'].first);
                                   } else {
-                                    _openTasks(List<int>.from(box!['box_tasks']));
+                                    _openTasks(List<int>.from(box!['tasks']));
                                   }
                                 }
                               ),

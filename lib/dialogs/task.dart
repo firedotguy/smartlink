@@ -158,7 +158,7 @@ class _TaskDialogState extends State<TaskDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _KV('Тип', task?['type']?['name']),
-              _KV('Адрес', task?['address']),
+              _KV('Адрес', task?['address']?['name']),
               _KV('Абонент', task?['customer']?.toString()),
               _KV('Автор', task?['author_id']?.toString()),
               const SizedBox(height: 8),
