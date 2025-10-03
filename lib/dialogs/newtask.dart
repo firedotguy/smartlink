@@ -17,6 +17,7 @@ class NewTaskDialog extends StatefulWidget{
 
 class _NewTaskDialogState extends State<NewTaskDialog> {
   bool load = true;
+  bool creating = false;
 
   // Номер обратившегося
   TextEditingController phoneController = TextEditingController();
@@ -70,6 +71,9 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
   }
 
   void _createTask(context) async {
+    setState(() {
+      creating = true;
+    });
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final int? employee = prefs.getInt('userId');
     if (employee == null){
@@ -84,10 +88,10 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
       try{
         final bool isBox = context.mounted? DefaultTabController.of(context).index == 1 : false;
         final int id = await createTask(widget.customerId, employee, reason, isBox, widget.boxId, commentController.text,
-          List<int>.from(divisions.where((e) => e['checked']).map((e) => e['id']).toList()), phoneMask.unmaskText(phoneController.text), type);
+          List<int>.from(divisions.where((e) => e['checked'] ?? false).map((e) => e['id']).toList()), phoneMask.unmaskText(phoneController.text), type);
         l.i('task created successfully, id: $id');
         if (context.mounted){
-          Navigator.pop(context);
+          Navigator.pop(context, {'box': isBox, 'id': id});
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Задание создано', style: TextStyle(color: AppColors.success))
           ));
@@ -429,7 +433,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
             builder: (context) {
               return ElevatedButton(
                 onPressed: () => _createTask(context),
-                child: const Text('Создать')
+                child: creating? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator()) : const Text('Создать')
               );
             }
           )

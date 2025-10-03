@@ -530,32 +530,34 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _openNewTask() {
+  void _openNewTask({bool boxTask = false}) async {
     if (customer != null){
       l.i('show newtask dialog');
-      showDialog(context: context, builder: (context){
+      final Map? res = await showDialog(context: context, builder: (context){
         return NewTaskDialog(
           customerId: customer!['id'],
           boxId: customer!['box_id'],
-          phones: customer!['phones']
+          phones: customer!['phones'],
+          box: boxTask
         );
       });
+      if (res == null) return;
+      if (!res['box']){
+        tasks?.add({
+          'id': res['id'],
+          'dates': {'create': DateTime.now().toString(), 'update': DateTime.now().toString()},
+          'name': 'Выезд на ремонт',
+          'status': {'id': 11, 'name': 'Не выполнено'}
+        });
+      } else {
+        box?['box_tasks']?.add(res['id']);
+      }
+      setState(() {});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Абонент не загружен', style: TextStyle(color: AppColors.warning))
       ));
     }
-  }
-
-  void _openNewBoxTask(){
-    showDialog(context: context, builder: (context){
-      return NewTaskDialog(
-        customerId: customer!['id'],
-        boxId: customer!['box_id'],
-        phones: customer!['phones'],
-        box: true
-      );
-    });
   }
 
   void _openCustomerInUS(int id) async {
@@ -686,7 +688,7 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Создать задание (Магистральный ремонт)',
                             child: IconButton(
-                              onPressed: box != null? _openNewBoxTask : null,
+                              onPressed: box != null? () => _openNewTask(boxTask: true) : null,
                               icon: Icon(Icons.assignment_add, color: box == null? AppColors.secondary : AppColors.neo, size: 18)
                             )
                           ),
@@ -848,12 +850,12 @@ class _HomePageState extends State<HomePage> {
                               constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                             )
                           ),
-                          Tooltip(
-                            message: 'Открыть вложения абонент и его заданий',
+                          const Tooltip(
+                            message: 'Открыть вложения абонента и его заданий',
                             child: IconButton(
-                              onPressed: _openAttachs,
-                              icon: const Icon(Icons.attach_file, size: 18, color: AppColors.neo),
-                              constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                              onPressed: null, //_openAttachs,
+                              icon: Icon(Icons.attach_file, size: 18, color: AppColors.secondary),
+                              constraints: BoxConstraints(minWidth: 36, minHeight: 36)
                             )
                           ),
                           Tooltip(

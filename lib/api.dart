@@ -122,8 +122,8 @@ Future<int> createTask(
     if (boxId != null) 'box_id': boxId.toString(),
     'description': description,
     'divisions': divisions.join(','),
-    'phone': phone,
-    'type': type,
+    if (phone.isNotEmpty) 'phone': phone,
+    'type': type
   };
   final raw = await _post('task', qp);
   final id = raw['id'];
