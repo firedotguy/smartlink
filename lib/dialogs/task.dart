@@ -7,8 +7,9 @@ import 'package:smartlink/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDialog extends StatefulWidget {
-  const TaskDialog({required this.taskId, super.key});
+  const TaskDialog({required this.taskId, this.customer, super.key});
   final int taskId;
+  final String? customer;
 
   @override
   State<TaskDialog> createState() => _TaskDialogState();
@@ -17,7 +18,7 @@ class TaskDialog extends StatefulWidget {
 class _TaskDialogState extends State<TaskDialog> {
   Map<String, dynamic>? task;
   bool load = true;
-  bool loadSend = false;
+  bool sending = false;
   int? employeeId;
   final TextEditingController commentController = TextEditingController();
 
@@ -77,8 +78,8 @@ class _TaskDialogState extends State<TaskDialog> {
 
   Future<void> _send() async {
     final text = commentController.text.trim();
-    if (text.isEmpty || loadSend) return;
-    setState(() => loadSend = true);
+    if (text.isEmpty || sending) return;
+    setState(() => sending = true);
     try {
       final String content = commentController.text;
       commentController.clear();
@@ -92,7 +93,7 @@ class _TaskDialogState extends State<TaskDialog> {
         );
       }
     } finally {
-      if (mounted) setState(() => loadSend = false);
+      if (mounted) setState(() => sending = false);
     }
   }
 
@@ -159,8 +160,8 @@ class _TaskDialogState extends State<TaskDialog> {
             children: [
               _KV('Тип', task?['type']?['name']),
               _KV('Адрес', task?['address']?['name']),
-              _KV('Абонент', task?['customer']?.toString()),
-              _KV('Автор', task?['author_id']?.toString()),
+              _KV('Абонент', widget.customer ?? task?['customer']?.toString()),
+              _KV('Автор', task?['author']?['name']),
               const SizedBox(height: 8),
               _Section(
                 title: 'Детали',
@@ -218,11 +219,11 @@ class _TaskDialogState extends State<TaskDialog> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Align(
-                        alignment: employeeId != message!['author_id']? Alignment.topLeft : Alignment.topRight,
+                        alignment: employeeId != message['author']?['id']? Alignment.topLeft : Alignment.topRight,
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
                           decoration: BoxDecoration(
-                            color: employeeId != message['author_id']? AppColors.bg2 : AppColors.neo,
+                            color: employeeId != message['author']?['id']? AppColors.bg2 : AppColors.neo,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.white.withValues(alpha: 0.04))
                           ),
@@ -231,14 +232,14 @@ class _TaskDialogState extends State<TaskDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               spacing: 4,
                               children: [
-                                if (employeeId != message['author_id'] && message['author_id'] != null)
-                                Text(message['author_id'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                if (employeeId != message['author']?['id'] && message['author']?['id'] != null)
+                                Text(message['author']['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold)),
                                 Text(message['content']),
                                 Align(
                                   alignment: Alignment.bottomRight,
                                   child: Text(
                                     _formatTime(message['created_at']),
-                                    style: TextStyle(color: employeeId != message['author_id']? AppColors.secondary : AppColors.main, fontSize: 10)
+                                    style: TextStyle(color: employeeId != message['author']?['id']? AppColors.secondary : AppColors.main, fontSize: 10)
                                   )
                                 )
                               ],
@@ -268,7 +269,7 @@ class _TaskDialogState extends State<TaskDialog> {
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
                     onPressed: _send,
-                    icon: loadSend? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator()) : const Icon(Icons.send, size: 18),
+                    icon: sending? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator()) : const Icon(Icons.send, size: 18),
                     label: const Text('Отправить')
                   )
                 ]

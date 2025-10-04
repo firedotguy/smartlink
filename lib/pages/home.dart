@@ -577,7 +577,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context){
-        return TaskDialog(taskId: id);
+        return TaskDialog(taskId: id, customer: customer?['name']);
       }
     );
   }
