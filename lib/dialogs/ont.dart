@@ -18,7 +18,7 @@ class _OntDialogState extends State<OntDialog> {
   bool restarting = false;
   bool rewriting = false;
 
-  void getData() async {
+  void _getData() async {
     try{
       data = await getOnt(widget.oltId, widget.sn);
       setState(() {});
@@ -117,7 +117,7 @@ class _OntDialogState extends State<OntDialog> {
   @override
   void initState() {
     super.initState();
-    getData();
+    _getData();
   }
 
   @override
@@ -193,16 +193,17 @@ class _OntDialogState extends State<OntDialog> {
               _Section(
                 icon: Icons.memory,
                 title: 'ONT',
-                online: data?['data']?['status'] == 'online',
+                online: data?['data']?['online'],
                 child: data?['data'] == null?
                   const Text('ONT не найден', style: TextStyle(color: AppColors.error)) : data?['data']?['error'] != null?
                   Text('Ошибка подключения к OLT: ${data!['data']?['error']}', style: const TextStyle(color: AppColors.error)) :
                 Column(
                   children: [
                     _KV('SN', data!['sn'] ?? '-'),
-                    _KV('IP', data!['data']['ip'] ?? '-'),
-                    _KV('ONT ID', data!['data']['ont_id'] ?? '-'),
                     _KV('Интерфейс', data!['data']['interface']?['name'] ?? '-'),
+                    _KV('ONT ID', data!['data']['ont_id'] ?? '-'),
+                    _KV('IP', data!['data']['ip'] ?? '-'),
+                    _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}'),
                     Row(
                       spacing: 8,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -216,7 +217,7 @@ class _OntDialogState extends State<OntDialog> {
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] != null)
                         Chip(
                           icon: Icons.report_gmailerrorred,
-                          text: 'Last down: ${data!['data']['last_down_cause']} (${data!['data']['last_down']})',
+                          text: 'Last down: ${data!['data']['last_down_cause']} (${formatDate(data!['data']['last_down'])})',
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
                         ),
                         if ((data!['data']?['last_down_cause'] ?? '').isNotEmpty && data!['data']['last_down'] == null)
@@ -226,8 +227,7 @@ class _OntDialogState extends State<OntDialog> {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
                         )
                       ]
-                    ),
-                    _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}')
+                    )
                   ]
                 )
               ),
@@ -262,27 +262,46 @@ class _OntDialogState extends State<OntDialog> {
                   ]
                 )
               ),
-              _Section(
-                icon: Icons.tv,
-                title: 'CATV',
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    Chip(
-                      icon: Icons.circle,
-                      text: 'Port 1: ${data!['data']?['catv']?[0] ?? false? "Вкл" : "Выкл"}',
-                      color: data!['data']?['catv']?[0] ?? false? AppColors.success : AppColors.error,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              Row(
+                spacing: 4,
+                children: [
+                  Flexible(
+                    child: _Section(
+                      icon: Icons.tv,
+                      title: 'CATV',
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: data!['data']?['catv']?.asMap().entries.map((e) => (e.key + 1, e.value)).map<Widget>((e) {
+                          return Chip(
+                            icon: Icons.circle,
+                            text: 'Port ${e.$1}: ${e.$2 ?? false? "Вкл" : "Выкл"}',
+                            color: e.$2 ?? false? AppColors.success : AppColors.error,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                          );
+                        }).toList() ?? [const Text('Нет CATV портов', style: TextStyle(color: AppColors.error))]
+                      )
                     ),
-                    Chip(
-                      icon: Icons.circle,
-                      text: 'Port 2: ${data!['data']?['catv']?[1] ?? false? "Вкл" : "Выкл"}',
-                      color: data!['data']?['catv']?[1] ?? false? AppColors.success : AppColors.error,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
-                    )
-                  ]
-                )
+                  ),
+                  Flexible(
+                    child: _Section(
+                      icon: Icons.lan,
+                      title: 'ETH/LAN',
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: data!['data']?['eth']?.map<Widget>((e) {
+                          return Chip(
+                            icon: Icons.circle,
+                            text: 'Port ${e['id']}: ${e['status'] ?? false? "Up" : "Down"}${e['speed'] != null? ' (${e['speed']} Mbps)' : ''}',
+                            color: e['status'] ?? false? AppColors.success : AppColors.error,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          );
+                        }).toList() ?? [const Text('Нет ETH портов', style: TextStyle(color: AppColors.error))]
+                      )
+                    ),
+                  )
+                ]
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -290,7 +309,7 @@ class _OntDialogState extends State<OntDialog> {
                 spacing: 8,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: data?['data']?['status'] == 'online'? _restartONT : null,
+                    onPressed: data?['data']?['online']? _restartONT : null,
                     label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
                     icon: restarting? null : const Icon(Icons.restart_alt)
                   ),
@@ -398,4 +417,5 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+
 

@@ -277,12 +277,26 @@ class AppColors {
   static const bg2 = Color(0xFF2c333a);
 }
 
-String formatDate(String? date) {
-  if (date == null){
+String formatDate(String? input) {
+  if (input == null || input.isEmpty) {
     return '-';
   }
-  final DateTime parsed = DateTime.parse(date);
-  return '${parsed.day.toString().padLeft(2, '0')}.${parsed.month.toString().padLeft(2, '0')}.${parsed.year.toString().substring(2)} ${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}:${parsed.second.toString().padLeft(2, '0')}';
+
+  final parts = input.split(' ');
+  if (parts.length < 2) return input;
+
+  final dateParts = parts[0].split('-');
+  if (dateParts.length < 3) return input;
+
+  final time = parts[1];
+
+  final isYearFirst = dateParts[0].length == 4;
+
+  final day = isYearFirst ? dateParts[2] : dateParts[0];
+  final month = dateParts[1];
+  final year = isYearFirst ? dateParts[0].substring(2) : dateParts[2].substring(2);
+
+  return '$day.$month.$year $time';
 }
 
 Color getTaskStatusColor(int status) {
