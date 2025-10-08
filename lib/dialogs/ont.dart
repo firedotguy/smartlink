@@ -196,8 +196,8 @@ class _OntDialogState extends State<OntDialog> {
               Tooltip(
                 message: 'Перезаписать MAC',
                 child: IconButton(
-                  onPressed: rewritingSN || data == null? null : _rewriteSN,
-                  icon: Icon(Icons.settings_ethernet, color: rewritingSN || data == null? AppColors.secondary : AppColors.neo, size: 16),
+                  onPressed: rewritingMAC || data == null? null : _rewriteMAC,
+                  icon: Icon(Icons.settings_ethernet, color: rewritingMAC || data == null? AppColors.secondary : AppColors.neo, size: 16),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
