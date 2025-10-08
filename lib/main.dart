@@ -383,7 +383,7 @@ class _AppLayoutState extends State<AppLayout> {
                   context: context,
                   applicationName: 'SmartLinkViewer',
                   applicationVersion: version,
-                  applicationIcon: Image.asset('assets/icon.png', width: 60, height: 60),
+                  applicationIcon: Image.asset('assets/favicon.png', width: 60, height: 60),
                   applicationLegalese: '© 2025 «НеоТелеком»'
                 );
               },
@@ -447,6 +447,7 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'SmartLink',
       themeMode: ThemeMode.dark,
       darkTheme: darkTheme,
       home: AppLayout(child: page),

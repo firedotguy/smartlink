@@ -3,8 +3,10 @@ description: "SmartLinkViewer application for Neotelecom operators"
 publish_to: 'none'
 version: 0.3.1
 
+
 environment:
   sdk: ^3.8.0-265.0.dev
+
 
 dependencies:
   flutter:
@@ -18,6 +20,7 @@ dependencies:
   firebase_core: ^4.0.0
   cloud_firestore: ^6.0.0
   package_info_plus: ^9.0.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -33,10 +36,30 @@ flutter:
       fonts:
         - asset: fonts/Jost-Medium.ttf
 
+
 flutter_native_splash:
   color: "#030910"
-  image: assets/logo.png
-  android_12:
-    image: assets/logo.png
-    color: "#030910"
+  image: assets/banner.png
+
+  web: true
+  ios: false
+  android: false
+
+
+flutter_launcher_icons:
+  image_path: "assets/favicon.png"
+
+  web:
+    generate: true
+    image_path: "assets/favicon.png"
+    background_color: "#030910"
+    theme_color: "#030910"
+
+  windows:
+    generate: false
+
+  macos:
+    generate: false
+
+  android: false
   ios: false
