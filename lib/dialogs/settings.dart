@@ -99,14 +99,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
-                  children: [
-                    Text('Тема', style: TextStyle(color: AppColors.secondary)),
-                    Text('Пока недоступно', style: TextStyle(color: Color(0xFF6E7681), fontSize: 12))
-                  ]
-                ),
+                const Text('Тема', style: TextStyle(color: AppColors.secondary)),
                 IntrinsicWidth(
                   child: DropdownButtonFormField(
                     value: theme,
@@ -121,8 +114,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
                       DropdownMenuItem(value: 'dracula', child: Text('Dracula', style: TextStyle(color: Color(0xFFE3E2E9), backgroundColor: Color(0xFF0E0D11)))),
                       DropdownMenuItem(value: 'monokai', child: Text('Monokai', style: TextStyle(color: Color(0xFFFCFCFA), backgroundColor: Color(0xFF221F22))))
                     ],
-                    onChanged: (v) {
-                    }
+                    onChanged: null //(v) {}
                   )
                 )
               ]
@@ -139,12 +131,12 @@ class _SettingsDialogState extends State<SettingsDialog>{
                       DropdownMenuItem(value: 'onWrong', child: Text('При неполадках у абонента')),
                       DropdownMenuItem(value: 'always', child: Text('Всегда'))
                     ],
-                    onChanged: (v) {
-                      setState(() {
-                        loadNeighbours = v!;
-                      });
-                      _updateString('loadNeighbours', v!);
-                    }
+                    onChanged: null //(v) {
+                    //   setState(() {
+                    //     loadNeighbours = v!;
+                    //   });
+                    //   _updateString('loadNeighbours', v!);
+                    // }
                   )
                 )
               ]

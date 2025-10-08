@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:logger/logger.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/dialogs/settings.dart';
 import 'package:smartlink/firebase_options.dart';
@@ -345,9 +346,22 @@ class Chip extends StatelessWidget {
   }
 }
 
-class AppLayout extends StatelessWidget {
+class AppLayout extends StatefulWidget {
   const AppLayout({required this.child, super.key});
   final Widget child;
+
+  @override
+  State<AppLayout> createState() => _AppLayoutState();
+}
+
+class _AppLayoutState extends State<AppLayout> {
+  String? version;
+
+  void _getVersion() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    version = info.version;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -356,8 +370,19 @@ class AppLayout extends StatelessWidget {
         body: Stack(
           alignment: Alignment.bottomRight,
           children: [
-            child,
-            const Text('SmartLinkViewer v0.3.0+1 [γ]', style: TextStyle(color: AppColors.secondary, fontSize: 12))
+            widget.child,
+            InkWell(
+              onTap: (){
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'SmartLinkViewer',
+                  applicationVersion: version,
+                  applicationIcon: Image.asset('assets/icon.png', width: 60, height: 60),
+                  applicationLegalese: '© 2025 «НеоТелеком»'
+                );
+              },
+              child: Text('SmartLinkViewer $version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
+            )
           ]
         ),
         floatingActionButton: Builder(

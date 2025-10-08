@@ -1,7 +1,7 @@
 name: smartlink
 description: "SmartLinkViewer application for Neotelecom operators"
 publish_to: 'none'
-version: 0.3.0+1
+version: 0.3.1
 
 environment:
   sdk: ^3.8.0-265.0.dev
@@ -17,6 +17,7 @@ dependencies:
   mask_text_input_formatter: ^2.9.0
   firebase_core: ^4.0.0
   cloud_firestore: ^6.0.0
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
