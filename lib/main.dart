@@ -382,12 +382,12 @@ class _AppLayoutState extends State<AppLayout> {
                 showAboutDialog(
                   context: context,
                   applicationName: 'SmartLinkViewer',
-                  applicationVersion: version,
-                  applicationIcon: Image.asset('assets/favicon.png', width: 60, height: 60),
+                  applicationVersion: 'v.$version',
+                  applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
                   applicationLegalese: '© 2025 «НеоТелеком»'
                 );
               },
-              child: Text('SmartLinkViewer $version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
+              child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
             )
           ]
         ),
