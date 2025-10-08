@@ -364,6 +364,12 @@ class _AppLayoutState extends State<AppLayout> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _getVersion();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SelectionArea(
       child: Scaffold(
