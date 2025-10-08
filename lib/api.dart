@@ -43,12 +43,12 @@ Future<Map<String, dynamic>> _get(String action, Map<String, String> qp) async {
   throw Exception('Unexpected response');
 }
 
-Future<Map<String, dynamic>> _post(String action, Map<String, String> qp, {int timeout = 20}) async {
+Future<Map<String, dynamic>> _post(String action, Map<String, String> qp, {int timeout = 20, bool processStatusCode = true}) async {
   l.d('API POST: $action $qp');
   final uri = _u(action, qp);
   final resp = await _client.post(uri).timeout(Duration(seconds: timeout));
 
-  if (resp.statusCode != 200) {
+  if (resp.statusCode != 200 && processStatusCode) {
     l.e('API POST $action -> HTTP ${resp.statusCode}, body: ${resp.body}');
     throw Exception('HTTP ${resp.statusCode}');
   }
@@ -159,12 +159,19 @@ Future<String?> restartOnt(int ontId, String host, Map interface) async {
 }
 
 Future<Map> rewriteSN(String sn, int customerId, int ls) async {
-  l.i('API: get ont data sn=$sn customerId=$customerId ls=$ls');
+  l.i('API: rewrite sn sn=$sn customerId=$customerId ls=$ls');
   return await _post('ont/rewrite_sn', {
     'customer_id': customerId.toString(),
     'sn': sn,
     'ls': ls.toString()
   }, timeout: 360);
+}
+Future<Map> rewriteMAC(int customerId, int ls) async {
+  l.i('API: rewrite mac customerId=$customerId ls=$ls');
+  return await _post('ont/rewrite_mac', {
+    'customer_id': customerId.toString(),
+    'ls': ls.toString()
+  });
 }
 
 Future<Map<String, dynamic>> getTask(int id) async {

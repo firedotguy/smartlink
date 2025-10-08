@@ -16,7 +16,8 @@ class OntDialog extends StatefulWidget {
 class _OntDialogState extends State<OntDialog> {
   Map? data;
   bool restarting = false;
-  bool rewriting = false;
+  bool rewritingSN = false;
+  bool rewritingMAC = false;
 
   void _getData() async {
     try{
@@ -65,14 +66,14 @@ class _OntDialogState extends State<OntDialog> {
   }
 
   void _rewriteSN() async {
-    if (rewriting) return;
+    if (rewritingSN) return;
     try {
       setState(() {
-        rewriting = true;
+        rewritingSN = true;
       });
       final Map res = await rewriteSN(widget.sn, widget.customerId, widget.ls);
       if (res['status'] == 'fail'){
-        l.e('error rewriting sn: ${res['detail']}');
+        l.e('error rewritingSN sn: ${res['detail']}');
         if (mounted){
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезаписи SN: ${res['detail']}',
@@ -89,12 +90,49 @@ class _OntDialogState extends State<OntDialog> {
       }
     } catch (e) {
       setState(() {
-        rewriting = false;
+        rewritingSN = false;
       });
       l.e('error rewriting sn: $e');
       if (mounted){
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезаписи SN',
+          style: TextStyle(color: AppColors.error)
+        )));
+      }
+    }
+  }
+
+  void _rewriteMAC() async {
+    if (rewritingMAC) return;
+    try {
+      setState(() {
+        rewritingMAC = true;
+      });
+      final Map res = await rewriteMAC(widget.customerId, widget.ls);
+      if (res['status'] == 'fail'){
+        l.e('error rewriting mac: ${res['detail']}');
+        if (mounted){
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезаписи MAC: ${res['detail']}',
+            style: const TextStyle(color: AppColors.error)
+          )));
+        }
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('MAC перезаписан: ${res['message']}',
+            style: const TextStyle(color: AppColors.success)
+          )));
+        }
+      }
+    } catch (e) {
+      setState(() {
+        rewritingMAC = false;
+      });
+      l.e('error rewriting mac: $e');
+      if (mounted){
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезаписи MAC',
           style: TextStyle(color: AppColors.error)
         )));
       }
@@ -150,8 +188,16 @@ class _OntDialogState extends State<OntDialog> {
               Tooltip(
                 message: 'Перезаписать SN',
                 child: IconButton(
-                  onPressed: rewriting || data == null? null : _rewriteSN,
-                  icon: Icon(Icons.rebase_edit, color: rewriting || data == null? AppColors.secondary : AppColors.neo, size: 16),
+                  onPressed: rewritingSN || data == null? null : _rewriteSN,
+                  icon: Icon(Icons.save_as, color: rewritingSN || data == null? AppColors.secondary : AppColors.neo, size: 16),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                )
+              ),
+              Tooltip(
+                message: 'Перезаписать MAC',
+                child: IconButton(
+                  onPressed: rewritingSN || data == null? null : _rewriteSN,
+                  icon: Icon(Icons.settings_ethernet, color: rewritingSN || data == null? AppColors.secondary : AppColors.neo, size: 16),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
@@ -203,6 +249,7 @@ class _OntDialogState extends State<OntDialog> {
                     _KV('Интерфейс', data!['data']['interface']?['name'] ?? '-'),
                     _KV('ONT ID', data!['data']['ont_id'] ?? '-'),
                     _KV('IP', data!['data']['ip'] ?? '-'),
+                    _KV('MAC', data!['data']['mac'] ?? '-'),
                     _KV('Аптайм', data!['data']?['uptime'] == null? '-' : '${data!['data']['uptime']['days']} дней ${data!['data']['uptime']['hours'].toString().padLeft(2, '0')}:${data!['data']['uptime']['minutes'].toString().padLeft(2, '0')}:${data!['data']['uptime']['seconds'].toString().padLeft(2, '0')}'),
                     Row(
                       spacing: 8,
@@ -315,9 +362,14 @@ class _OntDialogState extends State<OntDialog> {
                   ),
                   ElevatedButton.icon(
                     onPressed: _rewriteSN,
-                    label: rewriting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать SN'),
-                    icon: rewriting? null : const Icon(Icons.rebase_edit)
-                  )
+                    label: rewritingSN? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать SN'),
+                    icon: rewritingSN? null : const Icon(Icons.save_as)
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _rewriteMAC,
+                    label: rewritingMAC? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать MAC'),
+                    icon: rewritingMAC? null : const Icon(Icons.settings_ethernet)
+                  ),
                 ]
               )
             ]
