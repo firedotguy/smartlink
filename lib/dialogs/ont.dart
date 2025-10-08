@@ -180,15 +180,15 @@ class _OntDialogState extends State<OntDialog> {
               Tooltip(
                 message: 'Перезагрузить ONT',
                 child: IconButton(
-                  onPressed: restarting || data == null || data?['data']?['status'] == 'online'? null : _restartONT,
-                  icon: Icon(Icons.restart_alt, color: restarting || data == null || data?['data']?['status'] != 'online'? AppColors.secondary : AppColors.neo, size: 16),
+                  onPressed: restarting || data == null || !data?['data']?['online']? null : _restartONT,
+                  icon: Icon(Icons.restart_alt, color: restarting || data == null || !data?['data']?['online']? AppColors.secondary : AppColors.neo, size: 16),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
               Tooltip(
                 message: 'Перезаписать SN',
                 child: IconButton(
-                  onPressed: rewritingSN || data == null? null : _rewriteSN,
+                  onPressed: rewritingSN || data == null || !data?['data']?['online']? null : _rewriteSN,
                   icon: Icon(Icons.save_as, color: rewritingSN || data == null? AppColors.secondary : AppColors.neo, size: 16),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
@@ -196,8 +196,8 @@ class _OntDialogState extends State<OntDialog> {
               Tooltip(
                 message: 'Перезаписать MAC',
                 child: IconButton(
-                  onPressed: rewritingMAC || data == null? null : _rewriteMAC,
-                  icon: Icon(Icons.settings_ethernet, color: rewritingMAC || data == null? AppColors.secondary : AppColors.neo, size: 16),
+                  onPressed: rewritingMAC || data == null || !data?['data']?['online']? null : _rewriteMAC,
+                  icon: Icon(Icons.settings_ethernet, color: rewritingMAC || data == null || !data?['data']?['online']? AppColors.secondary : AppColors.neo, size: 16),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
@@ -361,12 +361,12 @@ class _OntDialogState extends State<OntDialog> {
                     icon: restarting? null : const Icon(Icons.restart_alt)
                   ),
                   ElevatedButton.icon(
-                    onPressed: _rewriteSN,
+                    onPressed: rewritingSN || data == null || !data?['data']?['online']? null : _rewriteSN,
                     label: rewritingSN? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать SN'),
                     icon: rewritingSN? null : const Icon(Icons.save_as)
                   ),
                   ElevatedButton.icon(
-                    onPressed: _rewriteMAC,
+                    onPressed: rewritingMAC || data == null || !data?['data']?['online']? null : _rewriteMAC,
                     label: rewritingMAC? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезаписать MAC'),
                     icon: rewritingMAC? null : const Icon(Icons.settings_ethernet)
                   ),
