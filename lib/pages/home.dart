@@ -314,6 +314,13 @@ class _HomePageState extends State<HomePage> {
           showBox = true;
           noBox = false;
         });
+        if (customer?['box_id'] == null){
+          l.w('no box');
+          setState(() {
+            noBox = true;
+          });
+          return;
+        }
         box = await getBox(customer!['box_id']);
         if (box!['status'] == 'fail'){
           l.w('box not found');
@@ -700,16 +707,18 @@ class _HomePageState extends State<HomePage> {
                             )
                           )
                         ],
-                        child: box == null? const Center(child: AngularProgressBar()) : Column(
+                        child: box == null && !noBox? const Center(child: AngularProgressBar()) : Column(
                           children: [
                             if (noBox)
-                            const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.warning_amber_outlined, color: AppColors.error),
-                                Text('Коробка не найдена', style: TextStyle(color: AppColors.error))
-                              ]
+                            const Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.warning_amber_outlined, color: AppColors.error),
+                                  Text('Коробка не найдена', style: TextStyle(color: AppColors.error))
+                                ]
+                              ),
                             )
                             else ...[
                               InfoTile(
