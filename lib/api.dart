@@ -174,6 +174,14 @@ Future<Map> rewriteMAC(int customerId, int ls) async {
   });
 }
 
+Future<Map> toggleCATV(String host, int fibre, int service, int port, int ontID, int catvID, bool state) async {
+  l.i('API: toggle catv host=$host fibre=$fibre service=$service port=$port ontId=$ontID catvID=$catvID');
+  return await _post('ont/$fibre/$service/$port/$ontID/catv/$catvID/toggle', {
+    'host': host,
+    'state': state.toString()
+  });
+}
+
 Future<Map<String, dynamic>> getTask(int id) async {
   l.i('API: get task id=$id');
   return await _get('task/$id', {});

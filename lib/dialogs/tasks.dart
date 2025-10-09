@@ -64,7 +64,7 @@ class _TasksDialogState extends State<TasksDialog> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.close, size: 16, color: AppColors.error),
+              icon: const Icon(Icons.close, size: 18, color: AppColors.error),
               constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
             )
           )
@@ -85,7 +85,7 @@ class _TasksDialogState extends State<TasksDialog> {
               margin: const EdgeInsets.symmetric(vertical: 6),
               child: ListTile(
                 leading: const Icon(Icons.assignment_outlined, color: AppColors.neo),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.secondary),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: AppColors.secondary),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

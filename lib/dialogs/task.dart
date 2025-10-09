@@ -124,7 +124,7 @@ class _TaskDialogState extends State<TaskDialog> {
                       );
                     }
                   },
-                  icon: const Icon(Icons.copy, size: 16, color: AppColors.neo),
+                  icon: const Icon(Icons.copy, size: 18, color: AppColors.neo),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
@@ -134,7 +134,7 @@ class _TaskDialogState extends State<TaskDialog> {
                   onPressed: () async {
                     await _openUrl('https://us.neotelecom.kg/task/${widget.taskId}');
                   },
-                  icon: const Icon(Icons.open_in_browser, size: 16, color: AppColors.neo),
+                  icon: const Icon(Icons.open_in_browser, size: 18, color: AppColors.neo),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),
@@ -144,7 +144,7 @@ class _TaskDialogState extends State<TaskDialog> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.close, size: 16, color: AppColors.error),
+                  icon: const Icon(Icons.close, size: 18, color: AppColors.error),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               )

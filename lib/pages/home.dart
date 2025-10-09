@@ -42,14 +42,16 @@ class InfoTile extends StatelessWidget {
           Flexible(
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onTap,
-                child: Text(
-                  value,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
-                )
+              child: SelectionContainer.disabled(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onTap,
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
+                  )
+                ),
               ),
             )
           )
@@ -537,7 +539,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     showDialog(context: context, builder: (context){
-      return OntDialog(oltId: customer!['olt_id'], sn: customer!['sn'], ls: customer!['agreement'], customerId: customer!['id']);
+      return OntDialog(oltId: customer!['olt_id'], sn: customer!['sn'], ls: customer!['agreement'], customerId: customer!['id'], isCustomerActive: customer!['status'] == 'Активен');
     });
   }
 
@@ -678,13 +680,15 @@ class _HomePageState extends State<HomePage> {
                         final e = customers[index];
                         return MouseRegion(
                           cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () async => await _loadCustomerData(e['id']),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
-                            )
+                          child: SelectionContainer.disabled(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async => await _loadCustomerData(e['id']),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
+                              )
+                            ),
                           ),
                         );
                       }
@@ -809,20 +813,22 @@ class _HomePageState extends State<HomePage> {
                                             flex: 3,
                                             child: MouseRegion(
                                               cursor: SystemMouseCursors.click,
-                                              child: GestureDetector(
-                                                behavior: HitTestBehavior.opaque,
-                                                onTap: () {
-                                                  if (neighbour['tasks'].length == 1){
-                                                    _openTask(neighbour['tasks'].first);
-                                                  } else {
-                                                    _openTasks(List<int>.from(neighbour!['tasks']));
-                                                  }
-                                                },
-                                                child: Text(
-                                                  neighbour['tasks']?.length.toString() ?? '-',
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(color: AppColors.error)
-                                                )
+                                              child: SelectionContainer.disabled(
+                                                child: GestureDetector(
+                                                  behavior: HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    if (neighbour['tasks'].length == 1){
+                                                      _openTask(neighbour['tasks'].first);
+                                                    } else {
+                                                      _openTasks(List<int>.from(neighbour!['tasks']));
+                                                    }
+                                                  },
+                                                  child: Text(
+                                                    neighbour['tasks']?.length.toString() ?? '-',
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(color: AppColors.error)
+                                                  )
+                                                ),
                                               ),
                                             )
                                           ),
@@ -1131,14 +1137,16 @@ class _HomePageState extends State<HomePage> {
                                             const Text('-', softWrap: true, textAlign: TextAlign.center)
                                             : MouseRegion(
                                               cursor: SystemMouseCursors.click,
-                                              child: GestureDetector(
-                                                behavior: HitTestBehavior.opaque,
-                                                onTap: _openONT,
-                                                child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                                                  style: const TextStyle(color: AppColors.neo,
-                                                  decorationColor: AppColors.neo,
-                                                  decoration: TextDecoration.underline)
-                                                )
+                                              child: SelectionContainer.disabled(
+                                                child: GestureDetector(
+                                                  behavior: HitTestBehavior.opaque,
+                                                  onTap: _openONT,
+                                                  child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                                                    style: const TextStyle(color: AppColors.neo,
+                                                    decorationColor: AppColors.neo,
+                                                    decoration: TextDecoration.underline)
+                                                  )
+                                                ),
                                               ),
                                             )
                                         ),

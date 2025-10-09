@@ -61,7 +61,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
       });
     } catch (e) {
       if (mounted) {
-        l.e('error while loading additional_data/divisions: $e');
+        l.e('error while loading addata/divisions: $e');
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Ошибка загрузки данных', style: TextStyle(color: AppColors.error))

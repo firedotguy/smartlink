@@ -334,18 +334,24 @@ class Chip extends StatelessWidget {
         spacing: 6,
         children: [
           if (icon != null && iconTooltip == null)
-          InkWell(
-            enableFeedback: false,
-            onTap: onIconTap,
-            child: Icon(icon, size: 14, color: color)
+          MouseRegion(
+            cursor: onIconTap == null? MouseCursor.defer : SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onIconTap,
+              child: Icon(icon, size: 14, color: color)
+            ),
           ),
           if (icon != null && iconTooltip != null)
           Tooltip(
             message: iconTooltip,
-            child: InkWell(
-              enableFeedback: false,
-              onTap: onIconTap,
-              child: Icon(icon, size: 14, color: color)
+            child: MouseRegion(
+              cursor: onIconTap == null? MouseCursor.defer : SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onIconTap,
+                child: Icon(icon, size: 14, color: color)
+              ),
             )
           ),
           Text(text, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600))
@@ -386,18 +392,23 @@ class _AppLayoutState extends State<AppLayout> {
           alignment: Alignment.bottomRight,
           children: [
             widget.child,
-            InkWell(
-              enableFeedback: false,
-              onTap: (){
-                showAboutDialog(
-                  context: context,
-                  applicationName: 'SmartLinkViewer',
-                  applicationVersion: 'v.$version',
-                  applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
-                  applicationLegalese: '© 2025 «НеоТелеком»'
-                );
-              },
-              child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: SelectionContainer.disabled(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: (){
+                    showAboutDialog(
+                      context: context,
+                      applicationName: 'SmartLinkViewer',
+                      applicationVersion: 'v.$version',
+                      applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
+                      applicationLegalese: '© 2025 «НеоТелеком»'
+                    );
+                  },
+                  child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
+                ),
+              ),
             )
           ]
         ),
