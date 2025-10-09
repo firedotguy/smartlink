@@ -40,13 +40,17 @@ class InfoTile extends StatelessWidget {
           Text(title, style: const TextStyle(color: AppColors.secondary)),
           if (onTap != null)
           Flexible(
-            child: InkWell(
-              onTap: onTap,
-              child: Text(
-                value,
-                textAlign: TextAlign.right,
-                style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
-              )
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTap,
+                child: Text(
+                  value,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
+                )
+              ),
             )
           )
           else
@@ -672,12 +676,16 @@ class _HomePageState extends State<HomePage> {
                       itemCount: customers.length,
                       itemBuilder: (context, index) {
                         final e = customers[index];
-                        return InkWell(
-                          onTap: () async => await _loadCustomerData(e['id']),
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
-                          )
+                        return MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () async => await _loadCustomerData(e['id']),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
+                            )
+                          ),
                         );
                       }
                     ))
@@ -799,19 +807,23 @@ class _HomePageState extends State<HomePage> {
                                           else
                                           Expanded(
                                             flex: 3,
-                                            child: InkWell(
-                                              onTap: () {
-                                                if (neighbour['tasks'].length == 1){
-                                                  _openTask(neighbour['tasks'].first);
-                                                } else {
-                                                  _openTasks(List<int>.from(neighbour!['tasks']));
-                                                }
-                                              },
-                                              child: Text(
-                                                neighbour['tasks']?.length.toString() ?? '-',
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(color: AppColors.error)
-                                              )
+                                            child: MouseRegion(
+                                              cursor: SystemMouseCursors.click,
+                                              child: GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  if (neighbour['tasks'].length == 1){
+                                                    _openTask(neighbour['tasks'].first);
+                                                  } else {
+                                                    _openTasks(List<int>.from(neighbour!['tasks']));
+                                                  }
+                                                },
+                                                child: Text(
+                                                  neighbour['tasks']?.length.toString() ?? '-',
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(color: AppColors.error)
+                                                )
+                                              ),
                                             )
                                           ),
                                           Expanded(
@@ -1042,9 +1054,13 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
-                                InkWell(
-                                  onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
-                                  child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
+                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                  ),
                                 )
                               ]
                             ),
@@ -1053,9 +1069,13 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
-                                InkWell(
-                                  onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
-                                  child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
+                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                  ),
                                 )
                               ]
                             ),
@@ -1109,14 +1129,18 @@ class _HomePageState extends State<HomePage> {
                                           flex: 6,
                                           child: equipment['sn'] == null?
                                             const Text('-', softWrap: true, textAlign: TextAlign.center)
-                                            : InkWell(
-                                            onTap: _openONT,
-                                            child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                                              style: const TextStyle(color: AppColors.neo,
-                                              decorationColor: AppColors.neo,
-                                              decoration: TextDecoration.underline)
+                                            : MouseRegion(
+                                              cursor: SystemMouseCursors.click,
+                                              child: GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: _openONT,
+                                                child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                                                  style: const TextStyle(color: AppColors.neo,
+                                                  decorationColor: AppColors.neo,
+                                                  decoration: TextDecoration.underline)
+                                                )
+                                              ),
                                             )
-                                          )
                                         ),
                                         Expanded(
                                           flex: 2,

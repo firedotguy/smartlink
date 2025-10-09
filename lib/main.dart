@@ -17,9 +17,6 @@ void main() async {
   runApp(const MainApp());
 }
 
-/// A custom linear progress bar with angled ends and animated runner.
-///
-/// Often used to indicate background loading or processing.
 class AngularProgressBar extends StatefulWidget {
   /// Creates an angular progress bar with customizable dimensions and colors.
   const AngularProgressBar({
@@ -67,7 +64,7 @@ class _AngularProgressBarState extends State<AngularProgressBar>
       width: widget.width,
       height: widget.height,
       child: ClipPath(
-        clipper: AngularClipper(),
+        clipper: _AngularClipper(),
         child: Stack(
           children: [
             CustomPaint(
@@ -130,10 +127,7 @@ class _BarBackgroundPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-/// Clipper that defines a trapezoidal shape with angled edges.
-///
-/// Used by [AngularProgressBar] to give the progress bar a non-rectangular shape.
-class AngularClipper extends CustomClipper<Path> {
+class _AngularClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final h = size.height;
@@ -317,29 +311,44 @@ Color getTaskStatusColor(int status) {
   }
 
 class Chip extends StatelessWidget {
-  const Chip({required this.text, this.icon, super.key, this.color, this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 3)});
+  const Chip({required this.text, this.icon, super.key, this.color = AppColors.neo, this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 3), this.onIconTap, this.iconTooltip});
   final IconData? icon;
   final String text;
-  final Color? color;
+  final Color color;
   final EdgeInsets padding;
+  final VoidCallback? onIconTap;
+  final String? iconTooltip;
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.neo;
+    final c = color;
     return Container(
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: c.withValues(alpha: .45))
+        border: Border.all(color: (color).withValues(alpha: .45))
       ),
       padding: padding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 6,
         children: [
-          if (icon != null)
-          Icon(icon, size: 14, color: c),
-          Text(text, style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w600))
+          if (icon != null && iconTooltip == null)
+          InkWell(
+            enableFeedback: false,
+            onTap: onIconTap,
+            child: Icon(icon, size: 14, color: color)
+          ),
+          if (icon != null && iconTooltip != null)
+          Tooltip(
+            message: iconTooltip,
+            child: InkWell(
+              enableFeedback: false,
+              onTap: onIconTap,
+              child: Icon(icon, size: 14, color: color)
+            )
+          ),
+          Text(text, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600))
         ]
       )
     );
@@ -378,6 +387,7 @@ class _AppLayoutState extends State<AppLayout> {
           children: [
             widget.child,
             InkWell(
+              enableFeedback: false,
               onTap: (){
                 showAboutDialog(
                   context: context,

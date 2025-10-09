@@ -325,13 +325,26 @@ class _OntDialogState extends State<OntDialog> {
                       title: 'CATV',
                       child: Wrap(
                         spacing: 8,
-                        runSpacing: 8,
+                        runSpacing: 4,
                         children: data!['data']?['catv']?.asMap().entries.map((e) => (e.key + 1, e.value)).map<Widget>((e) {
-                          return Chip(
-                            icon: Icons.circle,
-                            text: 'Port ${e.$1}: ${e.$2 ?? false? "Вкл" : "Выкл"}',
-                            color: e.$2 ?? false? AppColors.success : AppColors.error,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                          return Row(
+                            children: [
+                              Chip(
+                                icon: Icons.circle,
+                                text: 'Port ${e.$1}: ${e.$2 ?? false? "Вкл" : "Выкл"}',
+                                color: e.$2 ?? false? AppColors.success : AppColors.error,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                              ),
+                              SizedBox(
+                                height: 20,
+                                width: 50,
+                                child: Switch(
+                                  value: e.$2 ?? false,
+                                  onChanged: null,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap
+                                )
+                              )
+                            ]
                           );
                         }).toList() ?? [const Text('Нет CATV портов', style: TextStyle(color: AppColors.error))]
                       )
