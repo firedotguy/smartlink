@@ -152,6 +152,12 @@ class _OntDialogState extends State<OntDialog> {
     return AppColors.error;
   }
 
+  Color _tempColor(int temp) {
+    if (temp < 50) return AppColors.success;
+    if (temp < 65) return AppColors.warning;
+    return AppColors.error;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -303,7 +309,8 @@ class _OntDialogState extends State<OntDialog> {
                     Expanded(
                       child: _StatCard(
                         label: 'ONT T°',
-                        value: '${data!['data']?['optical']?['temp']?.toStringAsFixed(0) ?? '-'}°C'
+                        value: '${data!['data']?['optical']?['temp']?.toStringAsFixed(0) ?? '-'}°C',
+                        color: _tempColor(data!['data']?['optical']?['temp']),
                       )
                     )
                   ]
