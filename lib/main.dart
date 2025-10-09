@@ -180,7 +180,7 @@ final ThemeData darkTheme = ThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
         if (states.contains(WidgetState.disabled)) {
-          return const Color(0xFF4DAFD9);
+          return AppColors.secondary;
         } else if (states.contains(WidgetState.pressed)) {
           return const Color(0xFF006692);
         } else if (states.contains(WidgetState.hovered)) {
