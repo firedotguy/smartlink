@@ -3,16 +3,12 @@
 Софт для операторов компании Neotelecom. Разработан на языке `Dart` + `Flutter`. Пока доступна только [web](192.168.2.112) версия.
 > Сайт находится на стадии Beta разработки, и может содрежать ошибки\баги.
 
-## План
+---
+Этот проект лицензирован под [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-...
- - [x] Запуск бета-теста
- - [x] Отдельный диалог для задания
- - [ ] Переделать диалог вложений чтобы он был кроссплатформенным и не использовал устаревший `dart:html`
- - [ ] Изменить вид иконки чата
- - [ ] Переделать чат
+[![CC BY-NC-SA 4.0](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-...
+---
 
 ## Использование
 ### 1. Вход

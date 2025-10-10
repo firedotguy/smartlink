@@ -321,12 +321,11 @@ class Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color;
     return Container(
       decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: (color).withValues(alpha: .45))
+        border: Border.all(color: color.withValues(alpha: .45))
       ),
       padding: padding,
       child: Row(
