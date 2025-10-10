@@ -32,7 +32,7 @@ class _TasksDialogState extends State<TasksDialog> {
       showDialog(
         context: context,
         builder: (context){
-          return TaskDialog(taskId: widget.tasks.first);
+          return TaskDialog(id: widget.tasks.first);
         }
       );
     }
@@ -122,7 +122,7 @@ class _TasksDialogState extends State<TasksDialog> {
                   // Navigator.pop(context);
                   showDialog(
                     context: context,
-                    builder: (_) => TaskDialog(taskId: task['id'])
+                    builder: (_) => TaskDialog(task: task)
                   );
                 },
                 shape: RoundedRectangleBorder(

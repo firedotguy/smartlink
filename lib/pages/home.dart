@@ -25,7 +25,7 @@ class InfoTile extends StatelessWidget {
     super.key
   });
   final String title;
-  final String value;
+  final String? value;
   // final Color underlineColor;
   final VoidCallback? onTap;
   final Color? valueColor;
@@ -47,7 +47,7 @@ class InfoTile extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: onTap,
                   child: Text(
-                    value,
+                    value ?? '-',
                     textAlign: TextAlign.right,
                     style: TextStyle(color: valueColor ?? AppColors.main) //, decoration: TextDecoration.underline, decorationColor: underlineColor)
                   )
@@ -58,7 +58,7 @@ class InfoTile extends StatelessWidget {
           else
           Flexible(
             child: Text(
-              value,
+              value ?? '-',
               textAlign: TextAlign.right,
               style: TextStyle(color: valueColor ?? AppColors.main)
             )
@@ -175,7 +175,6 @@ class _HomePageState extends State<HomePage> {
   Map? customer;
 
   // box
-  bool showBox = false;
   bool noBox = false;
   Map? box;
 
@@ -248,7 +247,7 @@ class _HomePageState extends State<HomePage> {
 
   Color _getCustomerBorderColor(Map? customer) {
     if (customer != null) {
-      if (customer['status'] == 'Отключен' || _getActivityColor(customer['last_activity']) == AppColors.error) {
+      if (customer['status'] == 'Отключен' || _getActivityColor(customer['timestamps']['last_active_at']) == AppColors.error) {
         return AppColors.error;
       }
       if (customer['status'] == 'Пауза') {
@@ -272,10 +271,10 @@ class _HomePageState extends State<HomePage> {
   Color _getTaskBorderColor(List<Map>? tasks) {
     if (tasks != null){
       for (var task in tasks){
-        if (task['dates']['create'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
+        if (task['timestamps']['created_at'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
           continue;
         }
-        final DateTime parsed = DateTime.parse(task['dates']['create']);
+        final DateTime parsed = DateTime.parse(task['timestamps']['created_at']);
         final int difference = DateTime.now().difference(parsed).inDays;
         if (difference > 2){
           return AppColors.error;
@@ -312,50 +311,63 @@ class _HomePageState extends State<HomePage> {
   // API calls
   Future<void> _loadBoxData() async {
     try{
-      if (!load){
-        l.i('load box data');
+      l.i('load box data');
+      setState(() {
+        box = null;
+        noBox = false;
+      });
+      if (customer?['box_id'] == null){
+        l.w('no box');
         setState(() {
-          load = true;
-          box = null;
-          showBox = true;
-          noBox = false;
+          noBox = true;
         });
-        if (customer?['box_id'] == null){
-          l.w('no box');
-          setState(() {
-            noBox = true;
-          });
-          return;
-        }
-        box = await getBox(customer!['box_id']);
-        if (box!['status'] == 'fail'){
-          l.w('box not found');
-          setState(() {
-            noBox = true;
-          });
-        }
-        // remove search customer from neighbours
-        box!['customers']?.removeWhere(
-          (n) => n['id'] == customer!['id']
-        );
-        setState(() {
-          load = false;
-        });
-      } else {
-        l.i('load box request ignored because load = true');
+        return;
       }
-    } catch (err) {
-      l.e('error loading box data: $err');
+      box = await getBox(customer!['box_id']);
+      if (box!['status'] == 'fail'){
+        l.w('box not found');
+        setState(() {
+          noBox = true;
+        });
+      }
+      // remove search customer from neighbours
+      box!['customers']?.removeWhere(
+        (n) => n['id'] == customer!['id']
+      );
+      setState(() {
+        load = false;
+      });
+    } catch (e) {
+      l.e('error loading box data: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка получения данных абонента: $err', style: const TextStyle(color: AppColors.error)))
+          SnackBar(content: Text('Ошибка получения данных коробки: $e', style: const TextStyle(color: AppColors.error)))
         );
       }
     }
   }
 
-  Future<void> _loadCustomerData(int id, {bool loadBox = true}) async {
+  Future<void> _loadTasksData() async {
+    try{
+      l.i('load tasks');
+      setState(() {
+        tasks = null;
+      });
+      tasks = await getCustomerTasks(customer!['id']);
+      setState(() {});
+    } catch (e) {
+      l.e('error loading tasks: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка получения данных задания: $e', style: const TextStyle(color: AppColors.error)))
+        );
+      }
+    }
+  }
+
+  void _loadCustomerData(int id, {bool loadAll = true}) {
     try {
       l.i('load customer $id');
       searchController.clear();
@@ -363,27 +375,28 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           load = true;
           customer = null;
-          tasks = null;
           attachs = null;
-          if (loadBox){
+          if (loadAll){
             box = null;
-            showBox = false;
+            tasks = null;
           }
           search = false;
           searching = false;
         });
-        customer = await getCustomer(id);
-        tasks = List<Map>.from(customer!['tasks']);
-        setState(() {
-          load = false;
-          customers.clear();
+        getCustomer(id).then((v){
+          customer = v['data'];
+          setState(() {
+            load = false;
+            customers.clear();
+          });
+          if (loadAll){
+            _loadTasksData();
+            _loadBoxData();
+          }
         });
         // if (loadNeighbours != 'never'){
         //   if (customer!['status'] == 'Отключен' || _getActivityColor(customer!['last_activity']) == AppColors.error || loadNeighbours == 'always'){
         //     l.i('something wrong with customer or loadNeighbours is "always", automatically load box');
-        if (loadBox){
-            await _loadBoxData();
-        }
         //   }
         // } else {
         //   l.i('neighbours not load becuase loadNeigbours is "never"');
@@ -391,12 +404,12 @@ class _HomePageState extends State<HomePage> {
       } else {
         l.i('load customer request ignored because load = true');
       }
-    } catch (err) {
-      l.e('error getting customer data: $err');
+    } catch (e) {
+      l.e('error getting customer data: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка получения данных абонента: $err', style: const TextStyle(color: AppColors.error)))
+          SnackBar(content: Text('Ошибка получения данных абонента: $e', style: const TextStyle(color: AppColors.error)))
         );
       }
     }
@@ -406,7 +419,7 @@ class _HomePageState extends State<HomePage> {
     l.i('search submitted - value: $v');
     if (searching) return;
     if (customers.isNotEmpty) {
-      await _loadCustomerData(customers.first['id']);
+      _loadCustomerData(customers.first['id']);
     } else {
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -558,7 +571,7 @@ class _HomePageState extends State<HomePage> {
       if (!res['box']){
         tasks?.add({
           'id': res['id'],
-          'dates': {'create': DateTime.now().toString(), 'update': DateTime.now().toString()},
+          'timestamps': {'created_at': DateTime.now().toString(), 'updated_at': DateTime.now().toString()},
           'name': 'Выезд на ремонт',
           'status': {'id': 11, 'name': 'Не выполнено'}
         });
@@ -586,11 +599,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _openTask(int id){
+  void _openTask(Map<String, dynamic> data){
     showDialog(
       context: context,
       builder: (context){
-        return TaskDialog(taskId: id, customer: customer?['name']);
+        return TaskDialog(task: data, customer: customer?['name']);
       }
     );
   }
@@ -683,7 +696,7 @@ class _HomePageState extends State<HomePage> {
                           child: SelectionContainer.disabled(
                             child: GestureDetector(
                               behavior: HitTestBehavior.opaque,
-                              onTap: () async => await _loadCustomerData(e['id']),
+                              onTap: () => _loadCustomerData(e['id']),
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 2),
                                 child: Text(e['agreement'] == null? e['name'] : '${e['agreement']}: ${e['name']}', style: const TextStyle(fontSize: 15))
@@ -912,214 +925,216 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Обновить данные',
                             child: IconButton(
-                              onPressed: customer != null? () => _loadCustomerData(customer!['id'], loadBox: false) : null,
+                              onPressed: customer != null? () => _loadCustomerData(customer!['id'], loadAll: false) : null,
                               icon: Icon(Icons.refresh, size: 18, color: customer == null? AppColors.secondary : AppColors.neo),
                               constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                             )
                           )
                         ],
                         child: customer == null? const Center(child: AngularProgressBar()) :
-                        Column(
-                          children: [
-                            if (customer!['olt_id'] == null)
-                            const Row(
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.warning_amber, color: AppColors.warning, size: 18),
-                                Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
-                              ]
-                            ),
-                            if ((customer!['onu_level'] ?? 0) < -25)
-                            Row(
-                              spacing: 5,
-                              children: [
-                                const Icon(Icons.network_check, color: AppColors.error, size: 18),
-                                Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
-                              ]
-                            ),
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              if (customer!['olt_id'] == null)
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.warning_amber, color: AppColors.warning, size: 18),
+                                  Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
+                                ]
+                              ),
+                              // if ((customer!['onu_level'] ?? 0) < -25)
+                              // Row(
+                              //   spacing: 5,
+                              //   children: [
+                              //     const Icon(Icons.network_check, color: AppColors.error, size: 18),
+                              //     Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
+                              //   ]
+                              // ),
 
-                            if (customer!['status'] == 'Отключен')
-                            const Row(
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.power_settings_new, color: AppColors.error, size: 18),
-                                Text('Абонент отключен', style: TextStyle(color: AppColors.error))
-                              ]
-                            ),
+                              if (customer!['status'] == 'Отключен')
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.power_settings_new, color: AppColors.error, size: 18),
+                                  Text('Абонент отключен', style: TextStyle(color: AppColors.error))
+                                ]
+                              ),
 
-                            if (customer!['status'] == 'Пауза')
-                            const Row(
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.pause_circle_filled, color: AppColors.warning, size: 18),
-                                Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
-                              ]
-                            ),
+                              if (customer!['status'] == 'Пауза')
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.pause_circle_outline, color: AppColors.warning, size: 18),
+                                  Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
+                                ]
+                              ),
 
-                            if (_getActivityColor(customer!['last_activity']) == AppColors.error)
-                            const Row(
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.access_time, color: AppColors.error, size: 18),
-                                Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
-                              ]
-                            ),
+                              if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.access_time, color: AppColors.error, size: 18),
+                                  Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
+                                ]
+                              ),
 
-                            if (_getBoxBorderColor(box?['customers']) == AppColors.error)
-                            const Row(
-                              spacing: 5,
-                              children: [
-                                Icon(Icons.build_circle, color: AppColors.error, size: 18),
-                                Text('Проблемы в коробке', style: TextStyle(color: AppColors.error))
-                              ]
-                            ),
-                            InfoTile(
-                              title: 'ФИО',
-                              value: customer!['name']
-                            ),
-                            InfoTile(
-                              title: 'Лицевой счёт',
-                              value: customer!['agreement'].toString()
-                            ),
-                            InfoTile(
-                              title: 'Баланс',
-                              value: '${customer!['balance']} сом',
-                              valueColor: _getBalanceColor(customer!['balance'])
-                            ),
-                            InfoTile(
-                              title: 'Статус',
-                              value: customer!['status'],
-                              valueColor: _getStatusColor(customer!['status'])
-                            ),
-                            InfoTile(
-                              title: 'Группа',
-                              value: customer!['group']?['name'] ?? '-'
-                            ),
-                            InfoTile(
-                              title: 'Последняя активность',
-                              value: formatDate(customer!['last_activity']),
-                              valueColor: _getActivityColor(customer!['last_activity'])
-                            ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Text('Уровень сигнала:'),
-                            //     Text((customer!['onu_level'] ?? '-').toString(), style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
-                            //   ]
-                            // ),
-                            const SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Номер телефона', style: TextStyle(color: AppColors.secondary)),
-                                Column(
-                                  children: customer!['phones'].map<Widget>((phone) {
-                                    return Row(
-                                      children: [
-                                        const Icon(Icons.phone, size: 18, color: AppColors.neo),
-                                        const SizedBox(width: 8),
-                                        Text(phone)
-                                      ]
-                                    );
-                                  }).toList()
-                                )
-                              ]
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Тариф', style: TextStyle(color: AppColors.secondary)),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: customer!['tariffs'].map<Widget>((tariff) {
-                                      return Text(tariff['name'], softWrap: true, textAlign: TextAlign.right);
+                              if (_getBoxBorderColor(box?['customers']) == AppColors.error)
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.build_circle_outlined, color: AppColors.error, size: 18),
+                                  Text('Проблемы в коробке', style: TextStyle(color: AppColors.error))
+                                ]
+                              ),
+                              InfoTile(
+                                title: 'ФИО',
+                                value: customer!['name']
+                              ),
+                              InfoTile(
+                                title: 'Лицевой счёт',
+                                value: customer!['agreement'].toString()
+                              ),
+                              InfoTile(
+                                title: 'Баланс',
+                                value: '${customer!['balance']} сом',
+                                valueColor: _getBalanceColor(customer!['balance'])
+                              ),
+                              InfoTile(
+                                title: 'Статус',
+                                value: customer!['status'],
+                                valueColor: _getStatusColor(customer!['status'] ?? '-')
+                              ),
+                              InfoTile(
+                                title: 'Группа',
+                                value: customer!['group']?['name']
+                              ),
+                              InfoTile(
+                                title: 'Последняя активность',
+                                value: formatDate(customer!['timestamps']['last_active_at']),
+                                valueColor: _getActivityColor(customer!['timestamps']['last_active_at'] ?? '-')
+                              ),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //   children: [
+                              //     Text('Уровень сигнала:'),
+                              //     Text((customer!['onu_level']).toString(), style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
+                              //   ]
+                              // ),
+                              const SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Номер телефона', style: TextStyle(color: AppColors.secondary)),
+                                  Column(
+                                    children: customer!['phones'].map<Widget>((phone) {
+                                      return Row(
+                                        children: [
+                                          const Icon(Icons.phone, size: 18, color: AppColors.neo),
+                                          const SizedBox(width: 8),
+                                          Text(phone)
+                                        ]
+                                      );
                                     }).toList()
                                   )
-                                )
-                              ]
-                            ),
-                            const SizedBox(height: 5),
-                            const Row(
-                              children: [
-                                Icon(Icons.public, color: AppColors.neo),
-                                SizedBox(width: 8),
-                                Text('Геоданные', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                              ]
-                            ),
-                            const Divider(),
-                            if (customer!['geodata']?['coord'] != null)
-                            InfoTile(title: 'Координаты', value: customer!['geodata']['coord'].join(', ')),
-                            if (customer!['geodata']?['address'] != null)
-                            InfoTile(title: 'Адрес', value: customer!['geodata']['address']),
-                            if (customer!['geodata']?['2gis_link'] != null)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
-                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                ]
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Тариф', style: TextStyle(color: AppColors.secondary)),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: customer!['tariffs'].map<Widget>((tariff) {
+                                        return Text(tariff['name'] ?? '-', softWrap: true, textAlign: TextAlign.right);
+                                      }).toList()
+                                    )
+                                  )
+                                ]
+                              ),
+                              const SizedBox(height: 5),
+                              const Row(
+                                children: [
+                                  Icon(Icons.public, color: AppColors.neo),
+                                  SizedBox(width: 8),
+                                  Text('Геоданные', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                                ]
+                              ),
+                              const Divider(),
+                              if (customer!['geodata']?['coord'] != null)
+                              InfoTile(title: 'Координаты', value: customer!['geodata']['coord'].join(', ')),
+                              if (customer!['geodata']?['address'] != null)
+                              InfoTile(title: 'Адрес', value: customer!['geodata']['address']),
+                              if (customer!['geodata']?['2gis_link'] != null)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
+                                      child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                    ),
+                                  )
+                                ]
+                              ),
+                              if (customer!['geodata']?['neo_link'] != null)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
+                                      child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                    ),
+                                  )
+                                ]
+                              ),
+                              if (customer!['geodata'] == null)
+                              const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
+                              const SizedBox(height: 5),
+                              const Row(
+                                children: [
+                                  Icon(Icons.device_hub, color: AppColors.neo),
+                                  SizedBox(width: 8),
+                                  Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                                ]
+                              ),
+                              const Divider(),
+                              if (customer!['inventory'].isEmpty)
+                              const Center(
+                                child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                              ),
+                              if (customer!['inventory'].isNotEmpty)
+                              const Row(
+                                children: [
+                                  Expanded(
+                                    flex: 7,
+                                    child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                   ),
-                                )
-                              ]
-                            ),
-                            if (customer!['geodata']?['neo_link'] != null)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
-                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                  Expanded(
+                                    flex: 6,
+                                    child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                   ),
-                                )
-                              ]
-                            ),
-                            if (customer!['geodata'] == null)
-                            const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
-                            const SizedBox(height: 5),
-                            const Row(
-                              children: [
-                                Icon(Icons.device_hub, color: AppColors.neo),
-                                SizedBox(width: 8),
-                                Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                              ]
-                            ),
-                            const Divider(),
-                            if (customer!['inventory'].isEmpty)
-                            const Center(
-                              child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
-                            ),
-                            if (customer!['inventory'].isNotEmpty)
-                            const Row(
-                              children: [
-                                Expanded(
-                                  flex: 7,
-                                  child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                                )
-                              ]
-                            ),
-                            if (customer!['inventory'].isNotEmpty)
-                            Expanded(
-                              child: ListView.builder(
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                                  )
+                                ]
+                              ),
+                              if (customer!['inventory'].isNotEmpty)
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: customer!['inventory'].length,
                                 itemBuilder: (c, i){
                                   final equipment = customer!['inventory'][i];
@@ -1152,15 +1167,15 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         Expanded(
                                           flex: 2,
-                                          child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
+                                          child: Text(equipment['amount']?.toString() ?? '0', softWrap: true, textAlign: TextAlign.right)
                                         )
                                       ]
                                     )
                                   );
                                 }
                               )
-                            )
-                          ]
+                            ]
+                          ),
                         )
                       ),
                       Expanded(
@@ -1171,7 +1186,7 @@ class _HomePageState extends State<HomePage> {
                               icon: Icons.assignment,
                               title: 'Задания абонента',
                               last: true,
-                              child: customer == null? const Center(child: AngularProgressBar()) :
+                              child: tasks == null? const Center(child: AngularProgressBar()) :
                               Column(
                                 children: [
                                   if (tasks!.isEmpty)
@@ -1219,12 +1234,12 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               Expanded(
                                                 flex: 7,
-                                                child: Text(task['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                                                child: Text(task['type']['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
                                               ),
                                               Expanded(
                                                 flex: 6,
-                                                child: Text(formatDate(task['dates']['create']), softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskDateColor(task['dates']['create'], task['status']['id']), fontSize: 13)
+                                                child: Text(formatDate(task['timestamps']['created_at']), softWrap: true, textAlign: TextAlign.center,
+                                                  style: TextStyle(color: _getTaskDateColor(task['timestamps']['created_at'], task['status']['id']), fontSize: 13) //
                                                 )
                                               ),
                                               Expanded(
@@ -1236,7 +1251,7 @@ class _HomePageState extends State<HomePage> {
                                               Flexible(
                                                 flex: 2,
                                                 child: IconButton(
-                                                  onPressed: () => _openTask(task['id']),
+                                                  onPressed: () => _openTask(Map<String, dynamic>.from(task)),
                                                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
                                                 )
                                               )

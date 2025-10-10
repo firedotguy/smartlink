@@ -7,8 +7,9 @@ import 'package:smartlink/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDialog extends StatefulWidget {
-  const TaskDialog({required this.taskId, this.customer, super.key});
-  final int taskId;
+  const TaskDialog({this.task, this.id, this.customer, super.key});
+  final Map<String, dynamic>? task;
+  final int? id;
   final String? customer;
 
   @override
@@ -21,12 +22,6 @@ class _TaskDialogState extends State<TaskDialog> {
   bool sending = false;
   int? employeeId;
   final TextEditingController commentController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
 
   DateTime _toDateTime(dynamic v) {
     if (v == null) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -46,18 +41,24 @@ class _TaskDialogState extends State<TaskDialog> {
   Future<void> _load() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     employeeId = prefs.getInt('userId');
-    try {
-      final data = await getTask(widget.taskId);
+    if (task == null){
+      try {
+        final data = await getTask(widget.id!);
+        setState(() {
+          task = data['data'];
+          load = false;
+        });
+      } catch (e) {
+        if (!mounted) return;
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки задания: $e', style: const TextStyle(color: AppColors.error)))
+        );
+      }
+    } else {
       setState(() {
-        task = data['data'];
         load = false;
       });
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки задания: $e', style: const TextStyle(color: AppColors.error)))
-      );
     }
   }
 
@@ -98,6 +99,13 @@ class _TaskDialogState extends State<TaskDialog> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    task = widget.task;
+    _load();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Row(
@@ -117,7 +125,7 @@ class _TaskDialogState extends State<TaskDialog> {
                 message: 'Скопировать ссылку на задание в UserSide',
                 child: IconButton(
                   onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: 'https://us.neotelecom.kg/task/${widget.taskId}'));
+                    await Clipboard.setData(ClipboardData(text: 'https://us.neotelecom.kg/task/${widget.id ?? task!['id']}'));
                     if (context.mounted){
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Ссылка скопирована', style: TextStyle(color: AppColors.success)))
@@ -132,7 +140,7 @@ class _TaskDialogState extends State<TaskDialog> {
                 message: 'Открыть в UserSide',
                 child: IconButton(
                   onPressed: () async {
-                    await _openUrl('https://us.neotelecom.kg/task/${widget.taskId}');
+                    await _openUrl('https://us.neotelecom.kg/task/${widget.id ?? task!['id']}');
                   },
                   icon: const Icon(Icons.open_in_browser, size: 18, color: AppColors.neo),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
