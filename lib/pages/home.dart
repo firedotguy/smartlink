@@ -184,6 +184,9 @@ class _HomePageState extends State<HomePage> {
   // task
   List<Map>? tasks;
 
+  // inventory
+  List<Map>? inventory;
+
 
   // utils
   Future<void> _openUrl(link) async {
@@ -367,6 +370,25 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _loadInventoryData() async {
+    try{
+      l.i('load inventory');
+      setState(() {
+        inventory = null;
+      });
+      inventory = await getCustomerInventory(customer!['id']);
+      setState(() {});
+    } catch (e) {
+      l.e('error loading inventory: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка получения данных оборудования: $e', style: const TextStyle(color: AppColors.error)))
+        );
+      }
+    }
+  }
+
   void _loadCustomerData(int id, {bool loadAll = true}) {
     try {
       l.i('load customer $id');
@@ -377,6 +399,7 @@ class _HomePageState extends State<HomePage> {
           customer = null;
           attachs = null;
           if (loadAll){
+            inventory = null;
             box = null;
             tasks = null;
           }
@@ -392,6 +415,7 @@ class _HomePageState extends State<HomePage> {
           if (loadAll){
             _loadTasksData();
             _loadBoxData();
+            _loadInventoryData();
           }
         });
         // if (loadNeighbours != 'never'){
@@ -599,11 +623,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _openTask(Map<String, dynamic> data){
+  void _openTask({Map<String, dynamic>? data, int? id}){
     showDialog(
       context: context,
       builder: (context){
-        return TaskDialog(task: data, customer: customer?['name']);
+        return TaskDialog(task: data, id: id, customer: customer?['name']);
       }
     );
   }
@@ -757,7 +781,7 @@ class _HomePageState extends State<HomePage> {
                                   box!['tasks'].length == 0? AppColors.success : AppColors.error,
                                 onTap: box?['tasks'] == null? null : box!['tasks'].length == 0? null : (){
                                   if (box!['tasks'].length == 1){
-                                    _openTask(box!['tasks'].first);
+                                    _openTask(id: box!['tasks'].first);
                                   } else {
                                     _openTasks(List<int>.from(box!['tasks']));
                                   }
@@ -831,7 +855,7 @@ class _HomePageState extends State<HomePage> {
                                                   behavior: HitTestBehavior.opaque,
                                                   onTap: () {
                                                     if (neighbour['tasks'].length == 1){
-                                                      _openTask(neighbour['tasks'].first);
+                                                      _openTask(id: neighbour['tasks'].first);
                                                     } else {
                                                       _openTasks(List<int>.from(neighbour!['tasks']));
                                                     }
@@ -935,14 +959,39 @@ class _HomePageState extends State<HomePage> {
                         SingleChildScrollView(
                           child: Column(
                             children: [
+                              if (customer!['is_potential'] == null)
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.favorite, color: AppColors.neo, size: 18),
+                                  Text('Потенциальный абонент', style: TextStyle(color: AppColors.neo))
+                                ]
+                              ),
+                              if (customer!['is_corporate'])
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.business, color: AppColors.neo, size: 18),
+                                  Text('Юридическое лицо', style: TextStyle(color: AppColors.neo))
+                                ]
+                              ),
+                              if (!customer!['has_billing'])
+                              const Row(
+                                spacing: 5,
+                                children: [
+                                  Icon(Icons.money_off_csred_outlined, color: AppColors.error, size: 18),
+                                  Text('Нет в биллинге', style: TextStyle(color: AppColors.error))
+                                ]
+                              ),
                               if (customer!['olt_id'] == null)
                               const Row(
                                 spacing: 5,
                                 children: [
-                                  Icon(Icons.warning_amber, color: AppColors.warning, size: 18),
+                                  Icon(Icons.cable, color: AppColors.warning, size: 18),
                                   Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
                                 ]
                               ),
+
                               // if ((customer!['onu_level'] ?? 0) < -25)
                               // Row(
                               //   spacing: 5,
@@ -1101,79 +1150,79 @@ class _HomePageState extends State<HomePage> {
                               ),
                               if (customer!['geodata'] == null)
                               const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
-                              const SizedBox(height: 5),
-                              const Row(
-                                children: [
-                                  Icon(Icons.device_hub, color: AppColors.neo),
-                                  SizedBox(width: 8),
-                                  Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                                ]
-                              ),
-                              const Divider(),
-                              if (customer!['inventory'].isEmpty)
-                              const Center(
-                                child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
-                              ),
-                              if (customer!['inventory'].isNotEmpty)
-                              const Row(
-                                children: [
-                                  Expanded(
-                                    flex: 7,
-                                    child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                                  ),
-                                  Expanded(
-                                    flex: 6,
-                                    child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                                  )
-                                ]
-                              ),
-                              if (customer!['inventory'].isNotEmpty)
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: customer!['inventory'].length,
-                                itemBuilder: (c, i){
-                                  final equipment = customer!['inventory'][i];
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 6),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 7,
-                                          child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
-                                        ),
-                                        Expanded(
-                                          flex: 6,
-                                          child: equipment['sn'] == null?
-                                            const Text('-', softWrap: true, textAlign: TextAlign.center)
-                                            : MouseRegion(
-                                              cursor: SystemMouseCursors.click,
-                                              child: SelectionContainer.disabled(
-                                                child: GestureDetector(
-                                                  behavior: HitTestBehavior.opaque,
-                                                  onTap: _openONT,
-                                                  child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                                                    style: const TextStyle(color: AppColors.neo,
-                                                    decorationColor: AppColors.neo,
-                                                    decoration: TextDecoration.underline)
-                                                  )
-                                                ),
-                                              ),
-                                            )
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(equipment['amount']?.toString() ?? '0', softWrap: true, textAlign: TextAlign.right)
-                                        )
-                                      ]
-                                    )
-                                  );
-                                }
-                              )
+                              // const SizedBox(height: 5),
+                              // const Row(
+                              //   children: [
+                              //     Icon(Icons.device_hub, color: AppColors.neo),
+                              //     SizedBox(width: 8),
+                              //     Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                              //   ]
+                              // ),
+                              // const Divider(),
+                              // if (customer!['inventory'].isEmpty)
+                              // const Center(
+                              //   child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                              // ),
+                              // if (customer!['inventory'].isNotEmpty)
+                              // const Row(
+                              //   children: [
+                              //     Expanded(
+                              //       flex: 7,
+                              //       child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                              //     ),
+                              //     Expanded(
+                              //       flex: 6,
+                              //       child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                              //     ),
+                              //     Expanded(
+                              //       flex: 2,
+                              //       child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                              //     )
+                              //   ]
+                              // ),
+                              // if (customer!['inventory'].isNotEmpty)
+                              // ListView.builder(
+                              //   shrinkWrap: true,
+                              //   physics: const NeverScrollableScrollPhysics(),
+                              //   itemCount: customer!['inventory'].length,
+                              //   itemBuilder: (c, i){
+                              //     final equipment = customer!['inventory'][i];
+                              //     return Padding(
+                              //       padding: const EdgeInsets.only(bottom: 6),
+                              //       child: Row(
+                              //         children: [
+                              //           Expanded(
+                              //             flex: 7,
+                              //             child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                              //           ),
+                              //           Expanded(
+                              //             flex: 6,
+                              //             child: equipment['sn'] == null?
+                              //               const Text('-', softWrap: true, textAlign: TextAlign.center)
+                              //               : MouseRegion(
+                              //                 cursor: SystemMouseCursors.click,
+                              //                 child: SelectionContainer.disabled(
+                              //                   child: GestureDetector(
+                              //                     behavior: HitTestBehavior.opaque,
+                              //                     onTap: _openONT,
+                              //                     child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                              //                       style: const TextStyle(color: AppColors.neo,
+                              //                       decorationColor: AppColors.neo,
+                              //                       decoration: TextDecoration.underline)
+                              //                     )
+                              //                   ),
+                              //                 ),
+                              //               )
+                              //           ),
+                              //           Expanded(
+                              //             flex: 2,
+                              //             child: Text(equipment['amount']?.toString() ?? '0', softWrap: true, textAlign: TextAlign.right)
+                              //           )
+                              //         ]
+                              //       )
+                              //     );
+                              //   }
+                              // )
                             ]
                           ),
                         )
@@ -1185,6 +1234,7 @@ class _HomePageState extends State<HomePage> {
                               lineColor: _getTaskBorderColor(tasks),
                               icon: Icons.assignment,
                               title: 'Задания абонента',
+                              flex: 3,
                               last: true,
                               child: tasks == null? const Center(child: AngularProgressBar()) :
                               Column(
@@ -1251,7 +1301,7 @@ class _HomePageState extends State<HomePage> {
                                               Flexible(
                                                 flex: 2,
                                                 child: IconButton(
-                                                  onPressed: () => _openTask(Map<String, dynamic>.from(task)),
+                                                  onPressed: () => _openTask(data: Map<String, dynamic>.from(task)),
                                                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.neo)
                                                 )
                                               )
@@ -1264,12 +1314,82 @@ class _HomePageState extends State<HomePage> {
                                 ]
                               )
                             ),
-                            const BoxCard(
-                              lineColor: AppColors.neo,
-                              title: '',
+                            BoxCard(
+                              lineColor: AppColors.main,
+                              icon: Icons.device_hub,
+                              title: 'Оборудование',
+                              flex: 2,
                               last: true,
-                              child: Center(child: Text('coming soon', style: TextStyle(color: AppColors.secondary, fontSize: 12)))
+                              child: inventory == null? const Center(child: AngularProgressBar()) :
+                              Column(
+                                children: [
+                                  if (inventory!.isEmpty)
+                                  const Center(
+                                    child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                                  ),
+                                  if (inventory!.isNotEmpty)
+                                  const Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 5,
+                                        child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(
+                                        flex: 6,
+                                        child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                                      )
+                                    ]
+                                  ),
+                                  if (inventory!.isNotEmpty)
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: inventory!.length,
+                                      itemBuilder: (c, i){
+                                        final equipment = inventory![i];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 6),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 5,
+                                                child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                                              ),
+                                              Expanded(
+                                                flex: 6,
+                                                child: equipment['sn'] == null?
+                                                  const Text('-', softWrap: true, textAlign: TextAlign.center)
+                                                  : InkWell(
+                                                  onTap: _openONT,
+                                                  child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                                                    style: const TextStyle(color: AppColors.neo,
+                                                    decorationColor: AppColors.neo,
+                                                    decoration: TextDecoration.underline)
+                                                  )
+                                                )
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
+                                              )
+                                            ]
+                                          )
+                                        );
+                                      }
+                                    )
+                                  )
+                                ]
+                              )
                             )
+                            // const BoxCard(
+                            //   lineColor: AppColors.neo,
+                            //   title: '',
+                            //   last: true,
+                            //   child: Center(child: Text('coming soon', style: TextStyle(color: AppColors.secondary, fontSize: 12)))
+                            // )
                           ]
                         )
                       )
@@ -1342,74 +1462,6 @@ class _HomePageState extends State<HomePage> {
                       //                                       ]
                       //   )
                       // ),
-                      // BoxCard(
-                      //   lineColor: AppColors.main,
-                      //   icon: Icons.device_hub,
-                      //   title: 'Оборудование',
-                      //   last: true,
-                      //   child: customer == null? const Center(child: AngularProgressBar()) :
-                      //   Column(
-                      //     children: [
-                      //       if (customer!['inventory'].isEmpty)
-                      //       const Center(
-                      //         child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
-                      //       ),
-                      //       if (customer!['inventory'].isNotEmpty)
-                      //       const Row(
-                      //         children: [
-                      //           Expanded(
-                      //             flex: 5,
-                      //             child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                      //           ),
-                      //           Expanded(
-                      //             flex: 6,
-                      //             child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                      //           ),
-                      //           Expanded(
-                      //             flex: 2,
-                      //             child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                      //           )
-                      //         ]
-                      //       ),
-                      //       if (customer!['inventory'].isNotEmpty)
-                      //       Expanded(
-                      //         child: ListView.builder(
-                      //           itemCount: customer!['inventory'].length,
-                      //           itemBuilder: (c, i){
-                      //             final equipment = customer!['inventory'][i];
-                      //             return Padding(
-                      //               padding: const EdgeInsets.only(bottom: 6),
-                      //               child: Row(
-                      //                 children: [
-                      //                   Expanded(
-                      //                     flex: 5,
-                      //                     child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
-                      //                   ),
-                      //                   Expanded(
-                      //                     flex: 6,
-                      //                     child: equipment['sn'] == null?
-                      //                       const Text('-', softWrap: true, textAlign: TextAlign.center)
-                      //                       : InkWell(
-                      //                       onTap: _openONT,
-                      //                       child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                      //                         style: const TextStyle(color: AppColors.neo,
-                      //                         decorationColor: AppColors.neo,
-                      //                         decoration: TextDecoration.underline))
-                      //                     )
-                      //                   ),
-                      //                   Expanded(
-                      //                     flex: 2,
-                      //                     child: Text(equipment['amount'].toString(), softWrap: true, textAlign: TextAlign.right)
-                      //                   )
-                      //                 ]
-                      //               )
-                      //             );
-                      //           }
-                      //         )
-                      //       )
-                      //     ]
-                      //   )
-                      // )
                     ]
                   )
                 )

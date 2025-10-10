@@ -192,6 +192,11 @@ Future<List<Map<String, dynamic>>> getCustomerTasks(int customerId) async {
   return List<Map<String, dynamic>>.from((await _get('task/', {'customer_id': customerId.toString()}))['data']);
 }
 
+Future<List<Map<String, dynamic>>> getCustomerInventory(int customerId) async {
+  l.i('API: get customer inventory id=$customerId');
+  return List<Map<String, dynamic>>.from((await _get('inventory/', {'customer_id': customerId.toString()}))['data']);
+}
+
 Future addComent(int id, String content, int authorId) async {
   l.i('API: add comment id=$id content=$content authorId=$authorId');
   await _post('task/$id/comment', {'content': content, 'author': authorId.toString()});
