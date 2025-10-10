@@ -8,6 +8,7 @@ import 'package:smartlink/dialogs/settings.dart';
 import 'package:smartlink/firebase_options.dart';
 import 'package:smartlink/pages/home.dart';
 import 'package:smartlink/pages/sign.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -400,9 +401,25 @@ class _AppLayoutState extends State<AppLayout> {
                     showAboutDialog(
                       context: context,
                       applicationName: 'SmartLinkViewer',
-                      applicationVersion: 'v.$version',
+                      applicationVersion: 'v.$version (API 2.0.0)',
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
-                      applicationLegalese: '© 2025 «НеоТелеком»'
+                      applicationLegalese: '© 2025 «НеоТелеком»',
+                      children: [
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () async => await launchUrl(Uri.parse('https://github.com/firedotguy/smartlink')),
+                            child: const Text('View source code', style: TextStyle(color: AppColors.neo, decoration: TextDecoration.underline, decorationColor: AppColors.neo)),
+                          ),
+                        ),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () async => await launchUrl(Uri.parse('https://github.com/firedotguy/smartlinkAPI')),
+                            child: const Text('View API source code', style: TextStyle(color: AppColors.neo, decoration: TextDecoration.underline, decorationColor: AppColors.neo)),
+                          ),
+                        ),
+                      ]
                     );
                   },
                   child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
