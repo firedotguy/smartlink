@@ -263,6 +263,9 @@ class _HomePageState extends State<HomePage> {
 
   Color _getBoxBorderColor(List<dynamic>? neighbours) {
     if (neighbours != null) {
+      if (neighbours.isEmpty){
+        return AppColors.success;
+      }
       final allInactive = neighbours.every(
         (n) => _getActivityColor(n['last_activity']) == AppColors.error
       );
@@ -399,6 +402,7 @@ class _HomePageState extends State<HomePage> {
           customer = null;
           attachs = null;
           if (loadAll){
+            noBox = false;
             inventory = null;
             box = null;
             tasks = null;
@@ -627,7 +631,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context){
-        return TaskDialog(task: data, id: id, customer: customer?['name']);
+        return TaskDialog(task: data, id: id);
       }
     );
   }
@@ -800,15 +804,15 @@ class _HomePageState extends State<HomePage> {
                               const Row(
                                 children: [
                                   Expanded(
-                                    flex: 7,
+                                    flex: 8,
                                     child: Text('Имя', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
                                   ),
                                   Expanded(
-                                    flex: 3,
+                                    flex: 4,
                                     child: Text('Задания', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                   ),
                                   Expanded(
-                                    flex: 6,
+                                    flex: 7,
                                     child: Text('Активность', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
                                   ),
                                   Expanded(
@@ -833,12 +837,12 @@ class _HomePageState extends State<HomePage> {
                                       child: Row(
                                         children: [
                                           Expanded(
-                                            flex: 7,
+                                            flex: 8,
                                             child: Text(neighbour['name'], softWrap: true, textAlign: TextAlign.left)
                                           ),
                                           if (neighbour['tasks']?.isEmpty ?? true)
                                           Expanded(
-                                            flex: 3,
+                                            flex: 4,
                                             child: Text(
                                               neighbour['tasks']?.length.toString() ?? '-',
                                               textAlign: TextAlign.center,
@@ -870,7 +874,7 @@ class _HomePageState extends State<HomePage> {
                                             )
                                           ),
                                           Expanded(
-                                            flex: 6,
+                                            flex: 7,
                                             child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
                                               style: TextStyle(color: _getActivityColor(neighbour['last_activity']), fontSize: 13)
                                             )
@@ -959,7 +963,7 @@ class _HomePageState extends State<HomePage> {
                         SingleChildScrollView(
                           child: Column(
                             children: [
-                              if (customer!['is_potential'] == null)
+                              if (customer!['is_potential'])
                               const Row(
                                 spacing: 5,
                                 children: [
@@ -1042,7 +1046,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               InfoTile(
                                 title: 'Лицевой счёт',
-                                value: customer!['agreement'].toString()
+                                value: customer!['agreement']?.toString()
                               ),
                               InfoTile(
                                 title: 'Баланс',

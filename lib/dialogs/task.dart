@@ -7,10 +7,9 @@ import 'package:smartlink/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDialog extends StatefulWidget {
-  const TaskDialog({this.task, this.id, this.customer, super.key});
+  const TaskDialog({this.task, this.id, super.key});
   final Map<String, dynamic>? task;
   final int? id;
-  final String? customer;
 
   @override
   State<TaskDialog> createState() => _TaskDialogState();
@@ -166,10 +165,17 @@ class _TaskDialogState extends State<TaskDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _KV('Тип', task?['type']?['name']),
-              _KV('Адрес', task?['address']?['name']),
-              _KV('Абонент', widget.customer ?? task?['customer']?.toString()),
-              _KV('Автор', task?['author']?['name']),
+              _Section(
+                title: 'Основные данные',
+                child: Column(
+                  children: [
+                    _KV('Тип', task?['type']?['name']),
+                    _KV('Адрес', task?['address']?['name']),
+                    _KV('Абонент', task?['customer']?['name']?.toString()),
+                    _KV('Автор', task?['author']?['name']),
+                  ]
+                )
+              ),
               const SizedBox(height: 8),
               _Section(
                 title: 'Детали',

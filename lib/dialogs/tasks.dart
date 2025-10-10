@@ -38,6 +38,18 @@ class _TasksDialogState extends State<TasksDialog> {
     }
   }
 
+  String? _cutLastName(String? fullName) {
+    if (fullName == null) return null;
+    final trimmedName = fullName.trim();
+    final parts = trimmedName.split(' ').where((s) => s.isNotEmpty).toList();
+
+    if (parts.length <= 2) {
+      return trimmedName;
+    }
+
+    return parts.sublist(0, parts.length - 1).join(' ');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +83,7 @@ class _TasksDialogState extends State<TasksDialog> {
         ]
       ),
       content: SizedBox(
-        width: 550,
+        width: 600,
         child: tasks.isEmpty? const Center(child: AngularProgressBar()) : ListView.builder(
           shrinkWrap: true,
           itemCount: tasks.length,
@@ -114,7 +126,7 @@ class _TasksDialogState extends State<TasksDialog> {
                       TextSpan(text: 'Выполнено: ${formatDate(task['timestamps']?['completed_at'])}')
                       ],
                       const TextSpan(text: '  •  '),
-                      TextSpan(text: 'Автор: ${task['author_id'] ?? '-'}')
+                      TextSpan(text: 'Автор: ${_cutLastName(task['author']?['name']) ?? '-'}')
                     ]
                   )
                 ),

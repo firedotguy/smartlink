@@ -27,10 +27,10 @@ Uri _u(String action, Map<String, String> qp) {
   return uri;
 }
 
-Future<Map<String, dynamic>> _get(String action, Map<String, String> qp) async {
+Future<Map<String, dynamic>> _get(String action, Map<String, String> qp, {int timeout = 20}) async {
   l.d('API GET: $action $qp');
   final uri = _u(action, qp);
-  final resp = await _client.get(uri).timeout(const Duration(seconds: 20));
+  final resp = await _client.get(uri).timeout(Duration(seconds: timeout));
 
   if (resp.statusCode != 200) {
     l.e('API GET $action -> HTTP ${resp.statusCode}, body: ${resp.body}');
@@ -66,7 +66,7 @@ Future<Map<String, dynamic>> getCustomer(int id) async {
 
 Future<Map<String, dynamic>> getBox(int id) async {
   l.i('API: get box id=$id');
-  return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'true'});
+  return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'true'}, timeout: 60);
 }
 
 Future<Map<String, dynamic>> getAttach(int customerId) async {

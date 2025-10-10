@@ -246,10 +246,11 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                           ),
                           if (showDivisions)
                           SizedBox(
-                            height: 250,
+                            // height: 250,
                             width: 580,
                             child: ListView.builder(
                               shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: divisions.length,
                               itemBuilder: (c, i){
                                 final division = divisions[i];
@@ -270,7 +271,19 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                                     ),
-                                    Expanded(child: Text(division['name']))
+                                    Expanded(
+                                      child: MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              division['checked'] = !division['checked'];
+                                            });
+                                          },
+                                          child: Text(division['name']),
+                                        ),
+                                      ),
+                                    )
                                   ]
                                 );
                               }
