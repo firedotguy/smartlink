@@ -590,19 +590,14 @@ class _HomePageState extends State<HomePage> {
       final Map? res = await showDialog(context: context, builder: (context){
         return NewTaskDialog(
           customerId: customer!['id'],
-          boxId: customer!['box_id'],
+          addressId: box?['address_id'],
           phones: customer!['phones'],
           box: boxTask
         );
       });
       if (res == null) return;
       if (!res['box']){
-        tasks?.add({
-          'id': res['id'],
-          'timestamps': {'created_at': DateTime.now().toString(), 'updated_at': DateTime.now().toString()},
-          'name': 'Выезд на ремонт',
-          'status': {'id': 11, 'name': 'Не выполнено'}
-        });
+        tasks?.add(res);
       } else {
         box?['tasks']?.add(res['id']);
       }
@@ -631,7 +626,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context){
-        return TaskDialog(task: data, id: id);
+        return TaskDialog(task: data?['new'] == true? null: data, id: id ?? data?['id']);
       }
     );
   }
@@ -1240,6 +1235,16 @@ class _HomePageState extends State<HomePage> {
                               title: 'Задания абонента',
                               flex: 3,
                               last: true,
+                              miniButtons: [
+                                Tooltip(
+                                  message: 'Обновить данные',
+                                  child: IconButton(
+                                    onPressed: tasks != null? _loadTasksData : null,
+                                    icon: Icon(Icons.refresh, size: 18, color: tasks == null? AppColors.secondary : AppColors.neo),
+                                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                                  )
+                                )
+                              ],
                               child: tasks == null? const Center(child: AngularProgressBar()) :
                               Column(
                                 children: [
@@ -1324,6 +1329,16 @@ class _HomePageState extends State<HomePage> {
                               title: 'Оборудование',
                               flex: 2,
                               last: true,
+                              miniButtons: [
+                                Tooltip(
+                                  message: 'Обновить данные',
+                                  child: IconButton(
+                                    onPressed: inventory != null? _loadInventoryData : null,
+                                    icon: Icon(Icons.refresh, size: 18, color: inventory == null? AppColors.secondary : AppColors.neo),
+                                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
+                                  )
+                                )
+                              ],
                               child: inventory == null? const Center(child: AngularProgressBar()) :
                               Column(
                                 children: [

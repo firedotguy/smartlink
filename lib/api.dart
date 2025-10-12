@@ -103,27 +103,27 @@ Future<List<Map>> getDivisions() async {
 }
 
 Future<int> createTask(
-  int customerId,
+  int type,
+  int? customerId,
   int authorId,
   String reason,
-  bool box,
-  int? boxId,
+  int? addressId,
   String description,
   List<int> divisions,
   String phone,
-  String type,
+  String appealType,
 ) async {
   l.i('API: create task for customer=$customerId');
   final qp = <String, String>{
-    'customer_id': customerId.toString(),
+    'type': type.toString(),
+    if (customerId != null) 'customer_id': customerId.toString(),
     'author_id': authorId.toString(),
     'reason': reason,
-    'box': box.toString(),
-    if (boxId != null) 'box_id': boxId.toString(),
+    if (addressId != null) 'address_id': addressId.toString(),
     'description': description,
     'divisions': divisions.join(','),
-    if (phone.isNotEmpty) 'phone': phone,
-    'type': type
+    if (phone.isNotEmpty) 'appeal_phone': phone,
+    'appeal_type': appealType
   };
   final raw = await _post('task', qp);
   final id = raw['id'];

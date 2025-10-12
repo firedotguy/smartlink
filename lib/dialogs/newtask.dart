@@ -5,9 +5,9 @@ import 'package:smartlink/api.dart';
 import 'package:smartlink/main.dart';
 
 class NewTaskDialog extends StatefulWidget{
-  const NewTaskDialog({required this.customerId, required this.boxId, required this.phones, this.box = false, super.key});
+  const NewTaskDialog({required this.customerId, required this.addressId, required this.phones, this.box = false, super.key});
   final int customerId;
-  final int boxId;
+  final int? addressId;
   final List phones;
   final bool box;
 
@@ -18,6 +18,10 @@ class NewTaskDialog extends StatefulWidget{
 class _NewTaskDialogState extends State<NewTaskDialog> {
   bool load = true;
   bool creating = false;
+
+  // Тип задания
+  int type = 37;
+  int boxType = 38;
 
   // Номер обратившегося
   TextEditingController phoneController = TextEditingController();
@@ -31,8 +35,8 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
   List<String> reasons = [];
 
   // Тип обращения (ремонт)
-  late String type;
-  List<String> types = [];
+  late String appealType;
+  List<String> appealTypes = [];
 
   // Тип обращения (магистральный ремонт)
   late String boxReason;
@@ -45,6 +49,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
   List<Map> divisions = [];
   bool showDivisions = false;
 
+
   void _getReasons() async {
     try {
       final result = await getAdditionalData();
@@ -52,8 +57,8 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
       reason = reasons.first;
       boxReasons = List<String>.from(result['33']);
       boxReason = boxReasons.first;
-      types = List<String>.from(result['28']);
-      type = types.first;
+      appealTypes = List<String>.from(result['28']);
+      appealType = appealTypes.first;
       divisions = List<Map>.from(await getDivisions());
 
       setState(() {
@@ -87,11 +92,32 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
     } else {
       try{
         final bool isBox = context.mounted? DefaultTabController.of(context).index == 1 : false;
-        final int id = await createTask(widget.customerId, employee, reason, isBox, widget.boxId, commentController.text,
-          List<int>.from(divisions.where((e) => e['checked'] ?? false).map((e) => e['id']).toList()), phoneMask.unmaskText(phoneController.text), type);
+        final int id = await createTask(isBox? boxType : type, isBox? null : widget.customerId, employee, reason, isBox? widget.addressId : null, commentController.text,
+          List<int>.from(divisions.where((e) => e['checked'] ?? false).map((e) => e['id']).toList()),
+          phoneMask.unmaskText(phoneController.text), appealType);
         l.i('task created successfully, id: $id');
         if (context.mounted){
-          Navigator.pop(context, {'box': isBox, 'id': id});
+          Navigator.pop(context, {
+            'box': isBox,
+            'type': {
+              'id': isBox? boxType : type,
+              'name': isBox? boxType == 38?
+                'Магистраль выезд на ремонт' : boxType == 48?
+                'Магистраль-демонтаж/монтаж' : '-' : type == 37?
+                'Выезд на ремонт' : type == 60?
+                'Демонтаж оборудование' : type == 46?
+                'Выезд к неактивным абонентам' : type == 53?
+                'Выезд на ремонт (Равшан)' : '-'
+            },
+            'timestamps': {
+              'created_at': DateTime.now().toString().substring(0, 19),
+              'updated_at': DateTime.now().toString().substring(0, 19),
+              'planned_at': DateTime.now().toString().substring(0, 19)
+            },
+            'status': {'id': 11, 'name': 'Не выполнено', 'system_id': 4},
+            'id': id,
+            'new': true
+          });
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Задание создано', style: TextStyle(color: AppColors.success))
           ));
@@ -125,10 +151,19 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
           width: 600,
           child: Column(
             children: [
-              const TabBar(
+              TabBar(
                 tabs: [
-                  Tab(text: 'Ремонт', icon: Icon(Icons.home_repair_service)),
-                  Tab(text: 'Магистральный ремонт', icon: Icon(Icons.cable))
+                  const Tab(text: 'Ремонт', icon: Icon(Icons.home_repair_service)),
+                  IgnorePointer(
+                    ignoring: widget.addressId == null,
+                    child: Opacity(
+                      opacity: widget.addressId == null ? 0.3 : 1.0,
+                      child: const Tab(
+                        text: 'Магистральный ремонт',
+                        icon: Icon(Icons.cable),
+                      ),
+                    ),
+                  )
                 ]
               ),
               Expanded(
@@ -141,7 +176,31 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                           const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
-                            child: Text('Номер обратившегося', style: TextStyle(fontWeight: FontWeight.bold))
+                            child: Text('Тип задания', style: TextStyle(fontWeight: FontWeight.bold))
+                          ),
+                          SizedBox(
+                            height: 40, //
+                            child: DropdownButtonFormField(
+                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main, fontWeight: FontWeight.bold), //
+                              value: type,
+                              items: const [
+                                DropdownMenuItem(value: 37, child: Text('Выезд на ремонт', style: TextStyle(color: Color(0xFF999100)))),
+                                DropdownMenuItem(value: 60, child: Text('Демонтаж оборудование', style: TextStyle(color: Color(0xFF60686B)))),
+                                DropdownMenuItem(value: 46, child: Text('Выезд к неактивным абонентам', style: TextStyle(color: Color(0xFF523a6a)))),
+                                // DropdownMenuItem(value: 53, enabled: false,
+                                //   child: Text('Выезд на ремонт (Равшан)', style: TextStyle(color: Color(0xFF7c2f04), fontStyle: FontStyle.italic))
+                                // )
+                              ],
+                              onChanged: (v){
+                                setState(() {
+                                  type = v!;
+                                });
+                              }
+                            ),
+                          ),
+                          const Align(
+                            alignment: Alignment.topLeft,
+                            child: Text('Номер телефона обратившегося', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
                             height: 40, //
@@ -180,44 +239,46 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               );
                             }).toList()
                           ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
-                              value: reason,
-                              items: reasons.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  reason = v!;
-                                });
-                              }
+                          if (type != 60) ...[
+                            const Align(
+                              alignment: Alignment.topLeft,
+                              child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
                             ),
-                          ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //
-                            child: DropdownButtonFormField(
-                              value: type,
-                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
-                              items: types.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  type = v!;
-                                });
-                              }
+                            SizedBox(
+                              height: 40, //
+                              child: DropdownButtonFormField(
+                                style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
+                                value: reason,
+                                items: reasons.map((e) {
+                                  return DropdownMenuItem(value: e, child: Text(e));
+                                }).toList(),
+                                onChanged: (v){
+                                  setState(() {
+                                    reason = v!;
+                                  });
+                                }
+                              )
                             ),
-                          ),
+                            const Align(
+                              alignment: Alignment.topLeft,
+                              child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
+                            ),
+                            SizedBox(
+                              height: 40, //
+                              child: DropdownButtonFormField(
+                                value: appealType,
+                                style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
+                                items: appealTypes.map((e) {
+                                  return DropdownMenuItem(value: e, child: Text(e));
+                                }).toList(),
+                                onChanged: (v){
+                                  setState(() {
+                                    appealType = v!;
+                                  });
+                                }
+                              )
+                            )
+                          ],
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
@@ -292,6 +353,23 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                         ]
                       ),
                     ),
+                    if (widget.addressId == null)
+                    const Column(
+                      children: [
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 5,
+                          children: [
+                            Icon(Icons.warning_amber_outlined, color: AppColors.error),
+                            Text('Коробка не найдена', style: TextStyle(color: AppColors.error))
+                          ]
+                        ),
+                        Text('Если коробка существует, дождитесь загрузки данных и переоткройте диалог', style: TextStyle(color: AppColors.secondary)
+                        )
+                      ],
+                    )
+                    else
                     SingleChildScrollView(
                       child: Column(
                         spacing: 5,
@@ -299,43 +377,65 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                           const SizedBox(height: 5),
                           const Align(
                             alignment: Alignment.topLeft,
-                            child: Text('Обращение с номера', style: TextStyle(fontWeight: FontWeight.bold))
+                            child: Text('Тип задания', style: TextStyle(fontWeight: FontWeight.bold))
                           ),
                           SizedBox(
                             height: 40, //
-                            child: TextField(
-                              style: const TextStyle(fontSize: 13), //
-                              decoration: const InputDecoration(
-                                hintText: 'Введите номер телефона'
-                              ),
-                              controller: phoneController,
-                              inputFormatters: [phoneMask],
+                            child: DropdownButtonFormField(
+                              style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main, fontWeight: FontWeight.bold), //
+                              value: boxType,
+                              items: const [
+                                DropdownMenuItem(value: 38, child: Text('Магистраль выезд на ремонт', style: TextStyle(color: Color(0xFF860d1c)))),
+                                DropdownMenuItem(value: 48, child: Text('Магистраль-демонтаж/монтаж', style: TextStyle(color: Color(0xFF3a538a))))
+                              ],
                               onChanged: (v){
-                                l.i('phone value changed to $v');
-                                setState(() {});
+                                setState(() {
+                                  boxType = v!;
+                                });
                               }
                             ),
                           ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('или выберите из следующих', style: TextStyle(color: AppColors.secondary))
-                          ),
-                          Row(
-                            spacing: 5,
-                            children: widget.phones.map((e){
-                              final String phone = phoneMask.maskText(e);
-                              return ChoiceChip(
-                                label: Text(phone),
-                                selected: phone == phoneController.text,
-                                onSelected: (v){
-                                  l.i('select phone $e using ChoiceChip');
-                                  setState(() {
-                                    phoneController.text = phone;
-                                  });
+                          if (boxType != 38) ...[
+                            const Align(
+                              alignment: Alignment.topLeft,
+                              child: Text('Номер телефона обратившегося', style: TextStyle(fontWeight: FontWeight.bold))
+                            ),
+                            SizedBox(
+                              height: 40, //
+                              child: TextField(
+                                style: const TextStyle(fontSize: 13), //
+                                decoration: const InputDecoration(
+                                  hintText: 'Введите номер телефона'
+                                ),
+                                controller: phoneController,
+                                inputFormatters: [phoneMask],
+                                onChanged: (v){
+                                  l.i('phone value changed to $v');
+                                  setState(() {});
                                 }
-                              );
-                            }).toList()
-                          ),
+                              ),
+                            ),
+                            const Align(
+                              alignment: Alignment.topLeft,
+                              child: Text('или выберите из следующих', style: TextStyle(color: AppColors.secondary))
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: widget.phones.map((e){
+                                final String phone = phoneMask.maskText(e);
+                                return ChoiceChip(
+                                  label: Text(phone),
+                                  selected: phone == phoneController.text,
+                                  onSelected: (v){
+                                    l.i('select phone $e using ChoiceChip');
+                                    setState(() {
+                                      phoneController.text = phone;
+                                    });
+                                  }
+                                );
+                              }).toList()
+                            )
+                          ],
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Причина обращения', style: TextStyle(fontWeight: FontWeight.bold))
@@ -355,25 +455,27 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               }
                             )
                           ),
-                          const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
-                          ),
-                          SizedBox(
-                            height: 40, //
-                            child: DropdownButtonFormField(
-                              style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
-                              value: type,
-                              items: types.map((e) {
-                                return DropdownMenuItem(value: e, child: Text(e));
-                              }).toList(),
-                              onChanged: (v){
-                                setState(() {
-                                  type = v!;
-                                });
-                              }
-                            )
-                          ),
+                          if (boxType != 48) ...[
+                            const Align(
+                              alignment: Alignment.topLeft,
+                              child: Text('Тип обращения', style: TextStyle(fontWeight: FontWeight.bold))
+                            ),
+                            SizedBox(
+                              height: 40, //
+                              child: DropdownButtonFormField(
+                                style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
+                                value: appealType,
+                                items: appealTypes.map((e) {
+                                  return DropdownMenuItem(value: e, child: Text(e));
+                                }).toList(),
+                                onChanged: (v){
+                                  setState(() {
+                                    appealType = v!;
+                                  });
+                                }
+                              )
+                            ),
+                          ],
                           const Align(
                             alignment: Alignment.topLeft,
                             child: Text('Описание', style: TextStyle(fontWeight: FontWeight.bold))
@@ -443,10 +545,28 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
         ) : const Center(child: AngularProgressBar()),
         actions: [
           Builder(
-            builder: (context) {
-              return ElevatedButton(
-                onPressed: () => _createTask(context),
-                child: creating? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator()) : const Text('Создать')
+            builder: (actionsContext) {
+              return AnimatedBuilder(
+                animation: DefaultTabController.of(actionsContext),
+                builder: (context, child) {
+                  final isBox = DefaultTabController.of(actionsContext).index == 1;
+                  bool disabled = false;
+
+                  if (isBox && widget.addressId == null) {
+                    disabled = true;
+                  }
+                  else if (phoneController.text.isEmpty) {
+                    if (!isBox) {
+                      disabled = true;
+                    } else if (boxType != 38) {
+                      disabled = true;
+                    }
+                  }
+                  return ElevatedButton(
+                    onPressed: disabled? null : () => _createTask(context),
+                    child: creating? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator()) : const Text('Создать')
+                  );
+                }
               );
             }
           )
