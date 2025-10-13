@@ -18,11 +18,9 @@ final Client _client = Client();
 Uri _u(String action, Map<String, String> qp) {
   final params = {'apikey': _key, ...qp};
   final base = Uri.parse(_base);
-  final act = action.startsWith('/') ? action.substring(1) : action;
-
+  final act = action.replaceAll(RegExp(r'^/+|/+$'), '');
   final basePath = base.path.replaceAll(RegExp(r'/+$'), '');
   final Uri uri = base.replace(path: '$basePath/$act', queryParameters: params);
-
   l.d('API: action="$action" qp=$qp -> $uri');
   return uri;
 }
