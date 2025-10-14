@@ -145,12 +145,9 @@ Future<Map> getOnt(int oltId, String sn) async {
 
 Future<String?> restartOnt(int ontId, String host, Map interface) async {
   l.i('API: restart ONT id=$ontId host=$host iface=$interface');
-  final raw = await _post('ont/restart', {
+  final raw = await _post('ont/${interface['fibre']}/${interface['service']}/${interface['port']}/$ontId/restart', {
     'id': ontId.toString(),
-    'host': host,
-    'fibre': '${interface['fibre']}',
-    'service': '${interface['service']}',
-    'port': '${interface['port']}',
+    'host': host
   });
   if (raw['status'] == 'success') return null;
   return (raw['detail'] ?? 'unknown error').toString();

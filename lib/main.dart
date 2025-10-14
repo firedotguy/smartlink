@@ -423,8 +423,8 @@ class _AppLayoutState extends State<AppLayout> {
                     );
                   },
                   child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
-                ),
-              ),
+                )
+              )
             )
           ]
         ),
