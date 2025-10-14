@@ -81,6 +81,9 @@ class _OntDialogState extends State<OntDialog> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезаписи SN: ${res['detail']}',
             style: const TextStyle(color: AppColors.error)
           )));
+          setState(() {
+            rewritingSN = false;
+          });
         }
       } else {
         if (mounted) {
@@ -88,18 +91,21 @@ class _OntDialogState extends State<OntDialog> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('SN перезаписан: ${res['message']}',
             style: const TextStyle(color: AppColors.success)
           )));
+          setState(() {
+            rewritingSN = false;
+          });
         }
       }
     } catch (e) {
-      setState(() {
-        rewritingSN = false;
-      });
       l.e('error rewriting sn: $e');
       if (mounted){
         // Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезаписи SN',
           style: TextStyle(color: AppColors.error)
         )));
+        setState(() {
+          rewritingSN = false;
+        });
       }
     }
   }
@@ -118,6 +124,9 @@ class _OntDialogState extends State<OntDialog> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка перезаписи MAC: ${res['detail']}',
             style: const TextStyle(color: AppColors.error)
           )));
+          setState(() {
+            rewritingMAC = false;
+          });
         }
       } else {
         if (mounted) {
@@ -125,18 +134,21 @@ class _OntDialogState extends State<OntDialog> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('MAC перезаписан: ${res['message']}',
             style: const TextStyle(color: AppColors.success)
           )));
+          setState(() {
+            rewritingMAC = false;
+          });
         }
       }
     } catch (e) {
-      setState(() {
-        rewritingMAC = false;
-      });
       l.e('error rewriting mac: $e');
       if (mounted){
         // Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка перезаписи MAC',
           style: TextStyle(color: AppColors.error)
         )));
+        setState(() {
+          rewritingMAC = false;
+        });
       }
     }
   }
@@ -381,7 +393,7 @@ class _OntDialogState extends State<OntDialog> {
                   spacing: 8,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: data?['data']?['online']? _restartONT : null,
+                      onPressed: restarting || data == null || !data?['data']?['online']? null : _restartONT,
                       label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : const Text('Перезагрузить ONT'),
                       icon: restarting? null : const Icon(Icons.restart_alt)
                     ),
