@@ -222,7 +222,7 @@ class _OntDialogState extends State<OntDialog> {
                 message: 'Перезаписать SN',
                 child: IconButton(
                   onPressed: rewritingSN || data == null || !data?['data']?['online']? null : _rewriteSN,
-                  icon: Icon(Icons.save_as, color: rewritingSN || data == null? AppColors.secondary : AppColors.neo, size: 18),
+                  icon: Icon(Icons.save_as, color: rewritingSN || data == null || !data?['data']?['online']? AppColors.secondary : AppColors.neo, size: 18),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36)
                 )
               ),

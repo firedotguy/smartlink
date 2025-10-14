@@ -370,7 +370,7 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  String? version;
+  String version = 'unknown';
 
   void _getVersion() async {
     final PackageInfo info = await PackageInfo.fromPlatform();
@@ -381,7 +381,9 @@ class _AppLayoutState extends State<AppLayout> {
   @override
   void initState() {
     super.initState();
-    _getVersion();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _getVersion();
+    });
   }
 
   @override
