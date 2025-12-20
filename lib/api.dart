@@ -5,7 +5,7 @@ import 'package:smartlink/main.dart';
 
 const String _base = String.fromEnvironment(
   'API_BASE',
-  defaultValue: 'http://localhost:8000/api',
+  defaultValue: 'http://localhost:8000',
 );
 
 const String _key = String.fromEnvironment(
@@ -182,9 +182,10 @@ Future<Map<String, dynamic>> getTask(int id) async {
   return await _get('task/$id', {});
 }
 
-Future<List<Map<String, dynamic>>> getCustomerTasks(int customerId) async {
+Future<List<dynamic>> getCustomerTasks(int customerId, {int skip = 0}) async {
   l.i('API: get customer tasks id=$customerId');
-  return List<Map<String, dynamic>>.from((await _get('task/', {'customer_id': customerId.toString()}))['data']);
+  final res = await _get('task/', {'customer_id': customerId.toString(), 'limit': '5', 'skip': skip.toString()}); // TODO: check #45
+  return [List<Map<String, dynamic>>.from(res['data']), res['limit'], res['count']];
 }
 
 Future<List<Map<String, dynamic>>> getCustomerInventory(int customerId) async {

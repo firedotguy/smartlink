@@ -183,6 +183,9 @@ class _HomePageState extends State<HomePage> {
 
   // task
   List<Map>? tasks;
+  int taskSkip = 0;
+  bool taskLimited = false;
+  int taskTotal = 0;
 
   // inventory
   List<Map>? inventory;
@@ -357,10 +360,21 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadTasksData() async {
     try{
       l.i('load tasks');
+      final tasksOld = tasks;
       setState(() {
         tasks = null;
       });
-      tasks = await getCustomerTasks(customer!['id']);
+      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip);
+      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${tasksRes[2]} tasks (was ${tasksOld?.length ?? 0})');
+      if (tasksOld != null) {
+        tasksOld.addAll(tasksRes[0]);
+        tasks = tasksOld;
+      } else {
+        tasks = tasksRes[0];
+      }
+      taskSkip += 5; // TODO: check #45
+      taskLimited = tasksRes[1];
+      taskTotal = tasksRes[2];
       setState(() {});
     } catch (e) {
       l.e('error loading tasks: $e');
@@ -1319,6 +1333,12 @@ class _HomePageState extends State<HomePage> {
                                         );
                                       }
                                     )
+                                  ),
+                                  Text('Загружено ${tasks?.length ?? 0}/$taskTotal', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
+                                  if (taskLimited)
+                                  ElevatedButton(
+                                    onPressed: _loadTasksData,
+                                    child: const Text('Загрузить еще')
                                   )
                                 ]
                               )
