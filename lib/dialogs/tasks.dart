@@ -84,65 +84,67 @@ class _TasksDialogState extends State<TasksDialog> {
       ),
       content: SizedBox(
         width: 600,
-        child: tasks.isEmpty? const Center(child: AngularProgressBar()) : ListView.builder(
-          shrinkWrap: true,
-          itemCount: tasks.length,
-          itemBuilder: (c, i) {
-            final task = tasks[i]['data'];
+        child: tasks.isEmpty? const Center(child: AngularProgressBar()) : SelectionArea(
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: tasks.length,
+            itemBuilder: (c, i) {
+              final task = tasks[i]['data'];
 
-            return Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              child: ListTile(
-                leading: const Icon(Icons.assignment_outlined, color: AppColors.neo),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: AppColors.secondary),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        task['type']?['name'] ?? '-',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis
-                      )
-                    ),
-                    Chip(
-                      text: task['status']?['name'] ?? '-',
-                      color: getTaskStatusColor(task['status']?['id'])
-                    )
-                  ]
-                ),
-                subtitle: Text.rich(
-                  TextSpan(
-                    style: const TextStyle(fontSize: 12, color: AppColors.secondary),
-                    children: [
-                      TextSpan(text: 'ID: ${task['id'] ?? '-'}'),
-                      const TextSpan(text: '  •  '),
-                      TextSpan(text: 'Создано: ${formatDate(task['timestamps']?['created_at'])}'),
-                      if (task['timestamps']?['completed_at'] != null) ...[
-                      const TextSpan(text: '  •  '),
-                      TextSpan(text: 'Выполнено: ${formatDate(task['timestamps']?['completed_at'])}')
-                      ],
-                      const TextSpan(text: '  •  '),
-                      TextSpan(text: 'Автор: ${_cutLastName(task['author']?['name']) ?? '-'}')
-                    ]
-                  )
-                ),
-                onTap: () {
-                  // Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (_) => TaskDialog(task: task)
-                  );
-                },
+              return Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-              )
-            );
-          }
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  leading: const Icon(Icons.assignment_outlined, color: AppColors.neo),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: AppColors.secondary),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          task['type']?['name'] ?? '-',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis
+                        )
+                      ),
+                      Chip(
+                        text: task['status']?['name'] ?? '-',
+                        color: getTaskStatusColor(task['status']?['id'])
+                      )
+                    ]
+                  ),
+                  subtitle: Text.rich(
+                    TextSpan(
+                      style: const TextStyle(fontSize: 12, color: AppColors.secondary),
+                      children: [
+                        TextSpan(text: 'ID: ${task['id'] ?? '-'}'),
+                        const TextSpan(text: '  •  '),
+                        TextSpan(text: 'Создано: ${formatDate(task['timestamps']?['created_at'])}'),
+                        if (task['timestamps']?['completed_at'] != null) ...[
+                        const TextSpan(text: '  •  '),
+                        TextSpan(text: 'Выполнено: ${formatDate(task['timestamps']?['completed_at'])}')
+                        ],
+                        const TextSpan(text: '  •  '),
+                        TextSpan(text: 'Автор: ${_cutLastName(task['author']?['name']) ?? '-'}')
+                      ]
+                    )
+                  ),
+                  onTap: () {
+                    // Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (_) => TaskDialog(task: task)
+                    );
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                )
+              );
+            }
+          ),
         )
       )
     );

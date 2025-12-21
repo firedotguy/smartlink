@@ -93,56 +93,58 @@ class _CatvToggleDialogState extends State<CatvToggleDialog> {
           )
         ],
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(widget.state? 'Вы уверены что хотите выключить CATV?' : 'Вы уверены что хотите включить CATV?', style: const TextStyle(fontSize: 16)),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'Состояние порта: ', style: TextStyle(color: AppColors.secondary)),
-                TextSpan(text: widget.state? 'Включен' : 'Выключен', style: TextStyle(color: widget.state? AppColors.success : AppColors.error))
-              ]
-            )
-          ),
-          // Text.rich(
-          //   TextSpan(
-          //     children: [
-          //       const TextSpan(text: 'Состояние порта после переключения: ', style: TextStyle(color: AppColors.secondary)),
-          //       TextSpan(text: !widget.state? 'Включен' : 'Выключен', style: TextStyle(color: !widget.state? AppColors.success : AppColors.error))
-          //     ]
-          //   )
-          // ),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'Интерфейс: ', style: TextStyle(color: AppColors.secondary)),
-                TextSpan(text: widget.interface['name'])
-              ]
-            )
-          ),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'ONT ID: ', style: TextStyle(color: AppColors.secondary)),
-                TextSpan(text: widget.ontID.toString())
-              ]
-            )
-          ),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'CATV ID: ', style: TextStyle(color: AppColors.secondary)),
-                TextSpan(text: widget.catvID.toString())
-              ]
-            )
-          ),
-          if (!widget.isCustomerActive)
-          const SizedBox(height: 5),
-          if (!widget.isCustomerActive)
-          const Text('Невозможно включить CATV: Абонент неактивный.', style: TextStyle(color: AppColors.error, fontSize: 15))
-        ]
+      content: SelectionArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.state? 'Вы уверены что хотите выключить CATV?' : 'Вы уверены что хотите включить CATV?', style: const TextStyle(fontSize: 16)),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: 'Состояние порта: ', style: TextStyle(color: AppColors.secondary)),
+                  TextSpan(text: widget.state? 'Включен' : 'Выключен', style: TextStyle(color: widget.state? AppColors.success : AppColors.error))
+                ]
+              )
+            ),
+            // Text.rich(
+            //   TextSpan(
+            //     children: [
+            //       const TextSpan(text: 'Состояние порта после переключения: ', style: TextStyle(color: AppColors.secondary)),
+            //       TextSpan(text: !widget.state? 'Включен' : 'Выключен', style: TextStyle(color: !widget.state? AppColors.success : AppColors.error))
+            //     ]
+            //   )
+            // ),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: 'Интерфейс: ', style: TextStyle(color: AppColors.secondary)),
+                  TextSpan(text: widget.interface['name'])
+                ]
+              )
+            ),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: 'ONT ID: ', style: TextStyle(color: AppColors.secondary)),
+                  TextSpan(text: widget.ontID.toString())
+                ]
+              )
+            ),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: 'CATV ID: ', style: TextStyle(color: AppColors.secondary)),
+                  TextSpan(text: widget.catvID.toString())
+                ]
+              )
+            ),
+            if (!widget.isCustomerActive)
+            const SizedBox(height: 5),
+            if (!widget.isCustomerActive)
+            const Text('Невозможно включить CATV: Абонент неактивный.', style: TextStyle(color: AppColors.error, fontSize: 15))
+          ]
+        ),
       ),
       actions: [
         TextButton(

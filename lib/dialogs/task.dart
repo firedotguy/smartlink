@@ -162,133 +162,135 @@ class _TaskDialogState extends State<TaskDialog> {
       content: SizedBox(
         width: 640,
         child: load? const Center(child: AngularProgressBar()) : SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Section(
-                title: 'Основные данные',
-                child: Column(
-                  children: [
-                    _KV('Тип', task?['type']?['name']),
-                    _KV('Адрес', task?['address']?['name']),
-                    _KV('Абонент', task?['customer']?['name']?.toString()),
-                    _KV('Автор', task?['author']?['name']),
-                  ]
-                )
-              ),
-              const SizedBox(height: 8),
-              _Section(
-                title: 'Детали',
-                child: Column(
-                  children: [
-                    if (task?['addata']?['reason'] != null)
-                    _KV('Причина', task!['addata']['reason']),
-
-                    if (task?['addata']?['solve'] != null)
-                    _KV('Решение', task!['addata']['solve']),
-
-                    if (task?['addata']?['appeal']?['phone'] != null)
-                    _KV('Телефон обратившегося', task!['addata']['appeal']['phone']),
-
-                    if (task?['addata']?['appeal']?['type'] != null)
-                    _KV('Тип обращения', task!['addata']['appeal']['type']),
-
-                    if (task?['addata']?['cost'] != null)
-                    _KV('Стоимость работ', task!['addata']['cost']),
-
-                    if (task?['addata']?['info'] != null)
-                    _KV('Суть обращения', task!['addata']['info']),
-
-                    if (task?['addata']?['tariff'] != null)
-                    _KV('Тариф', task!['addata']['tariff']),
-
-                    if (task?['addata']?['coord'] != null)
-                    _KV('Коордианты', task!['addata']['coord'].join(',')),
-
-                    if (task?['addata']?['connect_type'] != null)
-                    _KV('Тип подключения', task!['addata']['connect_type']),
-
-                    const Divider(),
-                    _KV('Создано', formatDate(task?['timestamps']?['created_at'])),
-                    _KV('Запланировано', formatDate(task?['timestamps']?['planned_at'])),
-                    _KV('Обновлено', formatDate(task?['timestamps']?['updated_at'])),
-                    _KV('Выполнено', formatDate(task?['timestamps']?['completed_at'])),
-
-                    // _KV('Дедлайн (ч)', task?['timestamps']?['deadline']?.toString())
-                  ]
-                )
-              ),
-              const SizedBox(height: 8),
-              _Section(
-                title: 'Комментарии',
-                child: (task?['comments'] ?? []).isEmpty? const Align(
-                  alignment: Alignment.topCenter,
-                  child: Text('Комментариев нет', style: TextStyle(color: Colors.grey)),
-                ) : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: task!['comments'].length,
-                  itemBuilder: (_, i) {
-                    final message = task!['comments'][i];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Align(
-                        alignment: employeeId != message['author']?['id']? Alignment.topLeft : Alignment.topRight,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                          decoration: BoxDecoration(
-                            color: employeeId != message['author']?['id']? AppColors.bg2 : AppColors.neo,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.04))
-                          ),
-                          child: IntrinsicWidth(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 4,
-                              children: [
-                                if (employeeId != message['author']?['id'] && message['author']?['id'] != null)
-                                Text(message['author']['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text(message['content']),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Text(
-                                    _formatTime(message['created_at']),
-                                    style: TextStyle(color: employeeId != message['author']?['id']? AppColors.secondary : AppColors.main, fontSize: 10)
-                                  )
-                                )
-                              ],
-                            ),
-                          )
-                        )
-                      ),
-                    );
-                  }
-                )
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: commentController,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: 'Написать комментарий...',
-                        isDense: true,
-                        border: OutlineInputBorder()
-                      )
-                    )
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: _send,
-                    icon: sending? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator()) : const Icon(Icons.send, size: 18),
-                    label: const Text('Отправить')
+          child: SelectionArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Section(
+                  title: 'Основные данные',
+                  child: Column(
+                    children: [
+                      _KV('Тип', task?['type']?['name']),
+                      _KV('Адрес', task?['address']?['name']),
+                      _KV('Абонент', task?['customer']?['name']?.toString()),
+                      _KV('Автор', task?['author']?['name']),
+                    ]
                   )
-                ]
-              )
-            ]
+                ),
+                const SizedBox(height: 8),
+                _Section(
+                  title: 'Детали',
+                  child: Column(
+                    children: [
+                      if (task?['addata']?['reason'] != null)
+                      _KV('Причина', task!['addata']['reason']),
+            
+                      if (task?['addata']?['solve'] != null)
+                      _KV('Решение', task!['addata']['solve']),
+            
+                      if (task?['addata']?['appeal']?['phone'] != null)
+                      _KV('Телефон обратившегося', task!['addata']['appeal']['phone']),
+            
+                      if (task?['addata']?['appeal']?['type'] != null)
+                      _KV('Тип обращения', task!['addata']['appeal']['type']),
+            
+                      if (task?['addata']?['cost'] != null)
+                      _KV('Стоимость работ', task!['addata']['cost']),
+            
+                      if (task?['addata']?['info'] != null)
+                      _KV('Суть обращения', task!['addata']['info']),
+            
+                      if (task?['addata']?['tariff'] != null)
+                      _KV('Тариф', task!['addata']['tariff']),
+            
+                      if (task?['addata']?['coord'] != null)
+                      _KV('Коордианты', task!['addata']['coord'].join(',')),
+            
+                      if (task?['addata']?['connect_type'] != null)
+                      _KV('Тип подключения', task!['addata']['connect_type']),
+            
+                      const Divider(),
+                      _KV('Создано', formatDate(task?['timestamps']?['created_at'])),
+                      _KV('Запланировано', formatDate(task?['timestamps']?['planned_at'])),
+                      _KV('Обновлено', formatDate(task?['timestamps']?['updated_at'])),
+                      _KV('Выполнено', formatDate(task?['timestamps']?['completed_at'])),
+            
+                      // _KV('Дедлайн (ч)', task?['timestamps']?['deadline']?.toString())
+                    ]
+                  )
+                ),
+                const SizedBox(height: 8),
+                _Section(
+                  title: 'Комментарии',
+                  child: (task?['comments'] ?? []).isEmpty? const Align(
+                    alignment: Alignment.topCenter,
+                    child: Text('Комментариев нет', style: TextStyle(color: Colors.grey)),
+                  ) : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: task!['comments'].length,
+                    itemBuilder: (_, i) {
+                      final message = task!['comments'][i];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Align(
+                          alignment: employeeId != message['author']?['id']? Alignment.topLeft : Alignment.topRight,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                            decoration: BoxDecoration(
+                              color: employeeId != message['author']?['id']? AppColors.bg2 : AppColors.neo,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.04))
+                            ),
+                            child: IntrinsicWidth(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 4,
+                                children: [
+                                  if (employeeId != message['author']?['id'] && message['author']?['id'] != null)
+                                  Text(message['author']['name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(message['content']),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Text(
+                                      _formatTime(message['created_at']),
+                                      style: TextStyle(color: employeeId != message['author']?['id']? AppColors.secondary : AppColors.main, fontSize: 10)
+                                    )
+                                  )
+                                ],
+                              ),
+                            )
+                          )
+                        ),
+                      );
+                    }
+                  )
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: commentController,
+                        minLines: 1,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          hintText: 'Написать комментарий...',
+                          isDense: true,
+                          border: OutlineInputBorder()
+                        )
+                      )
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: _send,
+                      icon: sending? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator()) : const Icon(Icons.send, size: 18),
+                      label: const Text('Отправить')
+                    )
+                  ]
+                )
+              ]
+            ),
           )
         )
       ),

@@ -388,9 +388,9 @@ class _AppLayoutState extends State<AppLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      child: Scaffold(
-        body: Stack(
+    return Scaffold(
+      body: SelectionArea(
+        child: Stack(
           alignment: Alignment.bottomRight,
           children: [
             widget.child,
@@ -430,20 +430,20 @@ class _AppLayoutState extends State<AppLayout> {
             )
           ]
         ),
-        floatingActionButton: Builder(
-          builder: (context) => IconButton(
-            onPressed: () {
-              l.i('show settings dialog, reason: open settings');
-              showDialog(
-                context: context,
-                builder: (_) => const SettingsDialog(),
-              );
-            },
-            icon: const Icon(Icons.settings, color: AppColors.secondary)
-          )
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop
       ),
+      floatingActionButton: Builder(
+        builder: (context) => IconButton(
+          onPressed: () {
+            l.i('show settings dialog, reason: open settings');
+            showDialog(
+              context: context,
+              builder: (_) => const SettingsDialog(),
+            );
+          },
+          icon: const Icon(Icons.settings, color: AppColors.secondary)
+        )
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop
     );
   }
 }

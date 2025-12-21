@@ -98,44 +98,46 @@ class BoxCard extends StatelessWidget {
         margin: !last? const EdgeInsets.only(bottom: 16, right: 16) : const EdgeInsets.only(bottom: 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Row(
-            spacing: 8,
-            children: [
-              Container(
-                width: 6,
-                color: lineColor
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 16, right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            spacing: 8,
-                            children: [
-                              if (icon != null)
-                              Icon(icon, color: AppColors.neo),
-                              Text(title, style: const TextStyle(color: AppColors.main, fontSize: 18, fontWeight: FontWeight.bold))
-                            ]
-                          ),
-                          Row(
-                            spacing: 2,
-                            children: miniButtons
-                          )
-                        ]
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 4),
-                      Expanded(child: child)
-                    ]
+          child: SelectionArea(
+            child: Row(
+              spacing: 8,
+              children: [
+                Container(
+                  width: 6,
+                  color: lineColor
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 16, right: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              spacing: 8,
+                              children: [
+                                if (icon != null)
+                                Icon(icon, color: AppColors.neo),
+                                Text(title, style: const TextStyle(color: AppColors.main, fontSize: 18, fontWeight: FontWeight.bold))
+                              ]
+                            ),
+                            Row(
+                              spacing: 2,
+                              children: miniButtons
+                            )
+                          ]
+                        ),
+                        const Divider(),
+                        const SizedBox(height: 4),
+                        Expanded(child: child)
+                      ]
+                    )
                   )
                 )
-              )
-            ]
+              ]
+            ),
           )
         )
       )
@@ -969,275 +971,273 @@ class _HomePageState extends State<HomePage> {
                           )
                         ],
                         child: customer == null? const Center(child: AngularProgressBar()) :
-                        SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              if (customer!['is_potential'])
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.favorite, color: AppColors.neo, size: 18),
-                                  Text('Потенциальный абонент', style: TextStyle(color: AppColors.neo))
-                                ]
-                              ),
-                              if (customer!['is_corporate'])
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.business, color: AppColors.neo, size: 18),
-                                  Text('Юридическое лицо', style: TextStyle(color: AppColors.neo))
-                                ]
-                              ),
-                              if (!customer!['has_billing'])
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.money_off_csred_outlined, color: AppColors.error, size: 18),
-                                  Text('Нет в биллинге', style: TextStyle(color: AppColors.error))
-                                ]
-                              ),
-                              if (customer!['olt_id'] == null)
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.cable, color: AppColors.warning, size: 18),
-                                  Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
-                                ]
-                              ),
-
-                              // if ((customer!['onu_level'] ?? 0) < -25)
-                              // Row(
-                              //   spacing: 5,
-                              //   children: [
-                              //     const Icon(Icons.network_check, color: AppColors.error, size: 18),
-                              //     Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
-                              //   ]
-                              // ),
-
-                              if (customer!['status'] == 'Отключен')
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.power_settings_new, color: AppColors.error, size: 18),
-                                  Text('Абонент отключен', style: TextStyle(color: AppColors.error))
-                                ]
-                              ),
-
-                              if (customer!['status'] == 'Пауза')
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.pause_circle_outline, color: AppColors.warning, size: 18),
-                                  Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
-                                ]
-                              ),
-
-                              if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.access_time, color: AppColors.error, size: 18),
-                                  Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
-                                ]
-                              ),
-
-                              if (_getBoxBorderColor(box?['customers']) == AppColors.error)
-                              const Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(Icons.build_circle_outlined, color: AppColors.error, size: 18),
-                                  Text('Проблемы в коробке', style: TextStyle(color: AppColors.error))
-                                ]
-                              ),
-                              InfoTile(
-                                title: 'ФИО',
-                                value: customer!['name']
-                              ),
-                              InfoTile(
-                                title: 'Лицевой счёт',
-                                value: customer!['agreement']?.toString()
-                              ),
-                              InfoTile(
-                                title: 'Баланс',
-                                value: '${customer!['balance']} сом',
-                                valueColor: _getBalanceColor(customer!['balance'])
-                              ),
-                              InfoTile(
-                                title: 'Статус',
-                                value: customer!['status'],
-                                valueColor: _getStatusColor(customer!['status'] ?? '-')
-                              ),
-                              InfoTile(
-                                title: 'Группа',
-                                value: customer!['group']?['name']
-                              ),
-                              InfoTile(
-                                title: 'Последняя активность',
-                                value: formatDate(customer!['timestamps']['last_active_at']),
-                                valueColor: _getActivityColor(customer!['timestamps']['last_active_at'] ?? '-')
-                              ),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //   children: [
-                              //     Text('Уровень сигнала:'),
-                              //     Text((customer!['onu_level']).toString(), style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
-                              //   ]
-                              // ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Номер телефона', style: TextStyle(color: AppColors.secondary)),
-                                  Column(
-                                    children: customer!['phones'].map<Widget>((phone) {
-                                      return Row(
-                                        children: [
-                                          const Icon(Icons.phone, size: 18, color: AppColors.neo),
-                                          const SizedBox(width: 8),
-                                          Text(phone)
-                                        ]
-                                      );
+                        Column(
+                          children: [
+                            if (customer!['is_potential'])
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.favorite, color: AppColors.neo, size: 18),
+                                Text('Потенциальный абонент', style: TextStyle(color: AppColors.neo))
+                              ]
+                            ),
+                            if (customer!['is_corporate'])
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.business, color: AppColors.neo, size: 18),
+                                Text('Юридическое лицо', style: TextStyle(color: AppColors.neo))
+                              ]
+                            ),
+                            if (!customer!['has_billing'])
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.money_off_csred_outlined, color: AppColors.error, size: 18),
+                                Text('Нет в биллинге', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+                            if (customer!['olt_id'] == null)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.cable, color: AppColors.warning, size: 18),
+                                Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
+                              ]
+                            ),
+                        
+                            // if ((customer!['onu_level'] ?? 0) < -25)
+                            // Row(
+                            //   spacing: 5,
+                            //   children: [
+                            //     const Icon(Icons.network_check, color: AppColors.error, size: 18),
+                            //     Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
+                            //   ]
+                            // ),
+                        
+                            if (customer!['status'] == 'Отключен')
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.power_settings_new, color: AppColors.error, size: 18),
+                                Text('Абонент отключен', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+                        
+                            if (customer!['status'] == 'Пауза')
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.pause_circle_outline, color: AppColors.warning, size: 18),
+                                Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
+                              ]
+                            ),
+                        
+                            if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.access_time, color: AppColors.error, size: 18),
+                                Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+                        
+                            if (_getBoxBorderColor(box?['customers']) == AppColors.error)
+                            const Row(
+                              spacing: 5,
+                              children: [
+                                Icon(Icons.build_circle_outlined, color: AppColors.error, size: 18),
+                                Text('Проблемы в коробке', style: TextStyle(color: AppColors.error))
+                              ]
+                            ),
+                            InfoTile(
+                              title: 'ФИО',
+                              value: customer!['name']
+                            ),
+                            InfoTile(
+                              title: 'Лицевой счёт',
+                              value: customer!['agreement']?.toString()
+                            ),
+                            InfoTile(
+                              title: 'Баланс',
+                              value: '${customer!['balance']} сом',
+                              valueColor: _getBalanceColor(customer!['balance'])
+                            ),
+                            InfoTile(
+                              title: 'Статус',
+                              value: customer!['status'],
+                              valueColor: _getStatusColor(customer!['status'] ?? '-')
+                            ),
+                            InfoTile(
+                              title: 'Группа',
+                              value: customer!['group']?['name']
+                            ),
+                            InfoTile(
+                              title: 'Последняя активность',
+                              value: formatDate(customer!['timestamps']['last_active_at']),
+                              valueColor: _getActivityColor(customer!['timestamps']['last_active_at'] ?? '-')
+                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Text('Уровень сигнала:'),
+                            //     Text((customer!['onu_level']).toString(), style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
+                            //   ]
+                            // ),
+                            const SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Номер телефона', style: TextStyle(color: AppColors.secondary)),
+                                Column(
+                                  children: customer!['phones'].map<Widget>((phone) {
+                                    return Row(
+                                      children: [
+                                        const Icon(Icons.phone, size: 18, color: AppColors.neo),
+                                        const SizedBox(width: 8),
+                                        Text(phone)
+                                      ]
+                                    );
+                                  }).toList()
+                                )
+                              ]
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Тариф', style: TextStyle(color: AppColors.secondary)),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: customer!['tariffs'].map<Widget>((tariff) {
+                                      return Text(tariff['name'] ?? '-', softWrap: true, textAlign: TextAlign.right);
                                     }).toList()
                                   )
-                                ]
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Тариф', style: TextStyle(color: AppColors.secondary)),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: customer!['tariffs'].map<Widget>((tariff) {
-                                        return Text(tariff['name'] ?? '-', softWrap: true, textAlign: TextAlign.right);
-                                      }).toList()
-                                    )
-                                  )
-                                ]
-                              ),
-                              const SizedBox(height: 5),
-                              const Row(
-                                children: [
-                                  Icon(Icons.public, color: AppColors.neo),
-                                  SizedBox(width: 8),
-                                  Text('Геоданные', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                                ]
-                              ),
-                              const Divider(),
-                              if (customer!['geodata']?['coord'] != null)
-                              InfoTile(title: 'Координаты', value: customer!['geodata']['coord'].join(', ')),
-                              if (customer!['geodata']?['address'] != null)
-                              InfoTile(title: 'Адрес', value: customer!['geodata']['address']),
-                              if (customer!['geodata']?['2gis_link'] != null)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
-                                  MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
-                                      child: const Icon(Icons.public, size: 18, color: AppColors.neo)
-                                    ),
-                                  )
-                                ]
-                              ),
-                              if (customer!['geodata']?['neo_link'] != null)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
-                                  MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
-                                      child: const Icon(Icons.public, size: 18, color: AppColors.neo)
-                                    ),
-                                  )
-                                ]
-                              ),
-                              if (customer!['geodata'] == null)
-                              const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
-                              // const SizedBox(height: 5),
-                              // const Row(
-                              //   children: [
-                              //     Icon(Icons.device_hub, color: AppColors.neo),
-                              //     SizedBox(width: 8),
-                              //     Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
-                              //   ]
-                              // ),
-                              // const Divider(),
-                              // if (customer!['inventory'].isEmpty)
-                              // const Center(
-                              //   child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
-                              // ),
-                              // if (customer!['inventory'].isNotEmpty)
-                              // const Row(
-                              //   children: [
-                              //     Expanded(
-                              //       flex: 7,
-                              //       child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
-                              //     ),
-                              //     Expanded(
-                              //       flex: 6,
-                              //       child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
-                              //     ),
-                              //     Expanded(
-                              //       flex: 2,
-                              //       child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
-                              //     )
-                              //   ]
-                              // ),
-                              // if (customer!['inventory'].isNotEmpty)
-                              // ListView.builder(
-                              //   shrinkWrap: true,
-                              //   physics: const NeverScrollableScrollPhysics(),
-                              //   itemCount: customer!['inventory'].length,
-                              //   itemBuilder: (c, i){
-                              //     final equipment = customer!['inventory'][i];
-                              //     return Padding(
-                              //       padding: const EdgeInsets.only(bottom: 6),
-                              //       child: Row(
-                              //         children: [
-                              //           Expanded(
-                              //             flex: 7,
-                              //             child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
-                              //           ),
-                              //           Expanded(
-                              //             flex: 6,
-                              //             child: equipment['sn'] == null?
-                              //               const Text('-', softWrap: true, textAlign: TextAlign.center)
-                              //               : MouseRegion(
-                              //                 cursor: SystemMouseCursors.click,
-                              //                 child: SelectionContainer.disabled(
-                              //                   child: GestureDetector(
-                              //                     behavior: HitTestBehavior.opaque,
-                              //                     onTap: _openONT,
-                              //                     child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
-                              //                       style: const TextStyle(color: AppColors.neo,
-                              //                       decorationColor: AppColors.neo,
-                              //                       decoration: TextDecoration.underline)
-                              //                     )
-                              //                   ),
-                              //                 ),
-                              //               )
-                              //           ),
-                              //           Expanded(
-                              //             flex: 2,
-                              //             child: Text(equipment['amount']?.toString() ?? '0', softWrap: true, textAlign: TextAlign.right)
-                              //           )
-                              //         ]
-                              //       )
-                              //     );
-                              //   }
-                              // )
-                            ]
-                          ),
+                                )
+                              ]
+                            ),
+                            const SizedBox(height: 5),
+                            const Row(
+                              children: [
+                                Icon(Icons.public, color: AppColors.neo),
+                                SizedBox(width: 8),
+                                Text('Геоданные', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                              ]
+                            ),
+                            const Divider(),
+                            if (customer!['geodata']?['coord'] != null)
+                            InfoTile(title: 'Координаты', value: customer!['geodata']['coord'].join(', ')),
+                            if (customer!['geodata']?['address'] != null)
+                            InfoTile(title: 'Адрес', value: customer!['geodata']['address']),
+                            if (customer!['geodata']?['2gis_link'] != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Ссылка 2GIS', style: TextStyle(color: AppColors.secondary)),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async => await _openUrl(customer!['geodata']['2gis_link']),
+                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                  ),
+                                )
+                              ]
+                            ),
+                            if (customer!['geodata']?['neo_link'] != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Ссылка Neotelecom', style: TextStyle(color: AppColors.secondary)),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async => await _openUrl(customer!['geodata']['neo_link']),
+                                    child: const Icon(Icons.public, size: 18, color: AppColors.neo)
+                                  ),
+                                )
+                              ]
+                            ),
+                            if (customer!['geodata'] == null)
+                            const Text('Нет данных', style: TextStyle(color: AppColors.secondary)),
+                            // const SizedBox(height: 5),
+                            // const Row(
+                            //   children: [
+                            //     Icon(Icons.device_hub, color: AppColors.neo),
+                            //     SizedBox(width: 8),
+                            //     Text('Оборудование', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold))
+                            //   ]
+                            // ),
+                            // const Divider(),
+                            // if (customer!['inventory'].isEmpty)
+                            // const Center(
+                            //   child: Text('У абонента нет оборудования', style: TextStyle(color: AppColors.secondary))
+                            // ),
+                            // if (customer!['inventory'].isNotEmpty)
+                            // const Row(
+                            //   children: [
+                            //     Expanded(
+                            //       flex: 7,
+                            //       child: Text('Название', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold))
+                            //     ),
+                            //     Expanded(
+                            //       flex: 6,
+                            //       child: Text('SN', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))
+                            //     ),
+                            //     Expanded(
+                            //       flex: 2,
+                            //       child: Text('Кол-во', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold))
+                            //     )
+                            //   ]
+                            // ),
+                            // if (customer!['inventory'].isNotEmpty)
+                            // ListView.builder(
+                            //   shrinkWrap: true,
+                            //   physics: const NeverScrollableScrollPhysics(),
+                            //   itemCount: customer!['inventory'].length,
+                            //   itemBuilder: (c, i){
+                            //     final equipment = customer!['inventory'][i];
+                            //     return Padding(
+                            //       padding: const EdgeInsets.only(bottom: 6),
+                            //       child: Row(
+                            //         children: [
+                            //           Expanded(
+                            //             flex: 7,
+                            //             child: Text(equipment['name'] ?? '-', softWrap: true, textAlign: TextAlign.left)
+                            //           ),
+                            //           Expanded(
+                            //             flex: 6,
+                            //             child: equipment['sn'] == null?
+                            //               const Text('-', softWrap: true, textAlign: TextAlign.center)
+                            //               : MouseRegion(
+                            //                 cursor: SystemMouseCursors.click,
+                            //                 child: SelectionContainer.disabled(
+                            //                   child: GestureDetector(
+                            //                     behavior: HitTestBehavior.opaque,
+                            //                     onTap: _openONT,
+                            //                     child: Text(equipment['sn'], softWrap: true, textAlign: TextAlign.center,
+                            //                       style: const TextStyle(color: AppColors.neo,
+                            //                       decorationColor: AppColors.neo,
+                            //                       decoration: TextDecoration.underline)
+                            //                     )
+                            //                   ),
+                            //                 ),
+                            //               )
+                            //           ),
+                            //           Expanded(
+                            //             flex: 2,
+                            //             child: Text(equipment['amount']?.toString() ?? '0', softWrap: true, textAlign: TextAlign.right)
+                            //           )
+                            //         ]
+                            //       )
+                            //     );
+                            //   }
+                            // )
+                          ]
                         )
                       ),
                       Expanded(
