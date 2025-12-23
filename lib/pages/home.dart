@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
-import 'package:smartlink/dialogs/attach.dart';
+// import 'package:smartlink/dialogs/attach.dart';
 import 'package:smartlink/dialogs/newtask.dart';
 import 'package:smartlink/dialogs/ont.dart';
 import 'package:smartlink/dialogs/task.dart';
@@ -548,42 +548,42 @@ class _HomePageState extends State<HomePage> {
 
 
   // button callbacks
-  Future<void> _openAttachs() async {
-    l.i('get attachments for customer ${customer!['id']}');
-    if (context.mounted) {
-      l.i('show attach dialog, reason: open attachments');
-      showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setStateDialog) {
-              if (attachs == null) {
-                try {
-                  getAttach(customer!['id']).then((res) {
-                    setState(() {
-                      attachs = res;
-                    });
-                    setStateDialog(() {});
-                  });
-                } catch (e) {
-                  l.e('error getting attachments $e');
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Ошибка получения вложений', style: TextStyle(color: AppColors.error))
-                    )
-                  );
-                  Navigator.pop(context);
-                }
-              }
-              return AttachDialog(
-                data: attachs,
-                load: attachs == null
-              );
-            }
-          );
-        }
-      );
-    }
-  }
+  // Future<void> _openAttachs() async {
+  //   l.i('get attachments for customer ${customer!['id']}');
+  //   if (context.mounted) {
+  //     l.i('show attach dialog, reason: open attachments');
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return StatefulBuilder(
+  //           builder: (context, setStateDialog) {
+  //             if (attachs == null) {
+  //               try {
+  //                 getAttach(customer!['id']).then((res) {
+  //                   setState(() {
+  //                     attachs = res;
+  //                   });
+  //                   setStateDialog(() {});
+  //                 });
+  //               } catch (e) {
+  //                 l.e('error getting attachments $e');
+  //                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //                     content: Text('Ошибка получения вложений', style: TextStyle(color: AppColors.error))
+  //                   )
+  //                 );
+  //                 Navigator.pop(context);
+  //               }
+  //             }
+  //             return AttachDialog(
+  //               data: attachs,
+  //               load: attachs == null
+  //             );
+  //           }
+  //         );
+  //       }
+  //     );
+  //   }
+  // }
 
   void _openONT() {
     if (customer == null) {
@@ -705,7 +705,7 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.only(right: 16),
                         child: TextField(
                           decoration: InputDecoration(
-                            hintText: 'ФИО или ЛС абонента',
+                            hintText: 'ФИО, ЛС, SN или тел. абонента',
                             errorText: customerNotFound? ' ' : null,
                             helperText: customerNotFound? ' ' : null
                           ),
