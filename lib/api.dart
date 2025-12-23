@@ -25,12 +25,12 @@ Uri _u(String action, Map<String, String> qp) {
   return uri;
 }
 
-Future<Map<String, dynamic>> _get(String action, Map<String, String> qp, {int timeout = 20}) async {
+Future<Map<String, dynamic>> _get(String action, Map<String, String> qp, {int timeout = 20, bool processStatusCode = true}) async {
   l.d('API GET: $action $qp');
   final uri = _u(action, qp);
   final resp = await _client.get(uri).timeout(Duration(seconds: timeout));
 
-  if (resp.statusCode != 200) {
+  if (resp.statusCode != 200 && processStatusCode) {
     l.e('API GET $action -> HTTP ${resp.statusCode}, body: ${resp.body}');
     throw Exception('HTTP ${resp.statusCode}');
   }
@@ -76,8 +76,11 @@ Future<Map<String, dynamic>> getAttach(int customerId) async {
 
 Future<List<Map>> find(String query) async {
   l.i('API: find customers query="$query"');
-  final raw = await _get('customer/search', {'query': query});
-  return List<Map>.from(raw['customers'] ?? const []);
+  final res = await _get('customer/search', {'query': query});
+  if (res['detail'] == 'not found') {
+    return [];
+  }
+  return List<Map>.from(res['customers']);
 }
 
 Future<Map> login(String login, String password) async {
