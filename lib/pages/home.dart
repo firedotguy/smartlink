@@ -422,6 +422,9 @@ class _HomePageState extends State<HomePage> {
             inventory = null;
             box = null;
             tasks = null;
+            taskSkip = 0;
+            taskLimited = false;
+            taskTotal = 0;
           }
           search = false;
           searching = false;
@@ -1014,7 +1017,7 @@ class _HomePageState extends State<HomePage> {
                             //     Text('Низкий уровень сигнала', style: TextStyle(color: _getSignalColor(customer!['onu_level'])))
                             //   ]
                             // ),
-                        
+
                             if (customer!['status'] == 'Отключен')
                             const Row(
                               spacing: 5,
@@ -1023,7 +1026,7 @@ class _HomePageState extends State<HomePage> {
                                 Text('Абонент отключен', style: TextStyle(color: AppColors.error))
                               ]
                             ),
-                        
+
                             if (customer!['status'] == 'Пауза')
                             const Row(
                               spacing: 5,
@@ -1032,7 +1035,7 @@ class _HomePageState extends State<HomePage> {
                                 Text('Абонент на паузе', style: TextStyle(color: AppColors.warning))
                               ]
                             ),
-                        
+
                             if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
                             const Row(
                               spacing: 5,
@@ -1041,7 +1044,7 @@ class _HomePageState extends State<HomePage> {
                                 Text('Последняя активность > 10 минут назад', style: TextStyle(color: AppColors.error))
                               ]
                             ),
-                        
+
                             if (_getBoxBorderColor(box?['customers']) == AppColors.error)
                             const Row(
                               spacing: 5,
@@ -1334,6 +1337,7 @@ class _HomePageState extends State<HomePage> {
                                       }
                                     )
                                   ),
+                                  if (tasks!.isNotEmpty)
                                   Text('Загружено ${tasks?.length ?? 0}/$taskTotal', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
                                   if (taskLimited)
                                   ElevatedButton(
