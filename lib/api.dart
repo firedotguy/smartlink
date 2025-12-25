@@ -76,7 +76,7 @@ Future<Map<String, dynamic>> getAttach(int customerId) async {
 
 Future<List<Map>> find(String query) async {
   l.i('API: find customers query="$query"');
-  final res = await _get('customer/search', {'query': query});
+  final res = await _get('customer/search', {'query': query}, processStatusCode: false);
   if (res['detail'] == 'not found') {
     return [];
   }
