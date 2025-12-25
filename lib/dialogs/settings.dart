@@ -64,14 +64,14 @@ class _SettingsDialogState extends State<SettingsDialog>{
     await prefs.setInt(key, value);
   }
 
-  void _updateString(String key, String value) async {
-    setState(() {
-      changed = true;
-    });
-    l.i('update string setting $key to $value');
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
-  }
+  // void _updateString(String key, String value) async {
+  //   setState(() {
+  //     changed = true;
+  //   });
+  //   l.i('update string setting $key to $value');
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString(key, value);
+  // }
 
   void _logOut() async {
     l.i('logging out');
