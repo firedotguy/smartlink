@@ -403,10 +403,11 @@ class _AppLayoutState extends State<AppLayout> {
                     showAboutDialog(
                       context: context,
                       applicationName: 'SmartLinkViewer',
-                      applicationVersion: 'v.$version (API 2.0.0)',
+                      applicationVersion: 'v$version (API 2.2.0)', // TODO: get api version from api
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
                       applicationLegalese: '© 2025 «НеоТелеком»',
                       children: [
+                        const Text('Experimental WASM renderer', style: TextStyle(color: AppColors.warning)),
                         MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
@@ -424,7 +425,7 @@ class _AppLayoutState extends State<AppLayout> {
                       ]
                     );
                   },
-                  child: Text('SmartLinkViewer v.$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
+                  child: Text('SmartLinkViewer v$version [γ]', style: const TextStyle(color: AppColors.secondary, fontSize: 12))
                 )
               )
             )
