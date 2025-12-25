@@ -28,8 +28,11 @@ Get-Content $envPath | ForEach-Object {
 if (-Not $env:API_KEY)  { Write-Error "API_KEY not found in .env";  exit 1 }
 if (-Not $env:API_BASE) { Write-Error "API_BASE not found in .env"; exit 1 }
 
-Write-Host "Running Flutter Web with dart-defines (values hidden)…"
+Write-Host "Running Flutter Web..."
 
 flutter run -d chrome `
   --dart-define=API_KEY="$($env:API_KEY)" `
-  --dart-define=API_BASE="$($env:API_BASE)"
+  --dart-define=API_BASE="$($env:API_BASE)" `
+  --debug `
+  --track-widget-creation `
+  --wasm

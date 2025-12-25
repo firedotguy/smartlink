@@ -1,7 +1,7 @@
 name: smartlink
 description: "SmartLinkViewer application for Neotelecom operators"
 publish_to: 'none'
-version: 0.4.1
+version: 0.4.2-dev.1
 
 
 environment:
@@ -23,9 +23,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

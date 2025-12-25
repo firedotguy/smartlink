@@ -18,11 +18,12 @@ set +a
 : "${API_KEY:?ERROR: API_KEY is not set in .env}"
 : "${API_BASE:?ERROR: API_BASE is not set in .env}"
 
-echo "Building Flutter Web with dart-defines (values hidden)…"
+echo "Building Flutter Web..."
 
 flutter build web --release \
   --dart-define=API_KEY="$API_KEY" \
-  --dart-define=API_BASE="$API_BASE"
+  --dart-define=API_BASE="$API_BASE" \
+  --wasm
 
 rm -rf "$WEB_ROOT"/*
 sudo cp -a build/web/. "$WEB_ROOT"/
