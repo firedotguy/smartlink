@@ -209,9 +209,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  String _convertSignal(double? signal) {
+  String _convertSignal(num? signal) {
     if (signal != null) {
-      return (-signal).toStringAsFixed(1);
+      return (-signal.toDouble()).toStringAsFixed(1);
     }
     return '-';
   }
@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
     return AppColors.secondary;
   }
 
-  Color _getSignalColor(double? signal) {
+  Color _getSignalColor(num? signal) {
     if (signal != null) {
       if (signal > -25) {
         return AppColors.success;
@@ -308,7 +308,7 @@ class _HomePageState extends State<HomePage> {
     return AppColors.success;
   }
 
-  Color _getBalanceColor(double balance) {
+  Color _getBalanceColor(num balance) {
     if (balance > 0) {
       return AppColors.success;
     }
@@ -1071,7 +1071,7 @@ class _HomePageState extends State<HomePage> {
                             InfoTile(
                               title: 'Баланс',
                               value: '${customer!['balance']} сом',
-                              valueColor: _getBalanceColor(customer!['balance'])
+                              valueColor: _getBalanceColor((customer!['balance'] ?? 0) as num)
                             ),
                             InfoTile(
                               title: 'Статус',

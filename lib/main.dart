@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,7 +73,7 @@ class _AngularProgressBarState extends State<AngularProgressBar>
             ),
             AnimatedBuilder(
               animation: _ctl,
-              builder: (_, __) {
+              builder: (_, _) {
                 final runnerWidth = widget.width / 5;
                 final travelWidth = widget.width + runnerWidth;
                 final dx = _ctl.value * travelWidth - runnerWidth;
@@ -403,10 +402,11 @@ class _AppLayoutState extends State<AppLayout> {
                     showAboutDialog(
                       context: context,
                       applicationName: 'SmartLinkViewer',
-                      applicationVersion: 'v$version (API 2.1.0)',
+                      applicationVersion: 'v$version (API 2.2.0)', // TODO: get api version from api
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
                       applicationLegalese: '© 2025 «НеоТелеком»',
                       children: [
+                        const Text('Experimental WASM renderer', style: TextStyle(color: AppColors.warning)),
                         MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
@@ -459,7 +459,6 @@ class _MainAppState extends State<MainApp> {
   Widget page = const SizedBox();
 
   Future init() async {
-    FlutterNativeSplash.remove();
     setState(() {
       page = const Scaffold(body: Center(child: CircularProgressIndicator()));
     });
