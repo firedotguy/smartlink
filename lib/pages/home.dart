@@ -767,6 +767,13 @@ class _HomePageState extends State<HomePage> {
                             )
                           ),
                           Tooltip(
+                            message: 'Показать на карте',
+                            child: IconButton(
+                              onPressed: box != null? () => _openUrl(box!['map_link']) : null,
+                              icon: Icon(Icons.map, color: box == null? AppColors.secondary : AppColors.neo, size: 18)
+                            )
+                          ),
+                          Tooltip(
                             message: 'Обновить данные',
                             child: IconButton(
                               onPressed: box != null? _loadBoxData : null,
@@ -1008,7 +1015,7 @@ class _HomePageState extends State<HomePage> {
                                 Text('Абонент не коммутирован', style: TextStyle(color: AppColors.warning))
                               ]
                             ),
-                        
+
                             // if ((customer!['onu_level'] ?? 0) < -25)
                             // Row(
                             //   spacing: 5,
