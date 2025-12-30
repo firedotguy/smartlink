@@ -179,6 +179,9 @@ class _HomePageState extends State<HomePage> {
   // box
   bool noBox = false;
   Map? box;
+  int boxSkip = 0;
+  bool boxLimited = false;
+  int boxTotal = 0;
 
   // attach
   Map? attachs;
@@ -194,7 +197,7 @@ class _HomePageState extends State<HomePage> {
 
 
   // utils
-  Future<void> _openUrl(link) async {
+  Future<void> _openUrl(String link) async {
     final url = Uri.parse(link);
     if (await canLaunchUrl(url)) {
       l.i('open link: $link');
@@ -323,6 +326,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadBoxData() async {
     try{
       l.i('load box data');
+      final boxOld = box?['customers'];
       setState(() {
         box = null;
         noBox = false;
@@ -334,7 +338,7 @@ class _HomePageState extends State<HomePage> {
         });
         return;
       }
-      box = await getBox(customer!['box_id']);
+      box = await getBox(customer!['box_id'], skip: boxSkip, getCount: boxOld?.isEmpty ?? true);
       if (box!['status'] == 'fail'){
         l.w('box not found');
         setState(() {
@@ -345,6 +349,18 @@ class _HomePageState extends State<HomePage> {
       box!['customers']?.removeWhere(
         (n) => n['id'] == customer!['id']
       );
+      l.d('loaded ${box!['customers'].length + (boxOld?.length ?? 0)}/${boxTotal > box!['customers_count']? boxTotal : box!['customers_count']} neighbours (was ${boxOld?.length ?? 0})');
+      if (boxOld != null) {
+        boxOld.addAll(box!['customers']);
+        box!['customers'] = boxOld;
+      }
+      if (boxOld?.isEmpty ?? true) {
+        boxLimited = box!['customers_limit'];
+        boxTotal = box!['customers_count'];
+      } else {
+        boxLimited = boxTotal > 5 + boxSkip;
+      }
+      boxSkip += 10; // TODO: check #45
       setState(() {
         load = false;
       });
@@ -366,17 +382,21 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         tasks = null;
       });
-      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip);
-      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${tasksRes[2]} tasks (was ${tasksOld?.length ?? 0})');
+      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, getCount: tasksOld?.isEmpty ?? true);
+      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${taskTotal > tasksRes[2]? taskTotal : tasksRes[2]} tasks (was ${tasksOld?.length ?? 0})');
       if (tasksOld != null) {
         tasksOld.addAll(tasksRes[0]);
         tasks = tasksOld;
       } else {
         tasks = tasksRes[0];
       }
+      if (tasksOld?.isEmpty ?? true) {
+        taskLimited = tasksRes[1];
+        taskTotal = tasksRes[2];
+      } else {
+        taskLimited = taskTotal > 5 + taskSkip;
+      }
       taskSkip += 5; // TODO: check #45
-      taskLimited = tasksRes[1];
-      taskTotal = tasksRes[2];
       setState(() {});
     } catch (e) {
       l.e('error loading tasks: $e');
@@ -921,7 +941,14 @@ class _HomePageState extends State<HomePage> {
                                 )
                               )
                               else
-                              const Text('У абонента нет соседей', style: TextStyle(color: AppColors.secondary))
+                              const Text('У абонента нет соседей', style: TextStyle(color: AppColors.secondary)),
+                              if (box!['customers'].isNotEmpty)
+                                Text('Загружено ${box!['customers']?.length ?? 0}/$boxTotal', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
+                                if (boxLimited)
+                                ElevatedButton(
+                                  onPressed: _loadBoxData,
+                                  child: const Text('Загрузить еще')
+                                )
                             ]
                           ]
                         )

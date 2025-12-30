@@ -62,9 +62,9 @@ Future<Map<String, dynamic>> getCustomer(int id) async {
   return await _get('customer/$id', {});
 }
 
-Future<Map<String, dynamic>> getBox(int id) async {
+Future<Map<String, dynamic>> getBox(int id, {int skip = 0, bool getCount = true}) async {
   l.i('API: get box id=$id');
-  return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'true'}, timeout: 60);
+  return await _get('box/$id', {'get_onu_level': 'true', 'get_tasks': 'true', 'limit': '10', 'skip': skip.toString(), 'get_count': getCount.toString()}); // TODO: check #45
 }
 
 Future<Map<String, dynamic>> getAttach(int customerId) async {
@@ -185,9 +185,9 @@ Future<Map<String, dynamic>> getTask(int id) async {
   return await _get('task/$id', {});
 }
 
-Future<List<dynamic>> getCustomerTasks(int customerId, {int skip = 0}) async {
+Future<List<dynamic>> getCustomerTasks(int customerId, {int skip = 0, bool getCount = true}) async {
   l.i('API: get customer tasks id=$customerId');
-  final res = await _get('task/', {'customer_id': customerId.toString(), 'limit': '5', 'skip': skip.toString()}); // TODO: check #45
+  final res = await _get('task/', {'customer_id': customerId.toString(), 'limit': '5', 'skip': skip.toString(), 'get_count': getCount.toString()}); // TODO: check #45
   return [List<Map<String, dynamic>>.from(res['data']), res['limit'], res['count']];
 }
 
