@@ -1,7 +1,7 @@
 name: smartlink
 description: "SmartLinkViewer application for Neotelecom operators"
 publish_to: 'none'
-version: 0.4.2-dev.2
+version: 0.4.2
 
 
 environment:
