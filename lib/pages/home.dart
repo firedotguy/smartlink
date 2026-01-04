@@ -323,7 +323,7 @@ class _HomePageState extends State<HomePage> {
 
 
   // API calls
-  Future<void> _loadBoxData() async {
+  Future<void> _loadBoxData({bool reload = false}) async {
     try{
       l.i('load box data');
       final boxOld = box?['customers'];
@@ -338,7 +338,7 @@ class _HomePageState extends State<HomePage> {
         });
         return;
       }
-      box = await getBox(customer!['box_id'], skip: boxSkip, getCount: boxOld?.isEmpty ?? true);
+      box = await getBox(customer!['box_id'], skip: boxSkip, getCount: reload? true : boxOld?.isEmpty ?? true, limit: reload? boxOld?.length : 10);
       if (box!['status'] == 'fail'){
         l.w('box not found');
         setState(() {
@@ -360,7 +360,9 @@ class _HomePageState extends State<HomePage> {
       } else {
         boxLimited = boxTotal > 5 + boxSkip;
       }
-      boxSkip += 10; // TODO: check #45
+      if (!reload) {
+        boxSkip += 10; // TODO: check #45
+      }
       setState(() {
         load = false;
       });
@@ -796,7 +798,7 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Обновить данные',
                             child: IconButton(
-                              onPressed: box != null? _loadBoxData : null,
+                              onPressed: box != null? () => _loadBoxData(reload: true) : null,
                               icon: Icon(Icons.refresh, size: 18, color: box == null? AppColors.secondary : AppColors.neo)
                             )
                           )
