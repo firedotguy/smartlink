@@ -655,7 +655,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         Expanded(
           child: ListView.separated(
             itemCount: chats?.length ?? 0,
-            separatorBuilder: (_, __) => const Divider(height: 8, color: Color(0x22FFFFFF)),
+            separatorBuilder: (_, _) => const Divider(height: 8, color: Color(0x22FFFFFF)),
             itemBuilder: (c, i) {
               final chat = chats![i];
               final id = chat['id']?.toString() ?? '';

@@ -75,7 +75,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
     }
   }
 
-  void _createTask(context) async {
+  void _createTask(BuildContext context) async {
     setState(() {
       creating = true;
     });
@@ -183,7 +183,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               height: 40, //
                               child: DropdownButtonFormField(
                                 style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main, fontWeight: FontWeight.bold), //
-                                value: type,
+                                initialValue: type,
                                 items: const [
                                   DropdownMenuItem(value: 37, child: Text('Выезд на ремонт', style: TextStyle(color: Color(0xFF999100)))),
                                   DropdownMenuItem(value: 60, child: Text('Демонтаж оборудование', style: TextStyle(color: Color(0xFF60686B)))),
@@ -249,7 +249,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                 height: 40, //
                                 child: DropdownButtonFormField(
                                   style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
-                                  value: reason,
+                                  initialValue: reason,
                                   items: reasons.map((e) {
                                     return DropdownMenuItem(value: e, child: Text(e));
                                   }).toList(),
@@ -267,7 +267,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               SizedBox(
                                 height: 40, //
                                 child: DropdownButtonFormField(
-                                  value: appealType,
+                                  initialValue: appealType,
                                   style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main), //
                                   items: appealTypes.map((e) {
                                     return DropdownMenuItem(value: e, child: Text(e));
@@ -384,7 +384,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               height: 40, //
                               child: DropdownButtonFormField(
                                 style: const TextStyle(fontSize: 13, fontFamily: 'Jost', color: AppColors.main, fontWeight: FontWeight.bold), //
-                                value: boxType,
+                                initialValue: boxType,
                                 items: const [
                                   DropdownMenuItem(value: 38, child: Text('Магистраль выезд на ремонт', style: TextStyle(color: Color(0xFF860d1c)))),
                                   DropdownMenuItem(value: 48, child: Text('Магистраль-демонтаж/монтаж', style: TextStyle(color: Color(0xFF3a538a))))
@@ -445,7 +445,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                               height: 40, //
                               child: DropdownButtonFormField(
                                 style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
-                                value: boxReason,
+                                initialValue: boxReason,
                                 items: boxReasons.map((e) {
                                   return DropdownMenuItem(value: e, child: Text(e));
                                 }).toList(),
@@ -465,7 +465,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                 height: 40, //
                                 child: DropdownButtonFormField(
                                   style: const TextStyle(fontSize: 13, color: AppColors.main, fontFamily: 'Jost'), //
-                                  value: appealType,
+                                  initialValue: appealType,
                                   items: appealTypes.map((e) {
                                     return DropdownMenuItem(value: e, child: Text(e));
                                   }).toList(),

@@ -103,7 +103,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
                   const Text('Тема', style: TextStyle(color: AppColors.secondary)),
                   IntrinsicWidth(
                     child: DropdownButtonFormField(
-                      value: theme,
+                      initialValue: theme,
                       items: const [
                         DropdownMenuItem(value: 'smartlink-dark', child: Text('SmartLink (dark)')),
                         DropdownMenuItem(value: 'smartlink-light', child: Text('SmartLink (light)', style: TextStyle(color: Color(0xFF121212), backgroundColor: Color(0xFFD1D5DC)))),
@@ -126,7 +126,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
                   const Text('Загрузка соседей', style: TextStyle(color: AppColors.secondary)),
                   IntrinsicWidth(
                     child: DropdownButtonFormField(
-                      value: loadNeighbours,
+                      initialValue: loadNeighbours,
                       items: const [
                         DropdownMenuItem(value: 'never', child: Text('Никогда')),
                         DropdownMenuItem(value: 'onWrong', child: Text('При неполадках у абонента')),

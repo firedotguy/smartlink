@@ -61,7 +61,7 @@ class _TaskDialogState extends State<TaskDialog> {
     }
   }
 
-  Future<void> _openUrl(link) async {
+  Future<void> _openUrl(String link) async {
     final url = Uri.parse(link);
     if (await canLaunchUrl(url)) {
       l.i('open link: $link');
