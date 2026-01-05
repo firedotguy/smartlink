@@ -822,7 +822,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               InfoTile(
                                 title: 'Открытые задания',
-                                value: box?['tasks']?.length.toString() ?? '-',
+                                value: box?['tasks']?.length.toString() ?? '0',
                                 valueColor: box?['tasks'] == null? AppColors.main :
                                   box!['tasks'].length == 0? AppColors.success : AppColors.error,
                                 onTap: box?['tasks'] == null? null : box!['tasks'].length == 0? null : (){
@@ -886,7 +886,7 @@ class _HomePageState extends State<HomePage> {
                                           Expanded(
                                             flex: 4,
                                             child: Text(
-                                              neighbour['tasks']?.length.toString() ?? '-',
+                                              neighbour['tasks']?.length.toString() ?? '0',
                                               textAlign: TextAlign.center,
                                               style: const TextStyle(color: AppColors.success)
                                             )
@@ -907,7 +907,7 @@ class _HomePageState extends State<HomePage> {
                                                     }
                                                   },
                                                   child: Text(
-                                                    neighbour['tasks']?.length.toString() ?? '-',
+                                                    neighbour['tasks']?.length.toString() ?? '0',
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(color: AppColors.error)
                                                   )
