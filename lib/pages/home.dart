@@ -323,10 +323,10 @@ class _HomePageState extends State<HomePage> {
 
 
   // API calls
-  Future<void> _loadBoxData({bool reload = false}) async {
+  Future<void> _loadBoxData({bool firstLoad = false}) async {
     try{
       l.i('load box data');
-      final boxOld = box?['customers'];
+      final box2 = box;
       setState(() {
         box = null;
         noBox = false;
@@ -338,31 +338,30 @@ class _HomePageState extends State<HomePage> {
         });
         return;
       }
-      box = await getBox(customer!['box_id'], skip: boxSkip, getCount: reload? true : boxOld?.isEmpty ?? true, limit: reload? boxOld?.length : 10);
-      if (box!['status'] == 'fail'){
-        l.w('box not found');
-        setState(() {
-          noBox = true;
-        });
-      }
-      // remove search customer from neighbours
-      box!['customers']?.removeWhere(
-        (n) => n['id'] == customer!['id']
-      );
-      l.d('loaded ${box!['customers'].length + (boxOld?.length ?? 0)}/${boxTotal > box!['customers_count']? boxTotal : box!['customers_count']} neighbours (was ${boxOld?.length ?? 0})');
-      if (boxOld != null) {
-        boxOld.addAll(box!['customers']);
-        box!['customers'] = boxOld;
-      }
-      if (boxOld?.isEmpty ?? true) {
-        boxLimited = box!['customers_limit'];
+      if (firstLoad || box2 == null){
+        box = await getBox(customer!['box_id'], customer!['id'], limit: 10);
+        if (box!['status'] == 'fail'){
+          l.w('box not found');
+          setState(() {
+            noBox = true;
+          });
+        }
         boxTotal = box!['customers_count'];
+        boxLimited = boxTotal > 10;
+        l.d('loaded ${box!['customers'].length}/$boxTotal neighbours (was 0)');
       } else {
-        boxLimited = boxTotal > 5 + boxSkip;
+        final Map<String, dynamic> neighbours = await getCustomers(List<int>.from(box2['remaining_customer_ids']), limit: 10, skip: boxSkip);
+        if (neighbours['status'] == 'fail'){
+          l.w('fail to load neighbours');
+          if (mounted){
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка загрузки соседей', style: TextStyle(color: AppColors.error))));
+          }
+        }
+        l.d('loaded ${box2['customers'].length + neighbours['data'].length}/$boxTotal neighbours (was ${box2['customers'].length})');
+        box2['customers'].addAll(neighbours['data']);
+        box = box2;
       }
-      if (!reload) {
-        boxSkip += 10; // TODO: check #45
-      }
+
       setState(() {
         load = false;
       });
@@ -459,7 +458,7 @@ class _HomePageState extends State<HomePage> {
           });
           if (loadAll){
             _loadTasksData();
-            _loadBoxData();
+            _loadBoxData(firstLoad: true);
             _loadInventoryData();
           }
         });
@@ -798,7 +797,7 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Обновить данные',
                             child: IconButton(
-                              onPressed: box != null? () => _loadBoxData(reload: true) : null,
+                              onPressed: box != null? () => _loadBoxData(firstLoad: true) : null,
                               icon: Icon(Icons.refresh, size: 18, color: box == null? AppColors.secondary : AppColors.neo)
                             )
                           )
