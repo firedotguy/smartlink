@@ -258,7 +258,7 @@ class _HomePageState extends State<HomePage> {
 
   Color _getCustomerBorderColor(Map? customer) {
     if (customer != null) {
-      if (customer['status'] == 'Отключен' || _getActivityColor(customer['timestamps']['last_active_at']) == AppColors.error) {
+      if (customer['status'] == 'Отключен' || _getActivityColor(customer['last_active_at']) == AppColors.error) {
         return AppColors.error;
       }
       if (customer['status'] == 'Пауза') {
@@ -275,7 +275,7 @@ class _HomePageState extends State<HomePage> {
         return AppColors.success;
       }
       final allInactive = neighbours.every(
-        (n) => _getActivityColor(n['last_activity']) == AppColors.error
+        (n) => _getActivityColor(n['last_active_at']) == AppColors.error
       );
       return allInactive ? AppColors.error : AppColors.success;
     }
@@ -285,10 +285,10 @@ class _HomePageState extends State<HomePage> {
   Color _getTaskBorderColor(List<Map>? tasks) {
     if (tasks != null){
       for (var task in tasks){
-        if (task['timestamps']['created_at'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
+        if (task['created_at'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
           continue;
         }
-        final DateTime parsed = DateTime.parse(task['timestamps']['created_at']);
+        final DateTime parsed = DateTime.parse(task['created_at']);
         final int difference = DateTime.now().difference(parsed).inDays;
         if (difference > 2){
           return AppColors.error;
@@ -917,8 +917,8 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           Expanded(
                                             flex: 7,
-                                            child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
-                                              style: TextStyle(color: _getActivityColor(neighbour['last_activity']), fontSize: 13)
+                                            child: Text(formatDate(neighbour['last_active_at']), textAlign: TextAlign.center,
+                                              style: TextStyle(color: _getActivityColor(neighbour['last_active_at']), fontSize: 13)
                                             )
                                           ),
                                           Expanded(
@@ -1071,7 +1071,7 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
 
-                            if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
+                            if (_getActivityColor(customer!['last_active_at']) == AppColors.error)
                             const Row(
                               spacing: 5,
                               children: [
@@ -1112,8 +1112,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             InfoTile(
                               title: 'Последняя активность',
-                              value: formatDate(customer!['timestamps']['last_active_at']),
-                              valueColor: _getActivityColor(customer!['timestamps']['last_active_at'] ?? '-')
+                              value: formatDate(customer!['last_active_at']),
+                              valueColor: _getActivityColor(customer!['last_active_at'] ?? '-')
                             ),
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1349,8 +1349,8 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               Expanded(
                                                 flex: 6,
-                                                child: Text(formatDate(task['timestamps']['created_at']), softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskDateColor(task['timestamps']['created_at'], task['status']['id']), fontSize: 13) //
+                                                child: Text(formatDate(task['created_at']), softWrap: true, textAlign: TextAlign.center,
+                                                  style: TextStyle(color: _getTaskDateColor(task['created_at'], task['status']['id']), fontSize: 13) //
                                                 )
                                               ),
                                               Expanded(
