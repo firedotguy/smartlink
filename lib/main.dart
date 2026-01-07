@@ -258,6 +258,13 @@ final ThemeData darkTheme = ThemeData(
         return AppColors.secondary;
       }
     })
+  ),
+  sliderTheme: const SliderThemeData(
+    activeTrackColor: AppColors.neo,
+    inactiveTrackColor: AppColors.secondary,
+    disabledActiveTrackColor: AppColors.main,
+    thumbColor: AppColors.neo,
+    padding: EdgeInsets.zero
   )
 );
 

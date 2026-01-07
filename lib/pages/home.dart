@@ -170,13 +170,14 @@ class _HomePageState extends State<HomePage> {
   bool customerNotFound = false;
   int searchVersion = 0;
   int debounce = 300;
-  String loadNeighbours = 'onWrong';
 
   // customer
   int? id;
   Map? customer;
 
   // box
+  String loadNeighbours = 'onWrong';
+  int neighbourLimit = 10;
   bool noBox = false;
   Map? box;
   int boxSkip = 0;
@@ -187,6 +188,7 @@ class _HomePageState extends State<HomePage> {
   Map? attachs;
 
   // task
+  int taskLimit = 5;
   List<Map>? tasks;
   int taskSkip = 0;
   bool taskLimited = false;
@@ -339,7 +341,7 @@ class _HomePageState extends State<HomePage> {
         return;
       }
       if (firstLoad || box2 == null){
-        box = await getBox(customer!['box_id'], customer!['id'], limit: 10);
+        box = await getBox(customer!['box_id'], customer!['id'], limit: neighbourLimit);
         if (box!['status'] == 'fail'){
           l.w('box not found');
           setState(() {
@@ -347,10 +349,11 @@ class _HomePageState extends State<HomePage> {
           });
         }
         boxTotal = box!['customers_count'];
-        boxLimited = boxTotal > 10;
+        boxLimited = boxTotal > neighbourLimit;
         l.d('loaded ${box!['customers'].length}/$boxTotal neighbours (was 0)');
+        // not update boxSkip because getBox gives skipped remaining customer ids
       } else {
-        final Map<String, dynamic> neighbours = await getCustomers(List<int>.from(box2['remaining_customer_ids']), limit: 10, skip: boxSkip);
+        final Map<String, dynamic> neighbours = await getCustomers(List<int>.from(box2['remaining_customer_ids']), limit: neighbourLimit, skip: boxSkip);
         if (neighbours['status'] == 'fail'){
           l.w('fail to load neighbours');
           if (mounted){
@@ -360,6 +363,8 @@ class _HomePageState extends State<HomePage> {
         l.d('loaded ${box2['customers'].length + neighbours['data'].length}/$boxTotal neighbours (was ${box2['customers'].length})');
         box2['customers'].addAll(neighbours['data']);
         box = box2;
+        boxLimited = boxTotal > box2['customers'].length;
+        boxSkip += neighbourLimit;
       }
 
       setState(() {
@@ -384,7 +389,7 @@ class _HomePageState extends State<HomePage> {
         tasks = null;
       });
       final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, getCount: tasksOld?.isEmpty ?? true);
-      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${taskTotal > tasksRes[2]? taskTotal : tasksRes[2]} tasks (was ${tasksOld?.length ?? 0})');
+      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${tasksRes[2] ?? taskTotal} tasks (was ${tasksOld?.length ?? 0})');
       if (tasksOld != null) {
         tasksOld.addAll(tasksRes[0]);
         tasks = tasksOld;
@@ -395,9 +400,9 @@ class _HomePageState extends State<HomePage> {
         taskLimited = tasksRes[1];
         taskTotal = tasksRes[2];
       } else {
-        taskLimited = taskTotal > 5 + taskSkip;
+        taskLimited = taskTotal > tasks!.length;
       }
-      taskSkip += 5; // TODO: check #45
+      taskSkip += taskLimit;
       setState(() {});
     } catch (e) {
       l.e('error loading tasks: $e');
@@ -557,6 +562,9 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     debounce = prefs.getInt('debounce') ?? 300;
     loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
+    neighbourLimit = prefs.getInt('neighbourLimit') ?? 10;
+    taskLimit = prefs.getInt('taskLimit') ?? 5;
+
     id = prefs.getInt('userId');
     if (id == null){
       l.w('user id not found');
