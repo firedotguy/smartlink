@@ -45,7 +45,9 @@ class _SettingsDialogState extends State<SettingsDialog>{
     debounceController.text = debounce.toString();
     loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
     neighbourLimit = prefs.getInt('neighbourLimit') ?? 10;
+    if (neighbourLimit == 9999) neighbourLimit = 0;
     taskLimit = prefs.getInt('taskLimit') ?? 5;
+    if (taskLimit == 9999) taskLimit = 0;
     logined = (prefs.getString('login') ?? '') != '';
     setState(() {});
   }
@@ -217,7 +219,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
                           value: neighbourLimit.toDouble(),
                           onChanged: (value) {
                             neighbourLimit = value.toInt();
-                            _updateInt('neighbourLimit', value.toInt());
+                            _updateInt('neighbourLimit', neighbourLimit == 0? 9999 : neighbourLimit);
                           },
                           min: 0,
                           max: 100
@@ -249,7 +251,7 @@ class _SettingsDialogState extends State<SettingsDialog>{
                           value: taskLimit.toDouble(),
                           onChanged: (value) {
                             taskLimit = value.toInt();
-                            _updateInt('taskLimit', value.toInt());
+                            _updateInt('taskLimit', taskLimit == 0? 9999 : taskLimit);
                           },
                           min: 0,
                           max: 30

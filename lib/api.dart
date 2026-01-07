@@ -190,9 +190,9 @@ Future<Map<String, dynamic>> getTask(int id) async {
   return await _get('task/$id', {});
 }
 
-Future<List<dynamic>> getCustomerTasks(int customerId, {int skip = 0, bool getCount = true}) async {
+Future<List<dynamic>> getCustomerTasks(int customerId, {int skip = 0, int limit = 5, bool getCount = true}) async {
   l.i('API: get customer tasks id=$customerId');
-  final res = await _get('task/', {'customer_id': customerId.toString(), 'limit': '5', 'skip': skip.toString(), 'get_count': getCount.toString()}); // TODO: check #45
+  final res = await _get('task/', {'customer_id': customerId.toString(), 'limit': limit.toString(), 'skip': skip.toString(), 'get_count': getCount.toString()});
   return [List<Map<String, dynamic>>.from(res['data']), res['limit'], res['count']];
 }
 

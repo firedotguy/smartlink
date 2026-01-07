@@ -349,6 +349,7 @@ class _HomePageState extends State<HomePage> {
           });
         }
         boxTotal = box!['customers_count'];
+        l.d('$boxTotal > $neighbourLimit');
         boxLimited = boxTotal > neighbourLimit;
         l.d('loaded ${box!['customers'].length}/$boxTotal neighbours (was 0)');
         // not update boxSkip because getBox gives skipped remaining customer ids
@@ -388,7 +389,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         tasks = null;
       });
-      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, getCount: tasksOld?.isEmpty ?? true);
+      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, limit: taskLimit, getCount: tasksOld?.isEmpty ?? true);
       l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${tasksRes[2] ?? taskTotal} tasks (was ${tasksOld?.length ?? 0})');
       if (tasksOld != null) {
         tasksOld.addAll(tasksRes[0]);
