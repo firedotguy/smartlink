@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Chip;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
@@ -20,12 +20,14 @@ class InfoTile extends StatelessWidget {
     required this.title,
     required this.value,
     this.valueColor,
+    this.preview = false,
     // this.underlineColor = AppColors.neo,
     this.onTap,
     super.key
   });
   final String title;
   final String? value;
+  final bool preview;
   // final Color underlineColor;
   final VoidCallback? onTap;
   final Color? valueColor;
@@ -37,7 +39,17 @@ class InfoTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(color: AppColors.secondary)),
+          Row(
+            spacing: 8,
+            children: [
+              Text(title, style: const TextStyle(color: AppColors.secondary)),
+              if (preview)
+              const Tooltip(
+                message: 'Функция в разработке',
+                child: Chip(text: 'Preview', color: AppColors.success)
+              )
+            ],
+          ),
           if (onTap != null)
           Flexible(
             child: MouseRegion(
@@ -226,7 +238,17 @@ class _HomePageState extends State<HomePage> {
     try {
       final parsed = DateTime.parse(lastActivity);
       final difference = DateTime.now().difference(parsed).inMinutes;
-      return difference <= 15 ? AppColors.success : AppColors.error;
+      return difference <= 15? AppColors.success : AppColors.error;
+    } catch (e) {
+      return AppColors.secondary;
+    }
+  }
+
+  Color? _getDiconnectDateColor(String date) {
+    try {
+      final parsed = DateTime.parse(date);
+      final difference = DateTime.now().difference(parsed).inDays;
+      return difference < 3? AppColors.error : difference < 10? AppColors.warning : AppColors.success;
     } catch (e) {
       return AppColors.secondary;
     }
@@ -1164,6 +1186,14 @@ class _HomePageState extends State<HomePage> {
                                   )
                                 )
                               ]
+                            ),
+                            const SizedBox(height: 5),
+                            if (customer!['will_disconnect_at'] != null)
+                            InfoTile(
+                              title: 'Плановая дата отключения',
+                              value: formatDate(customer!['will_disconnect_at']),
+                              preview: true,
+                              valueColor: _getDiconnectDateColor(customer!['will_disconnect_at'])
                             ),
                             const SizedBox(height: 5),
                             const Row(
