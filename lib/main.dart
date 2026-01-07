@@ -409,7 +409,7 @@ class _AppLayoutState extends State<AppLayout> {
                     showAboutDialog(
                       context: context,
                       applicationName: 'SmartLinkViewer',
-                      applicationVersion: 'v$version (API 2.3.0)', // TODO: get api version from api
+                      applicationVersion: 'v$version (API 3.0.0-dev.1)', // TODO: get api version from api
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
                       applicationLegalese: '© 2025 «НеоТелеком»',
                       children: [

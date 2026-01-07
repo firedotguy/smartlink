@@ -349,7 +349,6 @@ class _HomePageState extends State<HomePage> {
           });
         }
         boxTotal = box!['customers_count'];
-        l.d('$boxTotal > $neighbourLimit');
         boxLimited = boxTotal > neighbourLimit;
         l.d('loaded ${box!['customers'].length}/$boxTotal neighbours (was 0)');
         // not update boxSkip because getBox gives skipped remaining customer ids
