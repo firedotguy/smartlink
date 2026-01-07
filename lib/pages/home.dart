@@ -1136,6 +1136,16 @@ class _HomePageState extends State<HomePage> {
                               value: customer!['status'],
                               valueColor: _getStatusColor(customer!['status'] ?? '-')
                             ),
+                            // InfoTile(
+                            //   title: 'Дата создания',
+                            //   value: formatDate(customer!['created_at']),
+                            //   valueColor: AppColors.main
+                            // ),
+                            InfoTile(
+                              title: 'Дата подключения',
+                              value: formatDate(customer!['connected_at']),
+                              valueColor: AppColors.main
+                            ),
                             InfoTile(
                               title: 'Группа',
                               value: customer!['group']?['name']
@@ -1145,6 +1155,11 @@ class _HomePageState extends State<HomePage> {
                               value: formatDate(customer!['last_active_at']),
                               valueColor: _getActivityColor(customer!['last_active_at'] ?? '-')
                             ),
+                            // InfoTile(
+                            //   title: 'Последняя INET активность',
+                            //   value: formatDate(customer!['last_inet_active_at']),
+                            //   valueColor: _getActivityColor(customer!['last_inet_active_at'] ?? '-')
+                            // ),
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             //   children: [

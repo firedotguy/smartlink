@@ -201,17 +201,26 @@ class _SettingsDialogState extends State<SettingsDialog>{
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 4,
+                  const Row(
+                    spacing: 8,
                     children: [
-                      Text('Лимит на загрузку соседей', style: TextStyle(color: AppColors.main)),
-                      Text('Макс. количество соседей для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
-                      Text('0 = нет лимита, загружать всех сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Text('Лимит на загрузку соседей', style: TextStyle(color: AppColors.main)),
+                          Text('Макс. количество соседей для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                          Text('0 = нет лимита, загружать всех сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                        ]
+                      ),
+                      Tooltip(
+                        message: 'Функция в разработке',
+                        child: Chip(text: 'Preview', color: AppColors.success)
+                      )
                     ]
                   ),
                   Row(
-                    spacing: 16,
+                    spacing: 8,
                     children: [
                       SizedBox(
                         width: 200,
@@ -233,17 +242,26 @@ class _SettingsDialogState extends State<SettingsDialog>{
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 4,
+                  const Row(
+                    spacing: 8,
                     children: [
-                      Text('Лимит на загрузку заданий', style: TextStyle(color: AppColors.main)),
-                      Text('Макс. количество заданий для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
-                      Text('0 = нет лимита, загружать все сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
-                    ]
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Text('Лимит на загрузку заданий', style: TextStyle(color: AppColors.main)),
+                          Text('Макс. количество заданий для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                          Text('0 = нет лимита, загружать все сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                        ]
+                      ),
+                      Tooltip(
+                        message: 'Функция в разработке',
+                        child: Chip(text: 'Preview', color: AppColors.success)
+                      )
+                    ],
                   ),
                   Row(
-                    spacing: 16,
+                    spacing: 8,
                     children: [
                       SizedBox(
                         width: 200,
