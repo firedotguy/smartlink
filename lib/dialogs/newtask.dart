@@ -505,10 +505,11 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                             ),
                             if (showDivisions)
                             SizedBox(
-                              height: 250,
+                              // height: 250,
                               width: 580,
                               child: ListView.builder(
                                 shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: divisions.length,
                                 itemBuilder: (c, i){
                                   final division = divisions[i];

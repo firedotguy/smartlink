@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Chip;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/main.dart';
 import 'package:smartlink/pages/sign.dart';
@@ -28,6 +28,8 @@ class _SettingsDialogState extends State<SettingsDialog>{
   String theme = 'smartlink-dark';
   int debounce = 300;
   String loadNeighbours = 'onWrong';
+  int neighbourLimit = 10;
+  int taskLimit = 5;
   bool logined = false;
 
   TextEditingController debounceController = TextEditingController(text: '0');
@@ -42,6 +44,10 @@ class _SettingsDialogState extends State<SettingsDialog>{
     debounce = prefs.getInt('debounce') ?? 300;
     debounceController.text = debounce.toString();
     loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
+    neighbourLimit = prefs.getInt('neighbourLimit') ?? 10;
+    if (neighbourLimit == 9999) neighbourLimit = 0;
+    taskLimit = prefs.getInt('taskLimit') ?? 5;
+    if (taskLimit == 9999) taskLimit = 0;
     logined = (prefs.getString('login') ?? '') != '';
     setState(() {});
   }
@@ -100,7 +106,14 @@ class _SettingsDialogState extends State<SettingsDialog>{
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Тема', style: TextStyle(color: AppColors.secondary)),
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Text('Тема', style: TextStyle(color: AppColors.main)),
+                      Chip(text: 'Отключено', color: AppColors.error)
+                    ],
+                  ),
                   IntrinsicWidth(
                     child: DropdownButtonFormField(
                       initialValue: theme,
@@ -123,7 +136,14 @@ class _SettingsDialogState extends State<SettingsDialog>{
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Загрузка соседей', style: TextStyle(color: AppColors.secondary)),
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Text('Загрузка соседей', style: TextStyle(color: AppColors.main)),
+                      Chip(text: 'Отключено', color: AppColors.error)
+                    ],
+                  ),
                   IntrinsicWidth(
                     child: DropdownButtonFormField(
                       initialValue: loadNeighbours,
@@ -149,8 +169,8 @@ class _SettingsDialogState extends State<SettingsDialog>{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 4,
                     children: [
-                      Text('Задержка при вводе', style: TextStyle(color: AppColors.secondary)),
-                      Text('Время ожидания после поиска перед загрузкой абонентов', style: TextStyle(color: Color(0xFF6E7681), fontSize: 12))
+                      Text('Задержка при вводе', style: TextStyle(color: AppColors.main)),
+                      Text('Время ожидания после поиска перед загрузкой абонентов', style: TextStyle(color: AppColors.secondary, fontSize: 12))
                     ]
                   ),
                   SizedBox(
@@ -176,6 +196,88 @@ class _SettingsDialogState extends State<SettingsDialog>{
                       }
                     )
                   )
+                ]
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    spacing: 8,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Text('Лимит на загрузку соседей', style: TextStyle(color: AppColors.main)),
+                          Text('Макс. количество соседей для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                          Text('0 = нет лимита, загружать всех сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                        ]
+                      ),
+                      Tooltip(
+                        message: 'Функция в разработке',
+                        child: Chip(text: 'Preview', color: AppColors.success)
+                      )
+                    ]
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      SizedBox(
+                        width: 200,
+                        child: Slider(
+                          value: neighbourLimit.toDouble(),
+                          onChanged: (value) {
+                            neighbourLimit = value.toInt();
+                            _updateInt('neighbourLimit', neighbourLimit == 0? 9999 : neighbourLimit);
+                          },
+                          min: 0,
+                          max: 100
+                        )
+                      ),
+                      Text(neighbourLimit.toString())
+                    ]
+                  )
+                ]
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    spacing: 8,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Text('Лимит на загрузку заданий', style: TextStyle(color: AppColors.main)),
+                          Text('Макс. количество заданий для загрузки за раз', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                          Text('0 = нет лимита, загружать все сразу (не рекомендуется)', style: TextStyle(color: AppColors.secondary, fontSize: 12)),
+                        ]
+                      ),
+                      Tooltip(
+                        message: 'Функция в разработке',
+                        child: Chip(text: 'Preview', color: AppColors.success)
+                      )
+                    ],
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      SizedBox(
+                        width: 200,
+                        child: Slider(
+                          value: taskLimit.toDouble(),
+                          onChanged: (value) {
+                            taskLimit = value.toInt();
+                            _updateInt('taskLimit', taskLimit == 0? 9999 : taskLimit);
+                          },
+                          min: 0,
+                          max: 30
+                        )
+                      ),
+                      Text(taskLimit.toString())
+                    ]
+                  ),
                 ]
               ),
               ElevatedButton.icon(
