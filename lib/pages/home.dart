@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage> {
   Color? _getDiconnectDateColor(String date) {
     try {
       final parsed = DateTime.parse(date);
-      final difference = DateTime.now().difference(parsed).inDays;
+      final difference = parsed.difference(DateTime.now()).inDays;
       return difference < 3? AppColors.error : difference < 10? AppColors.warning : AppColors.success;
     } catch (e) {
       return AppColors.secondary;
