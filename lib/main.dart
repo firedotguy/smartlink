@@ -406,7 +406,7 @@ class _AppLayoutState extends State<AppLayout> {
                       applicationName: 'SmartLinkViewer',
                       applicationVersion: 'v$version (API 3.0.0-dev.1)', // TODO: get api version from api
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
-                      applicationLegalese: '© 2025 «НеоТелеком»',
+                      applicationLegalese: '© 2026 «НеоТелеком»',
                       children: [
                         const Text('Experimental WASM renderer', style: TextStyle(color: AppColors.warning)),
                         MouseRegion(
