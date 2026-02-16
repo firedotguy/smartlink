@@ -258,6 +258,13 @@ final ThemeData darkTheme = ThemeData(
         return AppColors.secondary;
       }
     })
+  ),
+  sliderTheme: const SliderThemeData(
+    activeTrackColor: AppColors.neo,
+    inactiveTrackColor: AppColors.secondary,
+    disabledActiveTrackColor: AppColors.main,
+    thumbColor: AppColors.neo,
+    padding: EdgeInsets.zero
   )
 );
 
@@ -276,22 +283,17 @@ String formatDate(String? input) {
   if (input == null || input.isEmpty) {
     return '-';
   }
-
   final parts = input.split(' ');
-  if (parts.length < 2) return input;
-
   final dateParts = parts[0].split('-');
   if (dateParts.length < 3) return input;
 
-  final time = parts[1];
-
   final isYearFirst = dateParts[0].length == 4;
-
   final day = isYearFirst ? dateParts[2] : dateParts[0];
   final month = dateParts[1];
   final year = isYearFirst ? dateParts[0].substring(2) : dateParts[2].substring(2);
 
-  return '$day.$month.$year $time';
+  final date = '$day.$month.$year';
+  return parts.length >= 2 ? '$date ${parts[1]}' : date;
 }
 
 Color getTaskStatusColor(int status) {
@@ -402,9 +404,9 @@ class _AppLayoutState extends State<AppLayout> {
                     showAboutDialog(
                       context: context,
                       applicationName: 'SmartLinkViewer',
-                      applicationVersion: 'v$version (API 2.3.0)', // TODO: get api version from api
+                      applicationVersion: 'v$version (API 3.0.0-dev.1)', // TODO: get api version from api
                       applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
-                      applicationLegalese: '© 2025 «НеоТелеком»',
+                      applicationLegalese: '© 2026 «НеоТелеком»',
                       children: [
                         const Text('Experimental WASM renderer', style: TextStyle(color: AppColors.warning)),
                         MouseRegion(

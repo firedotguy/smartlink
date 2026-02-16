@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Chip;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
@@ -20,12 +20,14 @@ class InfoTile extends StatelessWidget {
     required this.title,
     required this.value,
     this.valueColor,
+    this.preview = false,
     // this.underlineColor = AppColors.neo,
     this.onTap,
     super.key
   });
   final String title;
   final String? value;
+  final bool preview;
   // final Color underlineColor;
   final VoidCallback? onTap;
   final Color? valueColor;
@@ -37,7 +39,17 @@ class InfoTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(color: AppColors.secondary)),
+          Row(
+            spacing: 8,
+            children: [
+              Text(title, style: const TextStyle(color: AppColors.secondary)),
+              if (preview)
+              const Tooltip(
+                message: 'Функция в разработке',
+                child: Chip(text: 'Preview', color: AppColors.success)
+              )
+            ],
+          ),
           if (onTap != null)
           Flexible(
             child: MouseRegion(
@@ -170,13 +182,14 @@ class _HomePageState extends State<HomePage> {
   bool customerNotFound = false;
   int searchVersion = 0;
   int debounce = 300;
-  String loadNeighbours = 'onWrong';
 
   // customer
   int? id;
   Map? customer;
 
   // box
+  String loadNeighbours = 'onWrong';
+  int neighbourLimit = 10;
   bool noBox = false;
   Map? box;
   int boxSkip = 0;
@@ -187,6 +200,7 @@ class _HomePageState extends State<HomePage> {
   Map? attachs;
 
   // task
+  int taskLimit = 5;
   List<Map>? tasks;
   int taskSkip = 0;
   bool taskLimited = false;
@@ -224,7 +238,17 @@ class _HomePageState extends State<HomePage> {
     try {
       final parsed = DateTime.parse(lastActivity);
       final difference = DateTime.now().difference(parsed).inMinutes;
-      return difference <= 15 ? AppColors.success : AppColors.error;
+      return difference <= 15? AppColors.success : AppColors.error;
+    } catch (e) {
+      return AppColors.secondary;
+    }
+  }
+
+  Color? _getDiconnectDateColor(String date) {
+    try {
+      final parsed = DateTime.parse(date);
+      final difference = parsed.difference(DateTime.now()).inDays;
+      return difference < 3? AppColors.error : difference < 10? AppColors.warning : AppColors.success;
     } catch (e) {
       return AppColors.secondary;
     }
@@ -258,7 +282,7 @@ class _HomePageState extends State<HomePage> {
 
   Color _getCustomerBorderColor(Map? customer) {
     if (customer != null) {
-      if (customer['status'] == 'Отключен' || _getActivityColor(customer['timestamps']['last_active_at']) == AppColors.error) {
+      if (customer['status'] == 'Отключен' || _getActivityColor(customer['last_active_at']) == AppColors.error) {
         return AppColors.error;
       }
       if (customer['status'] == 'Пауза') {
@@ -275,7 +299,7 @@ class _HomePageState extends State<HomePage> {
         return AppColors.success;
       }
       final allInactive = neighbours.every(
-        (n) => _getActivityColor(n['last_activity']) == AppColors.error
+        (n) => _getActivityColor(n['last_active_at']) == AppColors.error
       );
       return allInactive ? AppColors.error : AppColors.success;
     }
@@ -285,10 +309,10 @@ class _HomePageState extends State<HomePage> {
   Color _getTaskBorderColor(List<Map>? tasks) {
     if (tasks != null){
       for (var task in tasks){
-        if (task['timestamps']['created_at'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
+        if (task['created_at'] == null || task['status']['id'] == 12 || task['status']['id'] == 10){
           continue;
         }
-        final DateTime parsed = DateTime.parse(task['timestamps']['created_at']);
+        final DateTime parsed = DateTime.parse(task['created_at']);
         final int difference = DateTime.now().difference(parsed).inDays;
         if (difference > 2){
           return AppColors.error;
@@ -323,10 +347,10 @@ class _HomePageState extends State<HomePage> {
 
 
   // API calls
-  Future<void> _loadBoxData({bool reload = false}) async {
+  Future<void> _loadBoxData({bool firstLoad = false}) async {
     try{
       l.i('load box data');
-      final boxOld = box?['customers'];
+      final box2 = box;
       setState(() {
         box = null;
         noBox = false;
@@ -338,31 +362,33 @@ class _HomePageState extends State<HomePage> {
         });
         return;
       }
-      box = await getBox(customer!['box_id'], skip: boxSkip, getCount: reload? true : boxOld?.isEmpty ?? true, limit: reload? boxOld?.length : 10);
-      if (box!['status'] == 'fail'){
-        l.w('box not found');
-        setState(() {
-          noBox = true;
-        });
-      }
-      // remove search customer from neighbours
-      box!['customers']?.removeWhere(
-        (n) => n['id'] == customer!['id']
-      );
-      l.d('loaded ${box!['customers'].length + (boxOld?.length ?? 0)}/${boxTotal > box!['customers_count']? boxTotal : box!['customers_count']} neighbours (was ${boxOld?.length ?? 0})');
-      if (boxOld != null) {
-        boxOld.addAll(box!['customers']);
-        box!['customers'] = boxOld;
-      }
-      if (boxOld?.isEmpty ?? true) {
-        boxLimited = box!['customers_limit'];
+      if (firstLoad || box2 == null){
+        box = await getBox(customer!['box_id'], customer!['id'], limit: neighbourLimit);
+        if (box!['status'] == 'fail'){
+          l.w('box not found');
+          setState(() {
+            noBox = true;
+          });
+        }
         boxTotal = box!['customers_count'];
+        boxLimited = boxTotal > neighbourLimit;
+        l.d('loaded ${box!['customers'].length}/$boxTotal neighbours (was 0)');
+        // not update boxSkip because getBox gives skipped remaining customer ids
       } else {
-        boxLimited = boxTotal > 5 + boxSkip;
+        final Map<String, dynamic> neighbours = await getCustomers(List<int>.from(box2['remaining_customer_ids']), limit: neighbourLimit, skip: boxSkip);
+        if (neighbours['status'] == 'fail'){
+          l.w('fail to load neighbours');
+          if (mounted){
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ошибка загрузки соседей', style: TextStyle(color: AppColors.error))));
+          }
+        }
+        l.d('loaded ${box2['customers'].length + neighbours['data'].length}/$boxTotal neighbours (was ${box2['customers'].length})');
+        box2['customers'].addAll(neighbours['data']);
+        box = box2;
+        boxLimited = boxTotal > box2['customers'].length;
+        boxSkip += neighbourLimit;
       }
-      if (!reload) {
-        boxSkip += 10; // TODO: check #45
-      }
+
       setState(() {
         load = false;
       });
@@ -384,8 +410,8 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         tasks = null;
       });
-      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, getCount: tasksOld?.isEmpty ?? true);
-      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${taskTotal > tasksRes[2]? taskTotal : tasksRes[2]} tasks (was ${tasksOld?.length ?? 0})');
+      final tasksRes = await getCustomerTasks(customer!['id'], skip: taskSkip, limit: taskLimit, getCount: tasksOld?.isEmpty ?? true);
+      l.d('loaded ${tasksRes[0].length + (tasksOld?.length ?? 0)}/${tasksRes[2] ?? taskTotal} tasks (was ${tasksOld?.length ?? 0})');
       if (tasksOld != null) {
         tasksOld.addAll(tasksRes[0]);
         tasks = tasksOld;
@@ -396,9 +422,9 @@ class _HomePageState extends State<HomePage> {
         taskLimited = tasksRes[1];
         taskTotal = tasksRes[2];
       } else {
-        taskLimited = taskTotal > 5 + taskSkip;
+        taskLimited = taskTotal > tasks!.length;
       }
-      taskSkip += 5; // TODO: check #45
+      taskSkip += taskLimit;
       setState(() {});
     } catch (e) {
       l.e('error loading tasks: $e');
@@ -459,7 +485,7 @@ class _HomePageState extends State<HomePage> {
           });
           if (loadAll){
             _loadTasksData();
-            _loadBoxData();
+            _loadBoxData(firstLoad: true);
             _loadInventoryData();
           }
         });
@@ -558,6 +584,9 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     debounce = prefs.getInt('debounce') ?? 300;
     loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
+    neighbourLimit = prefs.getInt('neighbourLimit') ?? 10;
+    taskLimit = prefs.getInt('taskLimit') ?? 5;
+
     id = prefs.getInt('userId');
     if (id == null){
       l.w('user id not found');
@@ -798,7 +827,7 @@ class _HomePageState extends State<HomePage> {
                           Tooltip(
                             message: 'Обновить данные',
                             child: IconButton(
-                              onPressed: box != null? () => _loadBoxData(reload: true) : null,
+                              onPressed: box != null? () => _loadBoxData(firstLoad: true) : null,
                               icon: Icon(Icons.refresh, size: 18, color: box == null? AppColors.secondary : AppColors.neo)
                             )
                           )
@@ -823,7 +852,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               InfoTile(
                                 title: 'Открытые задания',
-                                value: box?['tasks']?.length.toString() ?? '-',
+                                value: box?['tasks']?.length.toString() ?? '0',
                                 valueColor: box?['tasks'] == null? AppColors.main :
                                   box!['tasks'].length == 0? AppColors.success : AppColors.error,
                                 onTap: box?['tasks'] == null? null : box!['tasks'].length == 0? null : (){
@@ -887,7 +916,7 @@ class _HomePageState extends State<HomePage> {
                                           Expanded(
                                             flex: 4,
                                             child: Text(
-                                              neighbour['tasks']?.length.toString() ?? '-',
+                                              neighbour['tasks']?.length.toString() ?? '0',
                                               textAlign: TextAlign.center,
                                               style: const TextStyle(color: AppColors.success)
                                             )
@@ -908,7 +937,7 @@ class _HomePageState extends State<HomePage> {
                                                     }
                                                   },
                                                   child: Text(
-                                                    neighbour['tasks']?.length.toString() ?? '-',
+                                                    neighbour['tasks']?.length.toString() ?? '0',
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(color: AppColors.error)
                                                   )
@@ -918,8 +947,8 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           Expanded(
                                             flex: 7,
-                                            child: Text(formatDate(neighbour['last_activity']), textAlign: TextAlign.center,
-                                              style: TextStyle(color: _getActivityColor(neighbour['last_activity']), fontSize: 13)
+                                            child: Text(formatDate(neighbour['last_active_at']), textAlign: TextAlign.center,
+                                              style: TextStyle(color: _getActivityColor(neighbour['last_active_at']), fontSize: 13)
                                             )
                                           ),
                                           Expanded(
@@ -1072,7 +1101,7 @@ class _HomePageState extends State<HomePage> {
                               ]
                             ),
 
-                            if (_getActivityColor(customer!['timestamps']['last_active_at']) == AppColors.error)
+                            if (_getActivityColor(customer!['last_active_at']) == AppColors.error)
                             const Row(
                               spacing: 5,
                               children: [
@@ -1107,15 +1136,30 @@ class _HomePageState extends State<HomePage> {
                               value: customer!['status'],
                               valueColor: _getStatusColor(customer!['status'] ?? '-')
                             ),
+                            // InfoTile(
+                            //   title: 'Дата создания',
+                            //   value: formatDate(customer!['created_at']),
+                            //   valueColor: AppColors.main
+                            // ),
+                            InfoTile(
+                              title: 'Дата подключения',
+                              value: formatDate(customer!['connected_at']),
+                              valueColor: AppColors.main
+                            ),
                             InfoTile(
                               title: 'Группа',
                               value: customer!['group']?['name']
                             ),
                             InfoTile(
                               title: 'Последняя активность',
-                              value: formatDate(customer!['timestamps']['last_active_at']),
-                              valueColor: _getActivityColor(customer!['timestamps']['last_active_at'] ?? '-')
+                              value: formatDate(customer!['last_active_at']),
+                              valueColor: _getActivityColor(customer!['last_active_at'] ?? '-')
                             ),
+                            // InfoTile(
+                            //   title: 'Последняя INET активность',
+                            //   value: formatDate(customer!['last_inet_active_at']),
+                            //   valueColor: _getActivityColor(customer!['last_inet_active_at'] ?? '-')
+                            // ),
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             //   children: [
@@ -1157,6 +1201,14 @@ class _HomePageState extends State<HomePage> {
                                   )
                                 )
                               ]
+                            ),
+                            const SizedBox(height: 5),
+                            if (customer!['will_disconnect_at'] != null)
+                            InfoTile(
+                              title: 'Плановая дата отключения',
+                              value: formatDate(customer!['will_disconnect_at']),
+                              preview: true,
+                              valueColor: _getDiconnectDateColor(customer!['will_disconnect_at'])
                             ),
                             const SizedBox(height: 5),
                             const Row(
@@ -1350,8 +1402,8 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               Expanded(
                                                 flex: 6,
-                                                child: Text(formatDate(task['timestamps']['created_at']), softWrap: true, textAlign: TextAlign.center,
-                                                  style: TextStyle(color: _getTaskDateColor(task['timestamps']['created_at'], task['status']['id']), fontSize: 13) //
+                                                child: Text(formatDate(task['created_at']), softWrap: true, textAlign: TextAlign.center,
+                                                  style: TextStyle(color: _getTaskDateColor(task['created_at'], task['status']['id']), fontSize: 13) //
                                                 )
                                               ),
                                               Expanded(
