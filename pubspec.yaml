@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.4.0
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
   url_launcher: ^6.3.2
   logger: ^2.6.1
   mask_text_input_formatter: ^2.9.0
