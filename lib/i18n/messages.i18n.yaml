@@ -1,0 +1,305 @@
+# Строки интерфейса SmartLinkViewer.
+#
+# Файл читается пакетом i18n и превращается в lib/i18n/messages.i18n.dart:
+#     dart run build_runner build --delete-conflicting-outputs
+#
+# Переводы на другие языки добавляются соседними файлами messages_<code>.i18n.yaml
+# (messages_en.i18n.yaml, messages_ky.i18n.yaml и т.д.).
+
+app:
+    title: SmartLink
+    name: SmartLinkViewer
+    legalese: "© 2026 «НеоТелеком»"
+    renderer_warning: Experimental WASM renderer
+    source_code: View source code
+    api_source_code: View API source code
+    version(String version, String api): "v$version (API $api)"
+    version_badge(String version): "SmartLinkViewer v$version [γ]"
+    settings_tooltip: Настройки
+
+common:
+    empty: "-"
+    ok: Ок
+    cancel: Отмена
+    close: Закрыть
+    close_dialog: Закрыть диалог
+    create: Создать
+    refresh: Обновить данные
+    open_in_userside: Открыть в UserSide
+    copy_userside_link: Скопировать ссылку в UserSide
+    link_copied: Ссылка скопирована
+    preview: Preview
+    preview_tooltip: Функция в разработке
+    som(String amount): "$amount сом"
+    link_not_clickable: "Ошибка открытия ссылки: Ссылка некликабельна"
+
+status:
+    active: Активен
+    paused: Пауза
+    inactive: Отключен
+    enabled: Включен
+    disabled: Выключен
+    online: Онлайн
+    offline: Оффлайн
+    online_badge: ONLINE
+    offline_badge: OFFLINE
+
+login:
+    title: Авторизация
+    username: Логин
+    password: Пароль
+    submit: Войти
+    success: Успешная авторизация
+    wrong_credentials: "Ошибка авторизации: неверный логин или пароль"
+    error: Ошибка авторизации
+
+home:
+    search_hint: ФИО, ЛС, SN или телефон абонента
+    no_results: Нет результатов
+    customer_not_selected: Абонент не выбран
+    customers_error: Ошибка получения абонентов
+    user_id_missing: "Ошибка: USER ID не найден"
+    customer_error(String error): "Ошибка получения данных абонента: $error"
+    building_error(String error): "Ошибка получения данных коробки: $error"
+    tasks_error(String error): "Ошибка получения данных задания: $error"
+    items_error(String error): "Ошибка получения данных оборудования: $error"
+    wait_customer: Дождитесь загрузки абонента
+    customer_not_loaded: Абонент не загружен
+    no_sn: У абонента нет ТМЦ с SN
+    no_olt: OLT не найден
+
+building:
+    title: Коробка
+    not_found: Коробка не найдена
+    name: Название
+    type: Тип
+    coordinates: Координаты
+    install_type: Тип установки
+    build_status: Статус строительства
+    open_tasks: Открытые задания
+    new_task_tooltip: Создать задание (Магистральный ремонт)
+    show_on_map: Показать на карте
+    open_tooltip: Открыть коробку в UserSide
+    copy_tooltip: Копировать ссылку на коробку в UserSide
+    type_multiflat: Многоквартирный дом
+    type_private: Частный дом
+    type_office: Офисное здание
+    type_new: Новостройки
+    type_ravshan: Равшан
+    neighbours: Соседи
+    no_neighbours: У абонента нет соседей
+    column_agreement: ЛС
+    column_name: Имя
+    column_activity: Активность
+    column_status: Статус
+    column_rx: rx
+
+customer:
+    title: Абонент
+    ont_tooltip: Открыть данные по ONT
+    attachs_tooltip: Открыть вложения абонента и его заданий
+    new_task_tooltip: Создать задание (Выезд на ремонт)
+    open_tooltip: Открыть абонента в UserSide
+    copy_tooltip: Копировать ссылку на абонента в UserSide
+    is_potential: Потенциальный абонент
+    is_corporate: Юридическое лицо
+    no_billing: Нет в биллинге
+    not_switched: Абонент не коммутирован
+    is_inactive: Абонент отключен
+    is_paused: Абонент на паузе
+    last_activity_warning(String when): "Последняя активность $when"
+    building_problems: Проблемы в коробке
+    name: ФИО
+    agreement: Лицевой счёт
+    balance: Баланс
+    status: Статус
+    connected_at: Дата подключения
+    group: Группа
+    last_activity: Последняя активность
+    phone: Номер телефона
+    phones: Номера телефонов
+    tariff: Тариф
+    tariffs: Тарифы
+    will_disconnect_at: Плановая дата отключения
+    geodata: Геоданные
+    address: Адрес
+    open_in_2gis: Открыть в 2GIS
+    map_neotelecom: Открыть на карте Neotelecom
+    map_2gis: Открыть на карте 2GIS
+    coordinates: Координаты
+    entrance: Подъезд
+    floor: Этаж
+    apartment: Квартира
+
+tasksCard:
+    title: Задания абонента
+    empty: У абонента нет заданий
+    column_id: ID
+    column_type: Тип задания
+    column_created: Дата создания
+    column_status: Статус
+
+items:
+    title: Оборудование
+    empty: У абонента нет оборудования
+    column_name: Название
+    column_type: Тип
+    column_sn: SN
+    column_amount: Количество
+    type_cable: Кабель
+    type_olt: OLT
+    type_edfa: EDFA
+    type_ont: ONT
+    type_clamp: Зажим
+    type_commutator: Коммутатор
+    type_coupling: Муфта
+    type_odf: ODF
+    type_patchcord: Патчкорд
+    type_other: Прочее
+    type_junction: Распред. коробка
+    type_router: Роутер
+    type_splitter: Разделитель
+    type_smart_home: Умный дом
+    type_cisco: Cisco
+    type_cambium: Cambium
+
+ont:
+    title: ONT / OLT
+    section_olt: OLT
+    section_ont: ONT
+    section_catv: CATV
+    section_eth: ETH/LAN
+    restart: Перезагрузить ONT
+    rewrite_sn: Перезаписать SN
+    rewrite_mac: Перезаписать MAC
+    load_error(String error): "Ошибка получения данных ONT: $error"
+    restart_error(String error): "Ошибка перезапуска ONT: $error"
+    restart_failed: Ошибка перезапуска ONT
+    restarted: ONT перезапущен
+    rewrite_sn_error(String error): "Ошибка перезаписи SN: $error"
+    rewrite_sn_failed: Ошибка перезаписи SN
+    sn_rewritten: SN перезаписан
+    rewrite_mac_error(String error): "Ошибка перезаписи MAC: $error"
+    rewrite_mac_failed: Ошибка перезаписи MAC
+    mac_rewritten: MAC перезаписан
+    olt_name: Имя
+    olt_location: Локация
+    sn: SN
+    ip: IP
+    uptime: Аптайм
+    distance: Дистанция
+    last_up: Последнее включение
+    last_down: Последнее отключение
+    last_down_cause: Причина отключения
+    ping: Пинг
+    rx: RX (dBm)
+    tx: TX (dBm)
+    temperature: Температура
+    kilometers: км
+    no_catv_ports: Нет CATV портов
+    no_eth_ports: Нет ETH портов
+    port(String id): "Порт $id"
+    port_broken: Не работает
+    port_shutdown: Отключен
+    port_speed(String speed, String duplex): "$speed МБит/c - $duplex"
+    port_tooltip(String state, String actual): "Состояние: $state\nСтатус: $actual"
+    relative_date(String relative, String absolute): "$relative ($absolute)"
+
+catv:
+    enable_title: Включение CATV
+    disable_title: Выключение CATV
+    enable_confirm: Вы уверены что хотите включить CATV?
+    disable_confirm: Вы уверены что хотите выключить CATV?
+    toggle_tooltip: Переключить состояние
+    port_state: Состояние порта
+    sn: SN
+    olt_id: OLT ID
+    catv_id: CATV ID
+    customer_inactive: "Невозможно включить CATV: Абонент неактивный."
+    enable: Включить
+    disable: Выключить
+    toggled: CATV успешно переключен
+    toggle_error(String error): "Ошибка переключения CATV: $error"
+    toggle_failed: Ошибка переключения CATV
+
+task:
+    title: Задание
+    copy_tooltip: Скопировать ссылку на задание в UserSide
+    load_error(String error): "Ошибка загрузки задания: $error"
+    comment_error(String error): "Ошибка отправки комментария: $error"
+    section_main: Основные данные
+    section_comments: Комментарии
+    type: Тип
+    status: Статус
+    address: Адрес
+    author: Автор задания
+    employees: Назначенные сотрудники
+    divisions: Назначенные бригады
+    appeal_reason: Причина
+    solve: Решение
+    appeal_phone: Телефон обратившегося
+    appeal_type: Тип обращения
+    price: Стоимость работ
+    tariff: Тариф
+    coordinates: Координаты
+    connect_type: Тип подключения
+    created_at: Дата создания
+    updated_at: Дата обновления
+    planned_to: Плановая дата выполнения
+    completed_at: Дата выполнения
+    no_comments: Комментариев нет
+    comment_hint: Написать комментарий...
+    send: Отправить
+    just_now: только что
+
+tasks:
+    title: Задания
+    empty: Нет заданий
+    id(String id): "ID: $id"
+    created(String date): "Создано: $date"
+    completed(String date): "Выполнено: $date"
+    author(String name): "Автор: $name"
+
+newTask:
+    title: Создать задание
+    tab_repair: Ремонт
+    tab_building: Магистральный ремонт
+    load_error: Ошибка загрузки данных
+    no_author: "Ошибка при создании задания: ID автора не найден. Пожалуйста, авторизуйтесь"
+    created: Задание создано
+    create_error: Ошибка при создании задания
+    type: Тип задания
+    type_repair: Выезд на ремонт
+    type_uninstall: Демонтаж оборудование
+    type_inactive: Выезд к неактивным абонентам
+    type_ravshan: Выезд на ремонт (Равшан)
+    type_building_repair: Магистраль выезд на ремонт
+    type_building_mount: Магистраль-демонтаж/монтаж
+    phone: Номер телефона обратившегося
+    phone_hint: Введите номер телефона
+    phone_choose: или выберите из следующих
+    reason: Причина обращения
+    appeal_type: Тип обращения
+    description: Описание
+    description_hint: Введите описание (необязательно)
+    executors: Исполнители
+    no_building: Коробка не найдена
+    no_building_hint: Если коробка существует, дождитесь загрузки данных и переоткройте диалог
+    default_status: Не выполнено
+
+settings:
+    title: Настройки
+    theme: Тема
+    language: Язык
+    disabled: Отключено
+    language_ru: Русский
+    language_ky: Кыргызский
+    language_uz: Узбекский
+    language_en: Английский
+    debounce: Задержка при вводе
+    debounce_hint: Время ожидания после поиска перед загрузкой абонентов
+    debounce_unit: мс
+    debounce_error: Неправильное значение
+    log_out: Выйти из аккаунта
+    logged_out: Вы вышли из аккаунта
+    reload_required: Для применения изменений перезагрузите страницу

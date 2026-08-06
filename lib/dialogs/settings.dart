@@ -1,100 +1,98 @@
-import 'package:flutter/material.dart' hide Chip;
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smartlink/main.dart';
+import 'package:smartlink/i18n.dart';
 import 'package:smartlink/pages/login.dart';
+import 'package:smartlink/theme.dart';
+import 'package:smartlink/utils.dart';
+import 'package:smartlink/widgets/app_chip.dart';
+import 'package:smartlink/widgets/app_layout.dart';
+import 'package:smartlink/widgets/info_tile.dart';
 
-/// A modal settings dialog that allows users to configure SmartLink Viewer behavior.
+/// Диалог настроек SmartLink Viewer.
 ///
-/// This dialog is typically shown when the user taps the "⚙️" button located
-/// in the top-right corner of the app interface. It supports configuration options such as:
+/// Открывается по кнопке «⚙️» в правом верхнем углу. Поддерживает:
 ///
-/// - Debounce delay for API calls
-/// - Theme (dark/light/system - planned)
-/// - Auto-load neighbors behavior
-/// - Changelog
-///
-/// The dialog is implemented as a stateful widget to allow live updating of settings.
-class SettingsDialog extends StatefulWidget{
-    /// Creates a new instance of the settings dialog.
-    ///
-    /// All state is handled internally, and no parameters are required.
+/// - задержку перед поиском абонентов;
+/// - тему оформления (в разработке);
+/// - язык интерфейса (в разработке);
+/// - выход из аккаунта.
+class SettingsDialog extends StatefulWidget {
     const SettingsDialog({super.key});
 
     @override
-    State<StatefulWidget> createState() => _SettingsDialogState();
+    State<SettingsDialog> createState() => _SettingsDialogState();
 }
 
-class _SettingsDialogState extends State<SettingsDialog>{
+class _SettingsDialogState extends State<SettingsDialog> {
     String theme = 'smartlink-dark';
     int debounce = 300;
-    String loadNeighbours = 'onWrong';
-    int neighbourLimit = 10;
-    int taskLimit = 5;
     bool logined = false;
 
-    TextEditingController debounceController = TextEditingController(text: '0');
-    bool debounceError = false;
+    final TextEditingController debounce_controller = TextEditingController(text: '0');
+    bool debounce_error = false;
     bool changed = false;
-
-    void _getSettings() async {
-        l.i('get settings');
-        final prefs = await SharedPreferences.getInstance();
-        l.i('available keys: ${prefs.getKeys()}');
-        // theme = prefs.getString('theme') ?? 'smartlink-dark';
-        debounce = prefs.getInt('debounce') ?? 300;
-        debounceController.text = debounce.toString();
-        loadNeighbours = prefs.getString('loadNeighbours') ?? 'onWrong';
-        neighbourLimit = prefs.getInt('neighbourLimit') ?? 10;
-        if (neighbourLimit == 9999) neighbourLimit = 0;
-        taskLimit = prefs.getInt('taskLimit') ?? 5;
-        if (taskLimit == 9999) taskLimit = 0;
-        logined = (prefs.getString('login') ?? '') != '';
-        setState(() {});
-    }
-
-    // void _updateBool(String key, bool value) async {
-    //     setState(() {
-    //         changed = true;
-    //     });
-    //     l.i('update bool setting $key to $value');
-    //     final prefs = await SharedPreferences.getInstance();
-    //     await prefs.setBool(key, value);
-    // }
-
-    void _updateInt(String key, int value) async {
-        setState(() {
-            changed = true;
-        });
-        l.i('update int setting $key to $value');
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt(key, value);
-    }
-
-    // void _updateString(String key, String value) async {
-    //     setState(() {
-    //         changed = true;
-    //     });
-    //     l.i('update string setting $key to $value');
-    //     final prefs = await SharedPreferences.getInstance();
-    //     await prefs.setString(key, value);
-    // }
-
-    void _logOut() async {
-        l.i('logging out');
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('login', '');
-    }
 
     @override
     void initState() {
         super.initState();
-        _getSettings();
+        _load();
     }
+
+    @override
+    void dispose() {
+        debounce_controller.dispose();
+        super.dispose();
+    }
+
+    Future<void> _load() async {
+        l.i('get settings');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        l.i('available keys: ${prefs.getKeys()}');
+
+        debounce = prefs.getInt('debounce') ?? 300;
+        debounce_controller.text = debounce.toString();
+        logined = (prefs.getString('login') ?? '') != '';
+        setState(() {});
+    }
+
+    Future<void> _update_int(String key, int value) async {
+        setState(() {
+            changed = true;
+        });
+        l.i('update int setting $key to $value');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt(key, value);
+    }
+
+    Future<void> _log_out() async {
+        l.i('logging out');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('login', '');
+    }
+
+    void _on_debounce_changed(String value) {
+        final int? parsed = int.tryParse(value);
+
+        if (parsed == null){
+            setState(() {
+                debounce_error = true;
+            });
+            return;
+        }
+
+        setState(() {
+            debounce_error = false;
+            debounce = parsed;
+        });
+        _update_int('debounce', parsed);
+    }
+
+    Widget _disabled_badge() => AppChip(text: t.settings.disabled, color: AppColors.error);
 
     @override
     Widget build(BuildContext context) {
         return AlertDialog(
-            title: const Text('Настройки'),
+            title: Text(t.settings.title),
             content: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 600),
                 child: SelectionArea(
@@ -102,165 +100,92 @@ class _SettingsDialogState extends State<SettingsDialog>{
                         mainAxisSize: MainAxisSize.min,
                         spacing: 10,
                         children: [
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                    const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        spacing: 8,
-                                        children: [
-                                            Text('Тема', style: TextStyle(color: AppColors.main)),
-                                            Chip(text: 'Отключено', color: AppColors.error)
+                            InfoTile(
+                                title: t.settings.theme,
+                                badge: _disabled_badge(),
+                                child: IntrinsicWidth(
+                                    child: DropdownButtonFormField<String>(
+                                        initialValue: theme,
+                                        items: const [
+                                            DropdownMenuItem(value: 'smartlink-dark', child: Text('SmartLink (dark)')),
+                                            DropdownMenuItem(value: 'smartlink-light', child: Text('SmartLink (light)', style: TextStyle(color: Color(0xFF121212), backgroundColor: Color(0xFFD1D5DC)))),
+                                            DropdownMenuItem(value: 'smartlink-dark-high', child: Text('SmartLink (dark) high-contrast', style: TextStyle(color: Colors.white, backgroundColor: Colors.black))),
+                                            DropdownMenuItem(value: 'smartlink-green', child: Text('SmartLink (green)', style: TextStyle(backgroundColor: Color(0xFF162515), color: Colors.white))),
+                                            DropdownMenuItem(value: 'smartlink-red', child: Text('SmartLink (red)', style: TextStyle(backgroundColor: Color(0xFF251515), color: Colors.white))),
+                                            DropdownMenuItem(value: 'userside', child: Text('UserSide', style: TextStyle(color: Colors.black, backgroundColor: Colors.white))),
+                                            DropdownMenuItem(value: 'ember-dark', child: Text('Ember', style: TextStyle(color: Color(0xFFFBEADB), backgroundColor: Color(0xFF1E1C1A)))),
+                                            DropdownMenuItem(value: 'dracula', child: Text('Dracula', style: TextStyle(color: Color(0xFFE3E2E9), backgroundColor: Color(0xFF0E0D11)))),
+                                            DropdownMenuItem(value: 'monokai', child: Text('Monokai', style: TextStyle(color: Color(0xFFFCFCFA), backgroundColor: Color(0xFF221F22))))
                                         ],
-                                    ),
-                                    IntrinsicWidth(
-                                        child: DropdownButtonFormField(
-                                            initialValue: theme,
-                                            items: const [
-                                                DropdownMenuItem(value: 'smartlink-dark', child: Text('SmartLink (dark)')),
-                                                DropdownMenuItem(value: 'smartlink-light', child: Text('SmartLink (light)', style: TextStyle(color: Color(0xFF121212), backgroundColor: Color(0xFFD1D5DC)))),
-                                                DropdownMenuItem(value: 'smartlink-dark-high', child: Text('SmartLink (dark) high-contrast', style: TextStyle(color: Colors.white, backgroundColor: Colors.black))),
-                                                DropdownMenuItem(value: 'smartlink-green', child: Text('SmartLink (green)', style: TextStyle(backgroundColor: Color(0xFF162515), color: Colors.white))),
-                                                DropdownMenuItem(value: 'smartlink-red', child: Text('SmartLink (red)', style: TextStyle(backgroundColor: Color(0xFF251515), color: Colors.white))),
-                                                DropdownMenuItem(value: 'userside', child: Text('UserSide', style: TextStyle(color: Colors.black, backgroundColor: Colors.white))),
-                                                DropdownMenuItem(value: 'ember-dark', child: Text('Ember', style: TextStyle(color: Color(0xFFFBEADB), backgroundColor: Color(0xFF1E1C1A)))),
-                                                DropdownMenuItem(value: 'dracula', child: Text('Dracula', style: TextStyle(color: Color(0xFFE3E2E9), backgroundColor: Color(0xFF0E0D11)))),
-                                                DropdownMenuItem(value: 'monokai', child: Text('Monokai', style: TextStyle(color: Color(0xFFFCFCFA), backgroundColor: Color(0xFF221F22))))
-                                            ],
-                                            onChanged: null //(v) {}
-                                        )
+                                        onChanged: null
                                     )
-                                ]
+                                )
                             ),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                    const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        spacing: 8,
-                                        children: [
-                                            Text('Язык', style: TextStyle(color: AppColors.main)),
-                                            Chip(text: 'Отключено', color: AppColors.error)
+                            InfoTile(
+                                title: t.settings.language,
+                                badge: _disabled_badge(),
+                                child: IntrinsicWidth(
+                                    child: DropdownButtonFormField<String>(
+                                        initialValue: 'ru',
+                                        items: [
+                                            DropdownMenuItem(value: 'ru', child: Text(t.settings.language_ru)),
+                                            DropdownMenuItem(value: 'ky', child: Text(t.settings.language_ky)),
+                                            DropdownMenuItem(value: 'uz', child: Text(t.settings.language_uz)),
+                                            DropdownMenuItem(value: 'en', child: Text(t.settings.language_en))
                                         ],
-                                    ),
-                                    IntrinsicWidth(
-                                        child: DropdownButtonFormField(
-                                            initialValue: 'ru',
-                                            items: const [
-                                                DropdownMenuItem(value: 'ru', child: Text('Русский')),
-                                                DropdownMenuItem(value: 'kg', child: Text('Кыргызский')),
-                                                DropdownMenuItem(value: 'uz', child: Text('Узбекский')),
-                                                DropdownMenuItem(value: 'en', child: Text('Английский'))
-                                            ],
-                                            onChanged: null //(v) {}
-                                        )
+                                        onChanged: null
                                     )
-                                ]
+                                )
                             ),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                    const Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        spacing: 4,
-                                        children: [
-                                            Text('Задержка при вводе', style: TextStyle(color: AppColors.main)),
-                                            Text('Время ожидания после поиска перед загрузкой абонентов', style: TextStyle(color: AppColors.secondary, fontSize: 12))
-                                        ]
-                                    ),
-                                    SizedBox(
-                                        width: 120,
-                                        child: TextField(
-                                            controller: debounceController,
-                                            decoration: InputDecoration(
-                                                hintText: 'мс',
-                                                errorText: debounceError? 'Неправильное значение' : null
-                                            ),
-                                            onChanged: (v){
-                                                if (int.tryParse(v) == null){
-                                                    setState(() {
-                                                        debounceError = true;
-                                                    });
-                                                } else {
-                                                    setState(() {
-                                                        debounceError = false;
-                                                        debounce = int.parse(v);
-                                                    });
-                                                    _updateInt('debounce', int.parse(v));
-                                                }
-                                            }
-                                        )
+                            InfoTile(
+                                title: t.settings.debounce,
+                                hint: t.settings.debounce_hint,
+                                child: SizedBox(
+                                    width: 120,
+                                    child: TextField(
+                                        controller: debounce_controller,
+                                        decoration: InputDecoration(
+                                            hintText: t.settings.debounce_unit,
+                                            errorText: debounce_error? t.settings.debounce_error : null
+                                        ),
+                                        onChanged: _on_debounce_changed
                                     )
-                                ]
+                                )
                             ),
                             ElevatedButton.icon(
-                                onPressed: logined? (){
-                                    _logOut();
-                                    Navigator.pop(context);
-                                    l.i('push to sign page, reason: sign out');
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: LoginPage())));
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                        content: Text('Вы вышли из аккаунта', style: TextStyle(color: AppColors.success))
-                                    ));
-                                } : null,
-                                label: const Text('Выйти из аккаунта'),
+                                onPressed: logined? _on_log_out : null,
+                                label: Text(t.settings.log_out),
                                 icon: const Icon(Icons.logout)
                             ),
-                            if (changed)
-                            const SizedBox(height: 10),
-                            if (changed)
-                            const Text('Для применения изменений перезагрузите страницу', style: TextStyle(color: AppColors.warning)),
-                            const SizedBox(height: 15),
-                            // const Divider(),
-                            // const Align(
-                            //     alignment: Alignment.topLeft,
-                            //     child: Text('Developer mode', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
-                            // ),
-                            // ElevatedButton(
-                            //     onPressed: (){
-                            //         Navigator.pop(context);
-                            //         l.i('push to sign page, reason: manual pushing');
-                            //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: SignPage())));
-                            //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            //             content: Text('Перевод на SignPage', style: TextStyle(color: AppColors.success))
-                            //         ));
-                            //     },
-                            //     child: const Text('Перейти на страницу входа')
-                            // ),
-                            // ElevatedButton(
-                            //     onPressed: (){
-                            //         Navigator.pop(context);
-                            //         l.i('push to home page, manual pushing');
-                            //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage())));
-                            //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            //             content: Text('Перевод на HomePage', style: TextStyle(color: AppColors.success))
-                            //         ));
-                            //     },
-                            //     child: const Text('Перейти на домашюю страницу')
-                            // ),
-                            // ElevatedButton(
-                            //     onPressed: (){
-                            //         Navigator.pop(context);
-                            //         l.i('push to home page, reason: manual pushing');
-                            //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AppLayout(child: HomePage(customerId: 42025))));
-                            //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            //             content: Text('Перевод на HomePage with search', style: TextStyle(color: AppColors.success))
-                            //         ));
-                            //     },
-                            //     child: const Text('Перейти на домашнюю страницу с абонентом')
-                            // )
+
+                            if (changed) ...[
+                                const SizedBox(height: 10),
+                                Text(t.settings.reload_required, style: const TextStyle(color: AppColors.warning))
+                            ],
+                            const SizedBox(height: 15)
                         ]
-                    ),
+                    )
                 )
             ),
             actions: [
                 ElevatedButton(
-                    onPressed: (){
-                        Navigator.pop(context);
-                    },
-                    child: const Text('Ок')
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(t.common.ok)
                 )
             ]
         );
+    }
+
+    void _on_log_out() async {
+        await _log_out();
+        if (!mounted) return;
+
+        Navigator.pop(context);
+        l.i('push to login page, reason: sign out');
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AppLayout(child: LoginPage()))
+        );
+        show_success(context, t.settings.logged_out);
     }
 }

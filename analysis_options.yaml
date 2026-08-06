@@ -1,10 +1,14 @@
 include: package:flutter_lints/flutter.yaml
 
 
-# analyzer:
-#   language:
-#     strict-casts: true
-#     strict-raw-types: true
+analyzer:
+  exclude:
+    # сгенерированный build_runner код
+    - "**/*.i18n.dart"
+
+  # language:
+  #   strict-casts: true
+  #   strict-raw-types: true
 
 
 
@@ -34,3 +38,8 @@ linter:
     # Flutter specific
     avoid_unnecessary_containers: true
     sized_box_for_whitespace: true           # Показывает где лучше SizedBox, чем Container
+
+    # В проекте принят snake_case для переменных, полей и функций,
+    # поэтому дартовское правило lowerCamelCase отключено намеренно.
+    non_constant_identifier_names: false
+    constant_identifier_names: false
