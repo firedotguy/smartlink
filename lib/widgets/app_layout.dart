@@ -26,14 +26,23 @@ class _AppLayoutState extends State<AppLayout> {
     String version = 'unknown';
     String api_version = 'unknown';
     bool is_dev = false;
-    bool is_stable = false;
+    bool is_stable = true;
+    bool connection = true;
 
     void _get_version() async {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         final PackageInfo info = await PackageInfo.fromPlatform();
         version = info.version;
+        late Map platform;
 
-        final Map platform = await get_platform();
+        try{
+            platform = await get_platform();
+        } catch (e) {
+            l.e('no connection');
+            connection = false;
+            setState(() {});
+            return;
+        }
         api_version = platform['version'];
         is_dev = platform['dev'];
         is_stable = platform['stable'];
@@ -105,7 +114,7 @@ class _AppLayoutState extends State<AppLayout> {
             applicationLegalese: t.app.legalese,
             children: [
                 if (const bool.fromEnvironment('dart.tool.dart2wasm'))
-                Text(t.app.renderer_warning, style: const TextStyle(color: AppColors.neo)),
+                Text(t.app.renderer_warning, style: const TextStyle(color: AppColors.success)),
                 _link(t.app.source_code, repo_url),
                 _link(t.app.api_source_code, api_repo_url)
             ]
@@ -143,7 +152,7 @@ class _AppLayoutState extends State<AppLayout> {
                     children: [
                         Column(
                             children: [
-                                if (is_dev || !is_stable)
+                                if (is_dev || !is_stable || !connection)
                                 SizedBox(
                                     height: 40,
                                     width: MediaQuery.of(context).size.width,
@@ -151,18 +160,18 @@ class _AppLayoutState extends State<AppLayout> {
                                         alignment: Alignment.center,
                                         children: [
                                             Container(
-                                                foregroundDecoration: const BoxDecoration(
+                                                foregroundDecoration: BoxDecoration(
                                                     gradient: LinearGradient(
-                                                        begin: Alignment(-0.05, -0.05),
-                                                        end: Alignment(0.05, 0.05),
-                                                        colors: [AppColors.warning, AppColors.warning, Color(0xFF9b8119), Color(0xFF9b8119)],
-                                                        stops: [0, 0.5, 0.5, 1],
+                                                        begin: const Alignment(-0.05, -0.05),
+                                                        end: const Alignment(0.05, 0.05),
+                                                        colors: !connection? [AppColors.error, AppColors.error, const Color(0xFFa23d33), const Color(0xFFa23d33)] : [AppColors.warning, AppColors.warning, const Color(0xFF9b8119), const Color(0xFF9b8119)],
+                                                        stops: const [0, 0.5, 0.5, 1],
                                                         tileMode: TileMode.repeated,
-                                                        transform: GradientRotation(0.7853982)
+                                                        transform: const GradientRotation(0.7853982)
                                                     )
                                                 ),
                                             ),
-                                            Text(is_dev? 'Технические работы. Часть функционала может не работать.' : 'Нестабильная версия. Возможны ошибки или неправильная работа части функционала.', style: const TextStyle(color: Colors.black, fontSize: 16))
+                                            Text(!connection? 'Нет соединения с сервером. Перезагрзуите страницу.' : is_dev? 'Технические работы. Часть функционала может не работать.' : 'Нестабильная версия. Возможны ошибки или неправильная работа части функционала.', style: const TextStyle(color: Colors.black, fontSize: 16))
                                         ]
                                     )
                                 ),

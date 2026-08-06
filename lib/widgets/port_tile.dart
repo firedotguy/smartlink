@@ -5,7 +5,7 @@ import 'package:smartlink/theme.dart';
 /// Плитка порта ONT (CATV или ETH).
 ///
 /// Цвет отражает реальное состояние линка ([up]), а серый цвет с иконкой
-/// «запрещено» — административно выключенный порт ([enabled] == false).
+/// "запрещено" - административно выключенный порт ([enabled] == false).
 class PortTile extends StatelessWidget {
     const PortTile({
         required this.label,
@@ -14,6 +14,7 @@ class PortTile extends StatelessWidget {
         super.key,
         this.enabled = true,
         this.detail,
+        this.duplex,
         this.on_tap
     });
 
@@ -25,15 +26,14 @@ class PortTile extends StatelessWidget {
     /// Административное состояние порта (`status`).
     final bool enabled;
 
-    /// Вторая строка плитки: скорость, дуплекс или причина отсутствия линка.
+    final String? duplex;
     final String? detail;
-
     final String tooltip;
     final VoidCallback? on_tap;
 
     @override
     Widget build(BuildContext context) {
-        final Color color = !enabled? AppColors.secondary : up? AppColors.success : AppColors.error;
+        final Color color = !enabled? AppColors.secondary : up? duplex == 'half'? AppColors.warning :  AppColors.success : AppColors.error;
 
         return Tooltip(
             message: tooltip,
@@ -41,7 +41,7 @@ class PortTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 onTap: on_tap,
                 child: Container(
-                    width: 110,
+                    width: 130,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.08),

@@ -99,9 +99,9 @@ class AppMessages {
   String get legalese => """© 2026 «НеоТелеком»""";
 
   /// ```dart
-  /// "Experimental WASM renderer"
+  /// "WASM движок включен"
   /// ```
-  String get renderer_warning => """Experimental WASM renderer""";
+  String get renderer_warning => """WASM движок включен""";
 
   /// ```dart
   /// "View source code"
@@ -1015,10 +1015,10 @@ class OntMessages {
   String get port_shutdown => """Отключен""";
 
   /// ```dart
-  /// "$speed МБит/c - $duplex"
+  /// "$speed МБит/c  $duplex"
   /// ```
   String port_speed(String speed, String duplex) =>
-      """$speed МБит/c - $duplex""";
+      """$speed МБит/c  $duplex""";
 
   /// ```dart
   /// """
@@ -1026,8 +1026,37 @@ class OntMessages {
   /// Статус: $actual
   /// """
   /// ```
-  String port_tooltip(String state, String actual) => """Состояние: $state
+  String catv_tooltip(String state, String actual) => """Состояние: $state
 Статус: $actual""";
+
+  /// ```dart
+  /// """
+  /// Состояние: $state
+  /// Статус: $actual
+  /// Скорость: $speed Мбит/c
+  /// Дуплекс: $duplex
+  /// """
+  /// ```
+  String eth_tooltip(String state, String actual, int speed, String duplex) =>
+      """Состояние: $state
+Статус: $actual
+Скорость: $speed Мбит/c
+Дуплекс: $duplex""";
+
+  /// ```dart
+  /// "Двойной"
+  /// ```
+  String get eth_duplex_full => """Двойной""";
+
+  /// ```dart
+  /// "Одинарный"
+  /// ```
+  String get eth_duplex_half => """Одинарный""";
+
+  /// ```dart
+  /// "Неизвестно"
+  /// ```
+  String get eth_duplex_neg => """Неизвестно""";
 
   /// ```dart
   /// "$relative ($absolute)"
@@ -1516,7 +1545,7 @@ Map<String, String> get messagesMap => {
   """app.title""": """SmartLink""",
   """app.name""": """SmartLinkViewer""",
   """app.legalese""": """© 2026 «НеоТелеком»""",
-  """app.renderer_warning""": """Experimental WASM renderer""",
+  """app.renderer_warning""": """WASM движок включен""",
   """app.source_code""": """View source code""",
   """app.api_source_code""": """View API source code""",
   """app.settings_tooltip""": """Настройки""",
@@ -1678,6 +1707,9 @@ Map<String, String> get messagesMap => {
   """ont.no_eth_ports""": """Нет ETH портов""",
   """ont.port_broken""": """Не работает""",
   """ont.port_shutdown""": """Отключен""",
+  """ont.eth_duplex_full""": """Двойной""",
+  """ont.eth_duplex_half""": """Одинарный""",
+  """ont.eth_duplex_neg""": """Неизвестно""",
   """catv.enable_title""": """Включение CATV""",
   """catv.disable_title""": """Выключение CATV""",
   """catv.enable_confirm""": """Вы уверены что хотите включить CATV?""",

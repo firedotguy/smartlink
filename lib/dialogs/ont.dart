@@ -51,7 +51,7 @@ class _OntDialogState extends State<OntDialog> {
     }
 
 
-    // ─── данные ──────────────────────────────────────────────────────────────
+    // данные
 
     Future<void> _load() async {
         data = await get_ont(widget.olt_id, widget.sn);
@@ -64,7 +64,7 @@ class _OntDialogState extends State<OntDialog> {
         setState(() {});
     }
 
-    /// Помечает ONT офлайн после перезагрузки, не дожидаясь опроса.
+    /// Помечает ONT офлайн после перезагрузки, не дожидаясь опроса
     void _mark_offline() {
         data!['last_down'] = DateTime.now().format(pattern: 'yyyy.MM.dd HH:mm:ss');
         data!['last_down_cause'] = 'reset';
@@ -187,7 +187,7 @@ class _OntDialogState extends State<OntDialog> {
     }
 
 
-    // ─── форматирование ──────────────────────────────────────────────────────
+    // форматирование
 
     String? _uptime() {
         if (data?['last_up'] == null || !_online) return null;
@@ -211,10 +211,19 @@ class _OntDialogState extends State<OntDialog> {
         );
     }
 
-    String _port_tooltip(Map port) {
-        return t.ont.port_tooltip(
+    String _catv_tooltip(Map port) {
+        return t.ont.catv_tooltip(
             port['status'] == true? t.status.enabled : t.status.disabled,
             port['actual_status'] == true? t.status.online : t.status.offline
+        );
+    }
+
+    String _eth_tooltip(Map port) {
+        return t.ont.eth_tooltip(
+            port['status'] == true? t.status.enabled : t.status.disabled,
+            port['actual_status'] == true? t.status.online : t.status.offline,
+            port['speed'],
+            port['duplex'],
         );
     }
 
@@ -223,13 +232,12 @@ class _OntDialogState extends State<OntDialog> {
         if (port['actual_status'] != true) return t.ont.port_broken;
 
         return t.ont.port_speed(
-            '${port['speed'] ?? t.common.empty}',
-            '${port['duplex'] ?? '?'}'
+            '${port['speed'] ?? t.common.empty}', '${port['duplex'] ?? '?'}'
         );
     }
 
 
-    // ─── интерфейс ───────────────────────────────────────────────────────────
+    // интерфейс
 
     Widget _olt_section() {
         return SectionCard(
@@ -342,7 +350,7 @@ class _OntDialogState extends State<OntDialog> {
                                             up: port['actual_status'] == true,
                                             enabled: enabled,
                                             detail: enabled? t.status.enabled : t.status.disabled,
-                                            tooltip: _port_tooltip(port),
+                                            tooltip: _catv_tooltip(port),
                                             on_tap: () => _toggle_catv(port['id'], enabled)
                                         );
                                     }).toList()
@@ -363,8 +371,9 @@ class _OntDialogState extends State<OntDialog> {
                                             label: t.ont.port('${port['id']}'),
                                             up: port['actual_status'] == true,
                                             enabled: port['status'] == true,
+                                            duplex: port['duplex'],
                                             detail: _eth_detail(port),
-                                            tooltip: _port_tooltip(port)
+                                            tooltip: _eth_tooltip(port)
                                         );
                                     }).toList()
                             )
