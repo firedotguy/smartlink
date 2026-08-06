@@ -13,7 +13,7 @@ final Logger l = Logger(printer: SimplePrinter());
 const String userside_host = 'https://us.neotelecom.kg';
 
 
-// ─── снекбары ────────────────────────────────────────────────────────────────
+// снекбары
 
 /// Показывает снекбар с текстом [message], окрашенным в [color].
 void show_snack(BuildContext context, String message, Color color, {bool replace = false}) {
@@ -32,7 +32,7 @@ void show_success(BuildContext context, String message, {bool replace = false}) 
     show_snack(context, message, AppColors.success, replace: replace);
 
 
-// ─── ссылки ──────────────────────────────────────────────────────────────────
+// ссылки
 
 /// Собирает ссылку на объект в UserSide.
 String userside_url(String type, int id) => '$userside_host/$type/$id';
@@ -61,7 +61,7 @@ Future<void> copy_userside_link(BuildContext context, String type, int id) async
 }
 
 
-// ─── форматирование ──────────────────────────────────────────────────────────
+// форматирование
 
 /// Форматирует дату из API (`yyyy.MM.dd` или `yyyy.MM.dd HH:mm:ss`) в читаемый вид.
 String format_date(String? input) {
@@ -154,7 +154,7 @@ String task_type_label(int type) {
 }
 
 
-// ─── цвета по данным ─────────────────────────────────────────────────────────
+// цвета по данным
 
 Color get_task_status_color(int? status) {
     return switch (status) {
@@ -172,7 +172,6 @@ Color get_task_status_color(int? status) {
     };
 }
 
-/// Зелёный, если абонент был активен не более 15 минут назад.
 Color get_activity_color(String? last_activity) {
     final DateTime? parsed = parse_api_date(last_activity);
     if (parsed == null) return AppColors.secondary;
@@ -180,7 +179,6 @@ Color get_activity_color(String? last_activity) {
     return DateTime.now().difference(parsed).inMinutes <= 15? AppColors.success : AppColors.error;
 }
 
-/// Чем ближе плановое отключение, тем тревожнее цвет.
 Color get_disconnect_date_color(String? date) {
     final DateTime? parsed = parse_api_date(date);
     if (parsed == null) return AppColors.secondary;
