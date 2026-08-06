@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smartlink/api.dart';
 import 'package:smartlink/dialogs/settings.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
+import 'package:smartlink/widgets/info_tile.dart';
 import 'package:smartlink/widgets/tappable.dart';
 
-const String api_version = '3.0.0-dev.1'; // TODO: get api version from api
 
-const String repo_url = 'https://github.com/firedotguy/smartlink';
-const String api_repo_url = 'https://github.com/firedotguy/smartlinkAPI';
+const String repo_url = 'https://github.com/fi-res/smartlink';
+const String api_repo_url = 'https://github.com/fi-res/smartlinkAPI';
 
 /// Общая обёртка страниц: подпись с версией в углу и кнопка настроек.
 class AppLayout extends StatefulWidget {
@@ -22,10 +24,75 @@ class AppLayout extends StatefulWidget {
 
 class _AppLayoutState extends State<AppLayout> {
     String version = 'unknown';
+    String api_version = 'unknown';
+    bool is_dev = false;
+    bool is_stable = false;
 
     void _get_version() async {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         final PackageInfo info = await PackageInfo.fromPlatform();
         version = info.version;
+
+        final Map platform = await get_platform();
+        api_version = platform['version'];
+        is_dev = platform['dev'];
+        is_stable = platform['stable'];
+
+        if (!platform['compatible_versions'].contains(version)) {
+            l.e('version not compatible');
+            if (!mounted) return;
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                    title: const Text('Несовместимая версия'),
+                    content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                            const Text('Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.'),
+                            InfoTile(title: 'Текущая версия', value: version),
+                            InfoTile(title: 'Требуемая версия', value: platform['compatible_versions'].join(' / '))
+                        ],
+                    )
+                )
+            );
+        } else if (platform['force_dev']) {
+            l.e('site under dev');
+            if (!mounted) return;
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                    title: const Text('Тех. работы'),
+                    content: GestureDetector(
+                        onTertiaryLongPress: () {
+                            Navigator.pop(context);
+                        },
+                        child: const Text('На сайте проходят технические работы. Зайдите позже.')
+                    )
+                )
+            );
+        } else if (platform['announcement'] != null && prefs.getString('last_announce') != platform['announcement']['title']) {
+            if (!mounted) return;
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                    title: Text(platform['announcement']['title']),
+                    content: Text(platform['announcement']['content']),
+                    actions: [
+                        ElevatedButton(
+                            onPressed: () {
+                                prefs.setString('last_announce', platform['announcement']['title']);
+                                Navigator.pop(context);
+                            },
+                            child: const Text('Закрыть')
+                        )
+                    ],
+                )
+            );
+        }
+
         setState(() {});
     }
 
@@ -37,7 +104,8 @@ class _AppLayoutState extends State<AppLayout> {
             applicationIcon: Image.asset('assets/favicon-text.png', width: 60, height: 60),
             applicationLegalese: t.app.legalese,
             children: [
-                Text(t.app.renderer_warning, style: const TextStyle(color: AppColors.warning)),
+                if (const bool.fromEnvironment('dart.tool.dart2wasm'))
+                Text(t.app.renderer_warning, style: const TextStyle(color: AppColors.neo)),
                 _link(t.app.source_code, repo_url),
                 _link(t.app.api_source_code, api_repo_url)
             ]
@@ -73,7 +141,34 @@ class _AppLayoutState extends State<AppLayout> {
                 child: Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                        widget.child,
+                        Column(
+                            children: [
+                                if (is_dev || !is_stable)
+                                SizedBox(
+                                    height: 40,
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                            Container(
+                                                foregroundDecoration: const BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                        begin: Alignment(-0.05, -0.05),
+                                                        end: Alignment(0.05, 0.05),
+                                                        colors: [AppColors.warning, AppColors.warning, Color(0xFF9b8119), Color(0xFF9b8119)],
+                                                        stops: [0, 0.5, 0.5, 1],
+                                                        tileMode: TileMode.repeated,
+                                                        transform: GradientRotation(0.7853982)
+                                                    )
+                                                ),
+                                            ),
+                                            Text(is_dev? 'Технические работы. Часть функционала может не работать.' : 'Нестабильная версия. Возможны ошибки или неправильная работа части функционала.', style: const TextStyle(color: Colors.black, fontSize: 16))
+                                        ]
+                                    )
+                                ),
+                                Expanded(child: widget.child)
+                            ]
+                        ),
                         Tappable(
                             on_tap: _show_about,
                             disable_selection: true,

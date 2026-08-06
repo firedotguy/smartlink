@@ -10,7 +10,7 @@ app:
     title: SmartLink
     name: SmartLinkViewer
     legalese: "© 2026 «НеоТелеком»"
-    renderer_warning: Experimental WASM renderer
+    renderer_warning: WASM движок включен
     source_code: View source code
     api_source_code: View API source code
     version(String version, String api): "v$version (API $api)"

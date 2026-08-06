@@ -189,3 +189,10 @@ Future<dynamic> toggle_catv(String sn, int olt_id, int catv_id, bool state) asyn
         'state': state.toString()
     });
 }
+
+// platform
+
+Future<Map> get_platform() async {
+    l.i('API: get platform');
+    return await _get('platform', {});
+}
