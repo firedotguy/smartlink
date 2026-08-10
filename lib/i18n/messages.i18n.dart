@@ -1037,7 +1037,12 @@ class OntMessages {
   /// Дуплекс: $duplex
   /// """
   /// ```
-  String eth_tooltip(String state, String actual, int speed, String duplex) =>
+  String eth_tooltip(
+    String state,
+    String actual,
+    String speed,
+    String duplex,
+  ) =>
       """Состояние: $state
 Статус: $actual
 Скорость: $speed Мбит/c

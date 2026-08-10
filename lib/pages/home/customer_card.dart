@@ -216,7 +216,7 @@ class CustomerCard extends StatelessWidget {
                     child: Tappable(
                         on_tap: () => open_url(
                             context,
-                            '$userside_host/map/show?lat=${coordinates[0]}&lon=${coordinates[1]}&zoom=18'
+                            '$userside_host/map/show?lat=${coordinates[0]}&lon=${coordinates[1]}&is_show_center_marker=1@${coordinates[0]},${coordinates[1]},18z'
                         ),
                         child: const Icon(Icons.public, size: 18, color: AppColors.neo)
                     )

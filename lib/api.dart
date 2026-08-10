@@ -104,7 +104,7 @@ Future<Map> login(String username, String password) async {
 Future<List<Map>> get_divisions() async {
     l.i('API: get divisions');
     final raw = await _get('employees/divisions', {});
-    return List<Map>.from(raw['data'] ?? const []);
+    return List<Map>.from(raw);
 }
 
 Future<String> get_employee_name(int id) async {
@@ -124,7 +124,6 @@ Future<Map<String, dynamic>> get_task(int id) async {
 Future<int> create_task(
     int type,
     int? customer_id,
-    int author_id,
     String reason,
     int? address_id,
     String description,
@@ -136,7 +135,6 @@ Future<int> create_task(
     final Map<String, String> query = <String, String>{
         'type': type.toString(),
         if (customer_id != null) 'customer_id': customer_id.toString(),
-        'author_id': author_id.toString(),
         'reason': reason,
         if (address_id != null) 'address_id': address_id.toString(),
         'description': description,

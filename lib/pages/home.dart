@@ -278,12 +278,23 @@ class _HomePageState extends State<HomePage> {
         final Map? result = await showDialog(context: context, builder: (context) {
             return NewTaskDialog(
                 customer_id: customer!['id'],
-                address_id: building?['address_id'],
+                address_id: building?['building_id'],
                 phones: customer!['phones'],
                 building: building_task
             );
         });
         if (result == null) return;
+        if (result['reopen_with_building'] == true) {
+            if (building?['building_id'] == null) {
+                l.w('unable to reopen with building (still not loaded)');
+                if (!mounted) return;
+                show_warning(context, t.newTask.no_building_hint);
+                return;
+            }
+            l.i('reopen with building');
+            _open_new_task(building_task: true);
+            return;
+        }
 
         if (result['building'] != true){
             tasks?.add(result);

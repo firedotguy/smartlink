@@ -222,7 +222,7 @@ class _OntDialogState extends State<OntDialog> {
         return t.ont.eth_tooltip(
             port['status'] == true? t.status.enabled : t.status.disabled,
             port['actual_status'] == true? t.status.online : t.status.offline,
-            port['speed'],
+            port['speed'].toString(),
             port['duplex'],
         );
     }
@@ -280,7 +280,7 @@ class _OntDialogState extends State<OntDialog> {
                     InfoTile(
                         title: t.ont.distance,
                         value: (data!['distance'] as int).meter
-                            .toString(targetUnit: LengthUnit.kilometer)
+                            .toString(targetUnit: LengthUnit.kilometer, format: const QuantityFormat(fractionDigits: 3))
                             .replaceAll('km', t.ont.kilometers)
                     ),
 

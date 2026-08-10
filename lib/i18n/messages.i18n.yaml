@@ -203,7 +203,7 @@ ont:
     port_shutdown: Отключен
     port_speed(String speed, String duplex): "$speed МБит/c  $duplex"
     catv_tooltip(String state, String actual): "Состояние: $state\nСтатус: $actual"
-    eth_tooltip(String state, String actual, int speed, String duplex): "Состояние: $state\nСтатус: $actual\nСкорость: $speed Мбит/c\nДуплекс: $duplex"
+    eth_tooltip(String state, String actual, String speed, String duplex): "Состояние: $state\nСтатус: $actual\nСкорость: $speed Мбит/c\nДуплекс: $duplex"
     eth_duplex_full: Двойной
     eth_duplex_half: Одинарный
     eth_duplex_neg: Неизвестно
