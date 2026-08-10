@@ -31,8 +31,8 @@ class BuildingCard extends StatelessWidget {
     final void Function(List<int> ids) on_open_tasks;
 
     String _map_url() {
-        return '$userside_host/map/show?opt_wh=1&by_building=${building!['id']}'
-            '&is_show_center_marker=1@${building!['coordinates'][0]},${building!['coordinates'][1]},18z';
+        return '$userside_host/map/show?opt_wh=1&by_building=${building!['building_id']}'
+            '&is_show_center_marker=1';
     }
 
     @override
