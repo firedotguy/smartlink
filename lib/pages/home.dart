@@ -25,10 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-    // TODO: refactor loading (make Enum class)
     bool load = false;
 
-    // поиск
     bool search = true;
     bool searching = false;
     bool customer_not_found = false;
@@ -38,7 +36,6 @@ class _HomePageState extends State<HomePage> {
     int search_version = 0;
     int debounce = 300;
 
-    // данные
     int? employee_id;
     Map? customer;
     Map? building;
@@ -61,7 +58,6 @@ class _HomePageState extends State<HomePage> {
     }
 
 
-    // загрузка данных
     Future<void> _get_settings() async {
         l.i('get settings data');
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -98,6 +94,7 @@ class _HomePageState extends State<HomePage> {
                     no_building = true;
                 });
             }
+            (building!['customers'] as List).removeWhere((e) => e['id'] == customer!['id']);
 
             setState(() {
                 load = false;
@@ -241,8 +238,6 @@ class _HomePageState extends State<HomePage> {
     }
 
 
-    // действия
-
     void _open_ont() {
         if (customer == null) {
             show_warning(context, t.home.wait_customer);
@@ -263,7 +258,11 @@ class _HomePageState extends State<HomePage> {
                 sn: customer!['sn'],
                 agreement: customer!['agreement']['number'],
                 customer_id: customer!['id'],
-                is_customer_active: customer!['status'] == 'active'
+                is_customer_active: customer!['status'] == 'active',
+                neighbour_id: (building?['customers'] as List?)?.firstWhere(
+                    (e) => e['status'] == 'active' && get_activity_color(e['last_active_at']) == AppColors.success,
+                    orElse: () => null
+                )?['id'],
             );
         });
     }

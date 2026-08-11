@@ -50,19 +50,9 @@ Future<dynamic> _patch(String action, Map<String, String> query, {int timeout = 
 
 // абоненты
 
-Future<Map<String, dynamic>> get_customer(int id) async {
+Future<Map<String, dynamic>> get_customer(int id, {bool full = true}) async {
     l.i('API: get customer id=$id');
-    return await _get('customers/$id', {});
-}
-
-Future<Map<String, dynamic>> get_customers(List<int> ids, {int limit = 10, int skip = 0}) async {
-    l.i('API: get customers ids=$ids');
-    return await _get('customers', {
-        'ids': ids.toString(),
-        'limit': limit.toString(),
-        'skip': skip.toString(),
-        'get_olt_data': 'true'
-    });
+    return await _get('customers/$id', {'full': full.toString()});
 }
 
 Future<List<Map>> search_customers(String query) async {
@@ -187,6 +177,16 @@ Future<dynamic> toggle_catv(String sn, int olt_id, int catv_id, bool state) asyn
         'state': state.toString()
     });
 }
+
+Future<dynamic> ping(String ip) async {
+    l.i('API: ping ip=$ip');
+    final res = await _get('onts/ping', {'ip': ip});
+    if (res is Map) {
+        return null;
+    }
+    return res;
+}
+
 
 // platform
 

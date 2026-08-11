@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Описание колонки таблицы.
 class TableColumn {
     const TableColumn(this.flex, this.label, {this.align = TextAlign.left});
     final int flex;
-
-    /// `null` — пустая колонка-распорка (например, под кнопку «открыть»).
     final String? label;
-
     final TextAlign align;
 }
 
-/// Строка заголовков для простых таблиц на `Row` + `Expanded`.
 class TableHeader extends StatelessWidget {
     const TableHeader({required this.columns, super.key});
     final List<TableColumn> columns;

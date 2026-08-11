@@ -4,15 +4,6 @@ import 'package:smartlink/theme.dart';
 import 'package:smartlink/widgets/app_chip.dart';
 import 'package:smartlink/widgets/tappable.dart';
 
-/// Единая строка «ключ — значение».
-///
-/// Используется во всех карточках и диалогах вместо разрозненных `_KV`
-/// и инлайновых `Row`. Правая часть выбирается по первому заданному полю:
-///
-/// * [child] — произвольный виджет (колонка телефонов, цветной статус и т.п.);
-/// * [on_tap] — кликабельное значение;
-/// * [action] — значение с иконкой-действием справа;
-/// * иначе — обычный текст [value].
 class InfoTile extends StatelessWidget {
     const InfoTile({
         required this.title,
@@ -27,29 +18,14 @@ class InfoTile extends StatelessWidget {
         this.action
     });
 
-    /// Левая часть строки.
     final String title;
-
-    /// Правая часть строки, если она текстовая.
     final String? value;
-
-    /// Правая часть строки, если она сложнее текста.
     final Widget? child;
-
     final Color? value_color;
-
-    /// Показывает метку «Preview» рядом с заголовком.
     final bool preview;
-
-    /// Произвольная метка справа от заголовка (например, «Отключено»).
     final Widget? badge;
-
-    /// Пояснение под заголовком.
     final String? hint;
-
     final VoidCallback? on_tap;
-
-    /// Иконка-действие справа от значения.
     final Widget? action;
 
     Widget _value_text() {
@@ -108,7 +84,7 @@ class InfoTile extends StatelessWidget {
                                             message: t.common.preview_tooltip,
                                             child: AppChip(text: t.common.preview, color: AppColors.success)
                                         ),
-                                        if (badge != null) badge!
+                                        ?badge
                                     ]
                                 ),
                                 if (hint != null)

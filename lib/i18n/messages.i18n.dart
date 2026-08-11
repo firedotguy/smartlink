@@ -104,14 +104,14 @@ class AppMessages {
   String get renderer_warning => """WASM движок включен""";
 
   /// ```dart
-  /// "View source code"
+  /// "Исходный код"
   /// ```
-  String get source_code => """View source code""";
+  String get source_code => """Исходный код""";
 
   /// ```dart
-  /// "View API source code"
+  /// "Исходный код API"
   /// ```
-  String get api_source_code => """View API source code""";
+  String get api_source_code => """Исходный код API""";
 
   /// ```dart
   /// "v$version (API $api)"
@@ -321,9 +321,9 @@ class HomeMessages {
   String get customers_error => """Ошибка получения абонентов""";
 
   /// ```dart
-  /// "Ошибка: USER ID не найден"
+  /// "Ошибка: user id не найден"
   /// ```
-  String get user_id_missing => """Ошибка: USER ID не найден""";
+  String get user_id_missing => """Ошибка: user id не найден""";
 
   /// ```dart
   /// "Ошибка получения данных абонента: $error"
@@ -965,11 +965,6 @@ class OntMessages {
   String get last_down_cause => """Причина отключения""";
 
   /// ```dart
-  /// "Пинг"
-  /// ```
-  String get ping => """Пинг""";
-
-  /// ```dart
   /// "RX (dBm)"
   /// ```
   String get rx => """RX (dBm)""";
@@ -988,6 +983,11 @@ class OntMessages {
   /// "км"
   /// ```
   String get kilometers => """км""";
+
+  /// ```dart
+  /// "мс"
+  /// ```
+  String get milliseconds => """мс""";
 
   /// ```dart
   /// "Нет CATV портов"
@@ -1068,6 +1068,38 @@ class OntMessages {
   /// ```
   String relative_date(String relative, String absolute) =>
       """$relative ($absolute)""";
+
+  /// ```dart
+  /// "Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов"
+  /// ```
+  String get neighbour_not_found =>
+      """Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов""";
+
+  /// ```dart
+  /// "Невозможно пингануть соседа: IP не найден"
+  /// ```
+  String get neighbour_has_not_ip =>
+      """Невозможно пингануть соседа: IP не найден""";
+
+  /// ```dart
+  /// "Пинг"
+  /// ```
+  String get ping => """Пинг""";
+
+  /// ```dart
+  /// "Этот ONT"
+  /// ```
+  String get this_ont => """Этот ONT""";
+
+  /// ```dart
+  /// "Соседский ONT"
+  /// ```
+  String get neighbour_ont => """Соседский ONT""";
+
+  /// ```dart
+  /// "OLT"
+  /// ```
+  String get olt => """OLT""";
 }
 
 class CatvMessages {
@@ -1489,26 +1521,6 @@ class SettingsMessages {
   String get disabled => """Отключено""";
 
   /// ```dart
-  /// "Русский"
-  /// ```
-  String get language_ru => """Русский""";
-
-  /// ```dart
-  /// "Кыргызский"
-  /// ```
-  String get language_ky => """Кыргызский""";
-
-  /// ```dart
-  /// "Узбекский"
-  /// ```
-  String get language_uz => """Узбекский""";
-
-  /// ```dart
-  /// "Английский"
-  /// ```
-  String get language_en => """Английский""";
-
-  /// ```dart
   /// "Задержка при вводе"
   /// ```
   String get debounce => """Задержка при вводе""";
@@ -1551,8 +1563,8 @@ Map<String, String> get messagesMap => {
   """app.name""": """SmartLinkViewer""",
   """app.legalese""": """© 2026 «НеоТелеком»""",
   """app.renderer_warning""": """WASM движок включен""",
-  """app.source_code""": """View source code""",
-  """app.api_source_code""": """View API source code""",
+  """app.source_code""": """Исходный код""",
+  """app.api_source_code""": """Исходный код API""",
   """app.settings_tooltip""": """Настройки""",
   """common.empty""": """-""",
   """common.ok""": """Ок""",
@@ -1589,7 +1601,7 @@ Map<String, String> get messagesMap => {
   """home.no_results""": """Нет результатов""",
   """home.customer_not_selected""": """Абонент не выбран""",
   """home.customers_error""": """Ошибка получения абонентов""",
-  """home.user_id_missing""": """Ошибка: USER ID не найден""",
+  """home.user_id_missing""": """Ошибка: user id не найден""",
   """home.wait_customer""": """Дождитесь загрузки абонента""",
   """home.customer_not_loaded""": """Абонент не загружен""",
   """home.no_sn""": """У абонента нет ТМЦ с SN""",
@@ -1703,11 +1715,11 @@ Map<String, String> get messagesMap => {
   """ont.last_up""": """Последнее включение""",
   """ont.last_down""": """Последнее отключение""",
   """ont.last_down_cause""": """Причина отключения""",
-  """ont.ping""": """Пинг""",
   """ont.rx""": """RX (dBm)""",
   """ont.tx""": """TX (dBm)""",
   """ont.temperature""": """Температура""",
   """ont.kilometers""": """км""",
+  """ont.milliseconds""": """мс""",
   """ont.no_catv_ports""": """Нет CATV портов""",
   """ont.no_eth_ports""": """Нет ETH портов""",
   """ont.port_broken""": """Не работает""",
@@ -1715,6 +1727,14 @@ Map<String, String> get messagesMap => {
   """ont.eth_duplex_full""": """Двойной""",
   """ont.eth_duplex_half""": """Одинарный""",
   """ont.eth_duplex_neg""": """Неизвестно""",
+  """ont.neighbour_not_found""":
+      """Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов""",
+  """ont.neighbour_has_not_ip""":
+      """Невозможно пингануть соседа: IP не найден""",
+  """ont.ping""": """Пинг""",
+  """ont.this_ont""": """Этот ONT""",
+  """ont.neighbour_ont""": """Соседский ONT""",
+  """ont.olt""": """OLT""",
   """catv.enable_title""": """Включение CATV""",
   """catv.disable_title""": """Выключение CATV""",
   """catv.enable_confirm""": """Вы уверены что хотите включить CATV?""",
@@ -1789,10 +1809,6 @@ Map<String, String> get messagesMap => {
   """settings.theme""": """Тема""",
   """settings.language""": """Язык""",
   """settings.disabled""": """Отключено""",
-  """settings.language_ru""": """Русский""",
-  """settings.language_ky""": """Кыргызский""",
-  """settings.language_uz""": """Узбекский""",
-  """settings.language_en""": """Английский""",
   """settings.debounce""": """Задержка при вводе""",
   """settings.debounce_hint""":
       """Время ожидания после поиска перед загрузкой абонентов""",

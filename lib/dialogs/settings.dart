@@ -8,14 +8,6 @@ import 'package:smartlink/widgets/app_chip.dart';
 import 'package:smartlink/widgets/app_layout.dart';
 import 'package:smartlink/widgets/info_tile.dart';
 
-/// Диалог настроек SmartLink Viewer.
-///
-/// Открывается по кнопке «⚙️» в правом верхнем углу. Поддерживает:
-///
-/// - задержку перед поиском абонентов;
-/// - тему оформления (в разработке);
-/// - язык интерфейса (в разработке);
-/// - выход из аккаунта.
 class SettingsDialog extends StatefulWidget {
     const SettingsDialog({super.key});
 
@@ -26,6 +18,7 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog> {
     String theme = 'smartlink-dark';
     int debounce = 300;
+    String language = 'ru';
     bool logined = false;
 
     final TextEditingController debounce_controller = TextEditingController(text: '0');
@@ -50,6 +43,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
         l.i('available keys: ${prefs.getKeys()}');
 
         debounce = prefs.getInt('debounce') ?? 300;
+        language = prefs.getString('language') ?? 'ru';
         debounce_controller.text = debounce.toString();
         logined = (prefs.getString('login') ?? '') != '';
         setState(() {});
@@ -85,6 +79,19 @@ class _SettingsDialogState extends State<SettingsDialog> {
             debounce = parsed;
         });
         _update_int('debounce', parsed);
+    }
+
+    Future<void> _on_language_changed(String? code) async {
+        if (code == null || code == language) return;
+
+        l.i('change locale to $code');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('language', code);
+
+        setState(() {
+            language = code;
+            changed = true;
+        });
     }
 
     Widget _disabled_badge() => AppChip(text: t.settings.disabled, color: AppColors.error);
@@ -123,17 +130,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             ),
                             InfoTile(
                                 title: t.settings.language,
-                                badge: _disabled_badge(),
                                 child: IntrinsicWidth(
                                     child: DropdownButtonFormField<String>(
-                                        initialValue: 'ru',
-                                        items: [
-                                            DropdownMenuItem(value: 'ru', child: Text(t.settings.language_ru)),
-                                            DropdownMenuItem(value: 'ky', child: Text(t.settings.language_ky)),
-                                            DropdownMenuItem(value: 'uz', child: Text(t.settings.language_uz)),
-                                            DropdownMenuItem(value: 'en', child: Text(t.settings.language_en))
+                                        initialValue: language,
+                                        items: const [
+                                            DropdownMenuItem(value: 'ru', child: Text('Русский')),
+                                            DropdownMenuItem(value: 'ky', child: Text('Кыргызча')),
+                                            DropdownMenuItem(value: 'uz', child: Text('O’zbek tili')),
+                                            DropdownMenuItem(value: 'en', child: Text('English'))
                                         ],
-                                        onChanged: null
+                                        onChanged: _on_language_changed
                                     )
                                 )
                             ),

@@ -23,13 +23,15 @@ class OntDialog extends StatefulWidget {
         required this.customer_id,
         required this.agreement,
         super.key,
-        this.is_customer_active = true
+        this.is_customer_active = true,
+        this.neighbour_id
     });
     final int olt_id;
     final String sn;
     final int customer_id;
     final String agreement;
     final bool is_customer_active;
+    final int? neighbour_id;
 
     @override
     State<OntDialog> createState() => _OntDialogState();
@@ -37,6 +39,9 @@ class OntDialog extends StatefulWidget {
 
 class _OntDialogState extends State<OntDialog> {
     Map? data;
+    int? olt_ping;
+    int? neighbour_ping;
+    int? my_ping;
     bool restarting = false;
     bool rewriting_sn = false;
     bool rewriting_mac = false;
@@ -50,8 +55,45 @@ class _OntDialogState extends State<OntDialog> {
         _load();
     }
 
+    Future<void> _ping_olt() async {
+        final pings = await ping(data!['olt']['ip']);
+        if (pings != null){
+            olt_ping = average(List<double>.from(pings));
+            setState(() {});
+        }
+    }
+    Future<void> _ping_neighbour() async {
+        if (widget.neighbour_id == null) {
+            l.e('no neighbour');
+            show_error(context, t.ont.neighbour_not_found);
+            return;
+        }
+        final neighbour = await get_customer(widget.neighbour_id!, full: false);
+        if (neighbour['ip'] == null) {
+            l.e('neighbour has not ip');
+            if (!mounted) return;
+            show_error(context, t.ont.neighbour_has_not_ip);
+            return;
+        }
+        final pings = await ping(neighbour['ip']);
+        if (pings != null) {
+            neighbour_ping = average(List<double>.from(pings));
+            setState(() {});
+        }
+    }
+    Future<void> _ping_me() async {
+        final pings = await ping(data!['ip']);
+        if (pings != null) {
+            my_ping = average(List<double>.from(pings));
+            setState(() {});
+        }
+    }
 
-    // данные
+    Future<void> _ping() async {
+        _ping_olt();
+        _ping_neighbour();
+        _ping_me();
+    }
 
     Future<void> _load() async {
         data = await get_ont(widget.olt_id, widget.sn);
@@ -62,9 +104,11 @@ class _OntDialogState extends State<OntDialog> {
             return;
         }
         setState(() {});
+        if (_online) {
+            await _ping();
+        }
     }
 
-    /// Помечает ONT офлайн после перезагрузки, не дожидаясь опроса
     void _mark_offline() {
         data!['last_down'] = DateTime.now().format(pattern: 'yyyy.MM.dd HH:mm:ss');
         data!['last_down_cause'] = 'reset';
@@ -187,8 +231,6 @@ class _OntDialogState extends State<OntDialog> {
     }
 
 
-    // форматирование
-
     String? _uptime() {
         if (data?['last_up'] == null || !_online) return null;
 
@@ -236,8 +278,6 @@ class _OntDialogState extends State<OntDialog> {
         );
     }
 
-
-    // интерфейс
 
     Widget _olt_section() {
         return SectionCard(
@@ -298,11 +338,10 @@ class _OntDialogState extends State<OntDialog> {
 
                     const SizedBox(height: 8),
                     Row(
+                        spacing: 8,
                         children: [
                             Expanded(child: _signal_card(t.ont.rx, data!['rx'], get_rx_color)),
-                            const SizedBox(width: 8),
                             Expanded(child: _signal_card(t.ont.tx, data!['tx'], get_tx_color)),
-                            const SizedBox(width: 8),
                             Expanded(
                                 child: StatCard(
                                     label: t.ont.temperature,
@@ -311,6 +350,38 @@ class _OntDialogState extends State<OntDialog> {
                                 )
                             )
                         ]
+                    )
+                ]
+            )
+        );
+    }
+
+    Widget _ping_section() {
+        return SectionCard(
+            title: t.ont.ping,
+            child: my_ping == null || olt_ping == null? const Center(child: AngularProgressBar()) : Row(
+                spacing: 8,
+                children: [
+                    Expanded(
+                        child: StatCard(
+                            label: t.ont.this_ont,
+                            value: my_ping != null? '${my_ping!.toString()}${t.ont.milliseconds}' : '-',
+                            color: get_ping_color(my_ping)
+                        )
+                    ),
+                    Expanded(
+                        child: StatCard(
+                            label: t.ont.neighbour_ont,
+                            value: neighbour_ping != null? '${neighbour_ping!.toString()}${t.ont.milliseconds}' : '-',
+                            color: get_ping_color(neighbour_ping)
+                        )
+                    ),
+                    Expanded(
+                        child: StatCard(
+                            label: t.ont.olt,
+                            value: olt_ping != null? '${olt_ping!.toString()}${t.ont.milliseconds}' : '-',
+                            color: get_ping_color(olt_ping)
+                        )
                     )
                 ]
             )
@@ -432,6 +503,7 @@ class _OntDialogState extends State<OntDialog> {
                             spacing: 8,
                             children: [
                                 if (data!['olt'] != null) _olt_section(),
+                                _ping_section(),
                                 _ont_section(),
                                 _ports_section(),
                                 Row(

@@ -1,0 +1,296 @@
+app:
+    title: SmartLink
+    name: SmartLinkViewer
+    legalese: "© 2026 «NeoTelecom»"
+    renderer_warning: WASM renderer enabled
+    source_code: View source code
+    api_source_code: View API source code
+    version(String version, String api): "v$version (API $api)"
+    version_badge(String version): "SmartLinkViewer v$version [γ]"
+    settings_tooltip: Settings
+
+common:
+    empty: "-"
+    ok: Ok
+    cancel: Cancel
+    close: Close
+    close_dialog: Close dialog
+    create: Create
+    refresh: Refresh data
+    open_in_userside: Open in UserSide
+    copy_userside_link: Copy UserSide link
+    link_copied: Link copied
+    preview: Preview
+    preview_tooltip: Function in development
+    som(String amount): "$amount som"
+    link_not_clickable: "Error open link: Link not clickable"
+
+status:
+    active: Active
+    paused: Pause
+    inactive: Inactive
+    enabled: Enabled
+    disabled: Disabled
+    online: Online
+    offline: Offline
+    online_badge: ONLINE
+    offline_badge: OFFLINE
+
+login:
+    title: Authorization
+    username: Login
+    password: Password
+    submit: Login
+    success: Successful authorization
+    wrong_credentials: "Auth error: invalid login or password"
+    error: Auth error
+
+home:
+    search_hint: Name, agreement, SN or phone
+    no_results: No results
+    customer_not_selected: Customer not selected
+    customers_error: Error fetching customers
+    user_id_missing: "Error: user id not found"
+    customer_error(String error): "Error fetching customer data: $error"
+    building_error(String error): "Error fetching building data: $error"
+    tasks_error(String error): "Error fetching task data: $error"
+    items_error(String error): "Error fetching items: $error"
+    wait_customer: Wait until customer load
+    customer_not_loaded: Customer not loaded
+    no_sn: Customer has not items with SN
+    no_olt: OLT not found
+
+building:
+    title: Building
+    not_found: Building not found
+    name: Name
+    type: Type
+    coordinates: Coordinates
+    install_type: Install type
+    build_status: Build status
+    open_tasks: Open tasks
+    new_task_tooltip: Create task (magistral repair)
+    show_on_map: Show on map
+    open_tooltip: Open in UserSide
+    copy_tooltip: Copy UserSide link
+    type_multiflat: Multiflat house
+    type_private: Private house
+    type_office: Office
+    type_new: New house
+    type_ravshan: Ravshan
+    neighbours: Neighbours
+    no_neighbours: Customer has not neighbours
+    column_agreement: Agree
+    column_name: Name
+    column_activity: Activity
+    column_status: Status
+    column_rx: rx
+
+customer:
+    title: Customer
+    ont_tooltip: Open ONT data
+    attachs_tooltip: Open attachments
+    new_task_tooltip: Create task (customer repair)
+    open_tooltip: Open in UserSide
+    copy_tooltip: Copy UserSide link
+    is_potential: Potential customer
+    is_corporate: Organization
+    no_billing: Not in billing
+    not_switched: Not commutated
+    is_inactive: Inactive customer
+    is_paused: Paused customer
+    last_activity_warning(String when): "Last activity was $when"
+    building_problems: Problems in building
+    name: Name
+    agreement: Agreement
+    balance: Balance
+    status: Status
+    connected_at: Connect date
+    group: Group
+    last_activity: Last activity
+    phone: Phone number
+    phones: Phone numbers
+    tariff: Tariff
+    tariffs: Tariffs
+    will_disconnect_at: Planned disconnect
+    geodata: Geo data
+    address: Address
+    open_in_2gis: Open in 2GIS
+    map_neotelecom: Open in Neotelecom maps
+    map_2gis: Open in 2GIS
+    coordinates: Coordinates
+    entrance: Entrance
+    floor: Floor
+    apartment: Apratment
+
+tasksCard:
+    title: Tasks
+    empty: Customer has not tasks
+    column_id: ID
+    column_type: Type
+    column_created: Create date
+    column_status: Status
+
+items:
+    title: Items
+    empty: Customer has not items
+    column_name: Name
+    column_type: Type
+    column_sn: SN
+    column_amount: Amount
+    type_cable: Cable
+    type_olt: OLT
+    type_edfa: EDFA
+    type_ont: ONT
+    type_clamp: Clamp
+    type_commutator: Commutator
+    type_coupling: Coupling
+    type_odf: ODF
+    type_patchcord: Patchcord
+    type_other: Other
+    type_junction: Junction
+    type_router: Router
+    type_splitter: Splitter
+    type_smart_home: Smart home
+    type_cisco: Cisco
+    type_cambium: Cambium
+
+ont:
+    title: ONT / OLT
+    section_olt: OLT
+    section_ont: ONT
+    section_catv: CATV
+    section_eth: ETH/LAN
+    restart: Restart ONT
+    rewrite_sn: Rewrite SN
+    rewrite_mac: Rewrite MAC
+    load_error(String error): "Error fetching ONT: $error"
+    restart_error(String error): "Error restarting ONT: $error"
+    restart_failed: Error restarting ONT
+    restarted: ONT restarted
+    rewrite_sn_error(String error): "Error rewriting SN: $error"
+    rewrite_sn_failed: Error rewriting SN
+    sn_rewritten: SN rewritten
+    rewrite_mac_error(String error): "Error rewriting MAC: $error"
+    rewrite_mac_failed: Error rewriting MAC
+    mac_rewritten: MAC rewritten
+    olt_name: Name
+    olt_location: Location
+    sn: SN
+    ip: IP
+    uptime: Uptime
+    distance: Distance
+    last_up: Last up
+    last_down: Last down
+    last_down_cause: Last down cause
+    ping: Ping
+    rx: RX (dBm)
+    tx: TX (dBm)
+    temperature: Temperature
+    kilometers: km
+    no_catv_ports: No CATV ports
+    no_eth_ports: No ETH ports
+    port(String id): "Port $id"
+    port_broken: Not working
+    port_shutdown: Disabled
+    port_speed(String speed, String duplex): "$speed MBit/s  $duplex"
+    catv_tooltip(String state, String actual): "State: $state\nStatus: $actual"
+    eth_tooltip(String state, String actual, String speed, String duplex): "State: $state\nStatus: $actual\nSpeed: $speed Мбит/c\nDuplex: $duplex"
+    eth_duplex_full: Full
+    eth_duplex_half: Half
+    eth_duplex_neg: Unknown
+    relative_date(String relative, String absolute): "$relative ($absolute)"
+
+catv:
+    enable_title: Enabling CATV
+    disable_title: Disabling CATV
+    enable_confirm: Are you sure to enable CATV?
+    disable_confirm: Are you sure to disable CATV?
+    toggle_tooltip: Toggle state
+    port_state: Port state
+    sn: SN
+    olt_id: OLT ID
+    catv_id: CATV ID
+    customer_inactive: "Unable toggle CATV: Customer is inactive."
+    enable: Enable
+    disable: Disable
+    toggled: CATV successfully toggled
+    toggle_error(String error): "Error toggling CATV: $error"
+    toggle_failed: Error toggling CATV
+
+task:
+    title: Task
+    copy_tooltip: Copy UserSide link
+    load_error(String error): "Error loading task: $error"
+    comment_error(String error): "Error sending comment: $error"
+    section_main: Main data
+    section_comments: Comments
+    type: Type
+    status: Status
+    address: Address
+    author: Task author
+    employees: Assigned employees
+    divisions: Assigned divisions
+    appeal_reason: Reason
+    solve: Solve
+    appeal_phone: Appeal phone
+    appeal_type: Appeal type
+    price: Work price
+    tariff: Tariff
+    coordinates: Coordinates
+    connect_type: Connect type
+    created_at: Create date
+    updated_at: Update date
+    planned_to: Planned to complete date
+    completed_at: Complete date
+    no_comments: No comments
+    comment_hint: Write comments...
+    send: Send
+    just_now: Just now
+
+tasks:
+    title: Tasks
+    empty: No tasks
+    id(String id): "ID: $id"
+    created(String date): "Created: $date"
+    completed(String date): "Completed: $date"
+    author(String name): "Author: $name"
+
+newTask:
+    title: Create task
+    tab_repair: Repair
+    tab_building: Magistral repair
+    load_error: Error fetching data
+    created: Task created
+    create_error: Error creating task
+    type: Task type
+    type_repair: Repair
+    type_uninstall: Uninstall
+    type_inactive: Drive to inactive customer
+    type_ravshan: Repair (Ravshan)
+    type_building_repair: Magistral repair
+    type_building_mount: Magistral install / uninstall
+    phone: Phone
+    phone_hint: Enter phone number
+    phone_choose: or select below
+    reason: Reason
+    appeal_type: Appeal type
+    description: Description
+    description_hint: Enter description (not required)
+    executors: Employees
+    no_building: Building not found
+    no_building_hint: Building not found. If it exists, wait until it load and open again.
+    default_status: Not completed
+
+settings:
+    title: Settings
+    theme: Theme
+    language: Language
+    disabled: Disabled
+    debounce: Debounce while typing
+    debounce_hint: Duration after search before load customers
+    debounce_unit: ms
+    debounce_error: Invalid value
+    log_out: Log out
+    logged_out: You logged out
+    reload_required: Reload page to apply changes

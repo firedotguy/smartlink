@@ -32,12 +32,8 @@ void show_success(BuildContext context, String message, {bool replace = false}) 
     show_snack(context, message, AppColors.success, replace: replace);
 
 
-// ссылки
-
-/// Собирает ссылку на объект в UserSide.
 String userside_url(String type, int id) => '$userside_host/$type/$id';
 
-/// Открывает [link] во внешнем браузере (или в текущей вкладке на web).
 Future<void> open_url(BuildContext context, String link) async {
     final Uri url = Uri.parse(link);
     if (await canLaunchUrl(url)) {
@@ -49,21 +45,16 @@ Future<void> open_url(BuildContext context, String link) async {
     if (context.mounted) show_error(context, t.common.link_not_clickable);
 }
 
-/// Открывает объект UserSide во внешнем браузере.
 Future<void> open_in_userside(BuildContext context, String type, int id) async {
     await open_url(context, userside_url(type, id));
 }
 
-/// Копирует ссылку на объект UserSide в буфер обмена.
 Future<void> copy_userside_link(BuildContext context, String type, int id) async {
     await Clipboard.setData(ClipboardData(text: userside_url(type, id)));
     if (context.mounted) show_success(context, t.common.link_copied);
 }
 
 
-// форматирование
-
-/// Форматирует дату из API (`yyyy.MM.dd` или `yyyy.MM.dd HH:mm:ss`) в читаемый вид.
 String format_date(String? input) {
     if (input == null || input.isEmpty) return t.common.empty;
 
@@ -73,13 +64,11 @@ String format_date(String? input) {
     return DateFormat('d MMM yyyy').format(DateFormat('yyyy.MM.dd').parse(input)).replaceAll('.', '');
 }
 
-/// Парсит дату из API, где разделителем даты выступает точка.
 DateTime? parse_api_date(String? input) {
     if (input == null || input.isEmpty) return null;
     return DateTime.tryParse(input.replaceAll('.', '-'));
 }
 
-/// Убирает отчество из ФИО, оставляя фамилию и имя.
 String? cut_last_name(String? full_name) {
     if (full_name == null) return null;
 
@@ -90,13 +79,11 @@ String? cut_last_name(String? full_name) {
     return parts.sublist(0, parts.length - 1).join(' ');
 }
 
-/// Приводит уровень сигнала к положительному числу с одним знаком после запятой.
 String convert_signal(num? signal) {
     if (signal == null) return t.common.empty;
     return (-signal.toDouble()).toStringAsFixed(1);
 }
 
-/// Человекочитаемый статус абонента.
 String status_label(String? status) {
     return switch (status) {
         'active' => t.status.active,
@@ -105,7 +92,6 @@ String status_label(String? status) {
     };
 }
 
-/// Человекочитаемый тип строения.
 String building_type_label(String? type) {
     return switch (type) {
         'multiflat' => t.building.type_multiflat,
@@ -117,7 +103,6 @@ String building_type_label(String? type) {
     };
 }
 
-/// Человекочитаемый тип ТМЦ.
 String item_type_label(String? type) {
     return switch (type) {
         'cable' => t.items.type_cable,
@@ -140,7 +125,6 @@ String item_type_label(String? type) {
     };
 }
 
-/// Человекочитаемое название типа задания.
 String task_type_label(int type) {
     return switch (type) {
         37 => t.newTask.type_repair,
@@ -153,8 +137,6 @@ String task_type_label(int type) {
     };
 }
 
-
-// цвета по данным
 
 Color get_task_status_color(int? status) {
     return switch (status) {
@@ -250,7 +232,6 @@ Color get_task_date_color(String? date, int? task_status) {
     return DateTime.now().difference(parsed).inDays > 2? AppColors.error : AppColors.success;
 }
 
-/// Цвет уровня RX на ONT/OLT.
 Color get_rx_color(double rx) {
     if (rx > -12) return AppColors.error;
     if (rx > -17) return AppColors.warning;
@@ -259,7 +240,6 @@ Color get_rx_color(double rx) {
     return AppColors.error;
 }
 
-/// Цвет уровня TX на ONT/OLT.
 Color get_tx_color(double tx) {
     if (tx > 10) return AppColors.error;
     if (tx > 7) return AppColors.warning;
@@ -268,10 +248,20 @@ Color get_tx_color(double tx) {
     return AppColors.error;
 }
 
-/// Цвет температуры ONT.
 Color get_temp_color(int? temp) {
     if (temp == null) return AppColors.secondary;
     if (temp < 50) return AppColors.success;
     if (temp < 65) return AppColors.warning;
     return AppColors.error;
+}
+
+Color get_ping_color(int? ping) {
+    if (ping == null) return AppColors.secondary;
+    if (ping < 10) return AppColors.success;
+    if (ping < 20) return AppColors.warning;
+    return AppColors.error;
+}
+
+int average(List<double> list) {
+    return (list.reduce((a, b) => a + b) / list.length).round();
 }

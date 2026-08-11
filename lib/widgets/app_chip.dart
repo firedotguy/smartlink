@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/widgets/tappable.dart';
 
-/// Компактная метка-«таблетка» с необязательной кликабельной иконкой.
-///
-/// Назван `AppChip`, а не `Chip`, чтобы не конфликтовать с материаловским
-/// виджетом — иначе каждый импорт `material.dart` пришлось бы писать
-/// с `hide Chip`.
 class AppChip extends StatelessWidget {
     const AppChip({
         required this.text,

@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Оборачивает [child] в кликабельную область с курсором-указателем.
-///
-/// Заменяет повторявшуюся по всему проекту связку
-/// `MouseRegion` + `GestureDetector` (+ иногда `SelectionContainer.disabled`).
-///
-/// Если [on_tap] равен `null`, курсор не меняется и нажатия игнорируются.
 class Tappable extends StatelessWidget {
     const Tappable({
         required this.child,
@@ -16,7 +10,6 @@ class Tappable extends StatelessWidget {
     final Widget child;
     final VoidCallback? on_tap;
 
-    /// Исключает содержимое из выделения текста родительской `SelectionArea`.
     final bool disable_selection;
 
     @override

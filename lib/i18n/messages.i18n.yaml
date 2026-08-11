@@ -11,8 +11,8 @@ app:
     name: SmartLinkViewer
     legalese: "© 2026 «НеоТелеком»"
     renderer_warning: WASM движок включен
-    source_code: View source code
-    api_source_code: View API source code
+    source_code: Исходный код
+    api_source_code: Исходный код API
     version(String version, String api): "v$version (API $api)"
     version_badge(String version): "SmartLinkViewer v$version [γ]"
     settings_tooltip: Настройки
@@ -58,7 +58,7 @@ home:
     no_results: Нет результатов
     customer_not_selected: Абонент не выбран
     customers_error: Ошибка получения абонентов
-    user_id_missing: "Ошибка: USER ID не найден"
+    user_id_missing: "Ошибка: user id не найден"
     customer_error(String error): "Ошибка получения данных абонента: $error"
     building_error(String error): "Ошибка получения данных коробки: $error"
     tasks_error(String error): "Ошибка получения данных задания: $error"
@@ -191,11 +191,11 @@ ont:
     last_up: Последнее включение
     last_down: Последнее отключение
     last_down_cause: Причина отключения
-    ping: Пинг
     rx: RX (dBm)
     tx: TX (dBm)
     temperature: Температура
     kilometers: км
+    milliseconds: мс
     no_catv_ports: Нет CATV портов
     no_eth_ports: Нет ETH портов
     port(String id): "Порт $id"
@@ -208,6 +208,12 @@ ont:
     eth_duplex_half: Одинарный
     eth_duplex_neg: Неизвестно
     relative_date(String relative, String absolute): "$relative ($absolute)"
+    neighbour_not_found: 'Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов'
+    neighbour_has_not_ip: "Невозможно пингануть соседа: IP не найден"
+    ping: Пинг
+    this_ont: "Этот ONT"
+    neighbour_ont: "Соседский ONT"
+    olt: OLT
 
 catv:
     enable_title: Включение CATV
@@ -296,10 +302,6 @@ settings:
     theme: Тема
     language: Язык
     disabled: Отключено
-    language_ru: Русский
-    language_ky: Кыргызский
-    language_uz: Узбекский
-    language_en: Английский
     debounce: Задержка при вводе
     debounce_hint: Время ожидания после поиска перед загрузкой абонентов
     debounce_unit: мс

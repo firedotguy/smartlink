@@ -9,10 +9,22 @@ import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
 import 'package:smartlink/widgets/app_layout.dart';
 
+const Map<String, String> _intl_locales = {
+    'ru': 'ru_RU',
+    'ky': 'ky_KG',
+    'en': 'en_US'
+};
+
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
-    initializeDateFormatting('ru_RU', null);
-    Intl.defaultLocale = 'ru_RU';
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    set_locale(prefs.getString('language'));
+
+    final String intl_locale = _intl_locales[current_locale] ?? 'ru_RU';
+    await initializeDateFormatting(intl_locale, null);
+    Intl.defaultLocale = intl_locale;
+
     runApp(const MainApp());
 }
 

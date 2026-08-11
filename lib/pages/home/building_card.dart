@@ -9,7 +9,6 @@ import 'package:smartlink/widgets/info_tile.dart';
 import 'package:smartlink/widgets/sub_heading.dart';
 import 'package:smartlink/widgets/table_header.dart';
 
-/// Карточка «Коробка» со списком соседей.
 class BuildingCard extends StatelessWidget {
     const BuildingCard({
         required this.building,
@@ -21,13 +20,11 @@ class BuildingCard extends StatelessWidget {
     });
     final Map? building;
 
-    /// Коробка не найдена — данные загружены, но их нет.
     final bool not_found;
 
     final VoidCallback on_refresh;
     final VoidCallback on_new_task;
 
-    /// Открывает список заданий коробки.
     final void Function(List<int> ids) on_open_tasks;
 
     String _map_url() {
