@@ -1,21 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_date_formatter/flutter_date_formatter.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Общий логгер приложения.
 final Logger l = Logger(printer: SimplePrinter());
 
 const String userside_host = 'https://us.neotelecom.kg';
 
 
-// снекбары
-
-/// Показывает снекбар с текстом [message], окрашенным в [color].
 void show_snack(BuildContext context, String message, Color color, {bool replace = false}) {
     final messenger = ScaffoldMessenger.of(context);
     if (replace) messenger.removeCurrentSnackBar();
@@ -264,4 +261,38 @@ Color get_ping_color(int? ping) {
 
 int average(List<double> list) {
     return (list.reduce((a, b) => a + b) / list.length).round();
+}
+
+(List<Color>, List<double>?, List<String>) get_ont_online_stops(DateTime? last_down, DateTime? last_up) {
+    final int? last_down_relative = last_down == null? null : DateTime.now().difference(last_down).inHours;
+    int? last_up_relative = last_up == null? null : DateTime.now().difference(last_up).inHours;
+    final List<double> stops = [];
+    final List<Color> colors = [];
+
+    if (last_down_relative == last_up_relative && last_up_relative != null) {
+        last_up_relative += 5;
+    }
+
+    if (last_down_relative != null) {
+        colors.add(AppColors.neo);
+        stops.add(1 - (last_down_relative / 168) - 0.01);
+        colors.add(AppColors.error);
+        stops.add(1 - (last_down_relative / 168) + 0.01);
+    }
+    if (last_up_relative != null) {
+        colors.add(AppColors.error);
+        stops.add(1 - (last_up_relative / 168) - 0.01);
+        colors.add(AppColors.neo);
+        stops.add(1 - (last_up_relative / 168) + 0.01);
+    }
+    stops.sort((a, b) => a.compareTo(b));
+    l.d('ont down stops $last_down_relative, $last_up_relative -> stops=$stops');
+
+    final List<String> tooltips = [];
+    for (final i in List.generate(168, (i) => i)) {
+        final nearest_stop = stops.indexWhere((e) => e + 0.01 >= i / 168);
+        final time = DateTime.now().subHours(168 - i).format(pattern: 'd MMM HH:00');
+        tooltips.add('$time\n${nearest_stop == -1 || colors[nearest_stop] == AppColors.neo? t.status.online : t.status.offline}');
+    }
+    return (colors.isEmpty? [AppColors.neo] : colors, stops.isEmpty? null : stops, tooltips);
 }

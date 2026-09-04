@@ -39,7 +39,7 @@ class OntDialog extends StatefulWidget {
 }
 
 class _OntDialogState extends State<OntDialog> {
-    Map? data;
+    Map? ont;
     int? olt_ping;
     int? neighbour_ping;
     int? my_ping;
@@ -47,8 +47,7 @@ class _OntDialogState extends State<OntDialog> {
     bool rewriting_sn = false;
     bool rewriting_mac = false;
 
-    bool get _online => data?['online'] == true;
-    bool get _loaded => data != null;
+    bool get _online => ont?['online'] == true;
 
     @override
     void initState() {
@@ -56,15 +55,15 @@ class _OntDialogState extends State<OntDialog> {
         _load();
     }
 
-    Future<void> _ping_olt() async {
-        final pings = await guard(context, () => ping(data!['olt']['ip']));
+    Future _ping_olt() async {
+        final pings = await guard(context, () => ping(ont!['olt']['ip']));
         if (pings != null){
             olt_ping = average(List<double>.from(pings));
             if (!mounted) return;
             setState(() {});
         }
     }
-    Future<void> _ping_neighbour() async {
+    Future _ping_neighbour() async {
         if (widget.neighbour_id == null) {
             l.e('no neighbour');
             show_error(context, t.ont.neighbour_not_found);
@@ -85,12 +84,12 @@ class _OntDialogState extends State<OntDialog> {
             setState(() {});
         }
     }
-    Future<void> _ping_me() async {
-        if (data?['ip'] == null) {
+    Future _ping_me() async {
+        if (ont?['ip'] == null) {
             l.e('ont has not ip');
             return;
         }
-        final pings = await guard(context, () => ping(data!['ip']));
+        final pings = await guard(context, () => ping(ont!['ip']));
         if (pings != null) {
             my_ping = average(List<double>.from(pings));
             if (!mounted) return;
@@ -98,19 +97,17 @@ class _OntDialogState extends State<OntDialog> {
         }
     }
 
-    Future<void> _ping() async {
+    Future _ping() async {
         _ping_neighbour();
         _ping_me();
         _ping_olt();
     }
 
-    Future<void> _load() async {
-        data = await get_ont(widget.olt_id, widget.sn);
-
-        if (data!['detail'] != null && mounted) {
-            show_error(context, t.ont.load_error('${data!['detail']}'));
+    Future _load() async {
+        ont = await guard(context, () => get_ont(widget.olt_id, widget.sn));
+        if (!mounted) return;
+        if (ont == null) {
             Navigator.pop(context);
-            return;
         }
         setState(() {});
         if (_online) {
@@ -119,17 +116,17 @@ class _OntDialogState extends State<OntDialog> {
     }
 
     void _mark_offline() {
-        data!['last_down'] = DateTime.now().format(pattern: 'yyyy.MM.dd HH:mm:ss');
-        data!['last_down_cause'] = 'reset';
-        data!['rx'] = null;
-        data!['tx'] = null;
-        data!['temp'] = null;
-        data!['online'] = false;
+        ont!['last_down'] = DateTime.now().format(pattern: 'yyyy.MM.dd HH:mm:ss');
+        ont!['last_down_cause'] = 'reset';
+        ont!['rx'] = null;
+        ont!['tx'] = null;
+        ont!['temp'] = null;
+        ont!['online'] = false;
 
-        for (final port in (data!['catv'] as List? ?? const [])) {
+        for (final port in (ont!['catv'] as List? ?? const [])) {
             port['actual_status'] = false;
         }
-        for (final port in (data!['eth'] as List? ?? const [])) {
+        for (final port in (ont!['eth'] as List? ?? const [])) {
             port['actual_status'] = false;
         }
     }
@@ -175,24 +172,24 @@ class _OntDialogState extends State<OntDialog> {
                 state: state,
                 sn: widget.sn,
                 catv_id: id,
-                olt_id: data!['olt']['id'],
+                olt_id: ont!['olt']['id'],
                 is_customer_active: widget.is_customer_active
             )
         );
 
         if (toggled == true){
             setState(() {
-                data!['catv'][id - 1]['status'] = !state;
-                data!['catv'][id - 1]['actual_status'] = !state;
+                ont!['catv'][id - 1]['status'] = !state;
+                ont!['catv'][id - 1]['actual_status'] = !state;
             });
         }
     }
 
 
     String? _uptime() {
-        if (data?['last_up'] == null || !_online) return null;
+        if (ont?['last_up'] == null || !_online) return null;
 
-        final DateTime? last_up = parse_api_date(data!['last_up']);
+        final DateTime? last_up = parse_api_date(ont!['last_up']);
         if (last_up == null) return null;
 
         return DateTime.now().difference(last_up).pretty(
@@ -211,221 +208,11 @@ class _OntDialogState extends State<OntDialog> {
         );
     }
 
-    String _catv_tooltip(Map port) {
-        return t.ont.catv_tooltip(
-            port['status'] == true? t.status.enabled : t.status.disabled,
-            port['actual_status'] == true? t.status.online : t.status.offline
-        );
-    }
-
-    String _eth_tooltip(Map port) {
-        return t.ont.eth_tooltip(
-            port['status'] == true? t.status.enabled : t.status.disabled,
-            port['actual_status'] == true? t.status.online : t.status.offline,
-            port['speed'].toString(),
-            port['duplex'] == 'half'? t.ont.eth_duplex_half : port['duplex'] == 'full'? t.ont.eth_duplex_full : t.ont.eth_duplex_neg,
-        );
-    }
-
-    String _eth_detail(Map port) {
-        if (port['status'] != true) return t.ont.port_shutdown;
-        if (port['actual_status'] != true) return t.ont.port_broken;
-
-        return t.ont.port_speed(
-            '${port['speed'] ?? t.common.empty}', '${port['duplex'] ?? '?'}'
-        );
-    }
-
-
-    Widget _olt_section() {
-        return SectionCard(
-            icon: Icons.dns_rounded,
-            title: t.ont.section_olt,
-            online: data!['olt']['online'],
-            child: Column(
-                children: [
-                    InfoTile(title: t.ont.olt_name, value: data!['olt']['name']),
-                    InfoTile(title: t.ont.olt_location, value: data!['olt']['location']),
-                    const SizedBox(height: 8),
-                    Row(
-                        children: [
-                            Expanded(child: _signal_card(t.ont.rx, data!['rx_olt'], get_rx_color)),
-                            const SizedBox(width: 8),
-                            Expanded(child: _signal_card(t.ont.tx, data!['tx_olt'], get_tx_color))
-                        ]
-                    )
-                ]
-            )
-        );
-    }
-
-    Widget _ont_section() {
-        final String? uptime = _uptime();
-
-        return SectionCard(
-            icon: Icons.memory,
-            title: t.ont.section_ont,
-            online: data!['online'],
-            child: Column(
-                children: [
-                    InfoTile(title: t.ont.sn, value: widget.sn),
-                    InfoTile(title: t.ont.ip, value: data!['ip']),
-
-                    if (uptime != null)
-                    InfoTile(title: t.ont.uptime, value: uptime),
-
-                    if (data!['distance'] != null)
-                    InfoTile(
-                        title: t.ont.distance,
-                        value: (data!['distance'] as int).meter
-                            .toString(targetUnit: LengthUnit.kilometer, format: const QuantityFormat(fractionDigits: 3))
-                            .replaceAll('km', t.ont.kilometers)
-                    ),
-
-                    if (data!['last_up'] != null)
-                    InfoTile(title: t.ont.last_up, value: _relative_date(data!['last_up'])),
-
-                    if (data!['last_down'] != null)
-                    InfoTile(title: t.ont.last_down, value: _relative_date(data!['last_down'])),
-
-                    if (data!['last_down_cause'] != null)
-                    InfoTile(title: t.ont.last_down_cause, value: '${data!['last_down_cause']}'),
-
-                    if (data!['ping'] != null)
-                    InfoTile(title: t.ont.ping, value: '${data!['ping']}'),
-
-                    const SizedBox(height: 8),
-                    Row(
-                        spacing: 8,
-                        children: [
-                            Expanded(child: _signal_card(t.ont.rx, data!['rx'], get_rx_color)),
-                            Expanded(child: _signal_card(t.ont.tx, data!['tx'], get_tx_color)),
-                            Expanded(
-                                child: StatCard(
-                                    label: t.ont.temperature,
-                                    value: '${data!['temp']?.toStringAsFixed(0) ?? t.common.empty}°C',
-                                    color: get_temp_color(data!['temp'])
-                                )
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
-    }
-
-    Widget _ping_section() {
-        return SectionCard(
-            title: t.ont.ping,
-            child: olt_ping == null? const Center(child: AngularProgressBar()) : Row(
-                spacing: 8,
-                children: [
-                    Expanded(
-                        child: StatCard(
-                            label: t.ont.this_ont,
-                            value: my_ping != null? '${my_ping!.toString()}${t.ont.milliseconds}' : '-',
-                            color: get_ping_color(my_ping)
-                        )
-                    ),
-                    Expanded(
-                        child: StatCard(
-                            label: t.ont.neighbour_ont,
-                            value: neighbour_ping != null? '${neighbour_ping!.toString()}${t.ont.milliseconds}' : '-',
-                            color: get_ping_color(neighbour_ping)
-                        )
-                    ),
-                    Expanded(
-                        child: StatCard(
-                            label: t.ont.olt,
-                            value: olt_ping != null? '${olt_ping!.toString()}${t.ont.milliseconds}' : '-',
-                            color: get_ping_color(olt_ping)
-                        )
-                    )
-                ]
-            )
-        );
-    }
-
-    Widget _signal_card(String label, dynamic value, Color Function(double) color_of) {
-        return StatCard(
-            label: label,
-            value: value?.toStringAsFixed(2) ?? t.common.empty,
-            color: value == null? AppColors.neo : color_of(value)
-        );
-    }
-
-    Widget _ports_section() {
-        final List catv = data!['catv'] as List? ?? const [];
-        final List eth = data!['eth'] as List? ?? const [];
-
-        return SelectionContainer.disabled(
-            child: Row(
-                spacing: 4,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                    Flexible(
-                        child: SectionCard(
-                            icon: Icons.tv,
-                            title: t.ont.section_catv,
-                            child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: catv.isEmpty
-                                    ? [Text(t.ont.no_catv_ports, style: const TextStyle(color: AppColors.secondary))]
-                                    : catv.map<Widget>((port) {
-                                        final bool enabled = port['status'] == true;
-                                        return PortTile(
-                                            label: t.ont.port('${port['id']}'),
-                                            up: port['actual_status'] == true,
-                                            enabled: enabled,
-                                            detail: enabled? t.status.enabled : t.status.disabled,
-                                            tooltip: _catv_tooltip(port),
-                                            on_tap: () => _toggle_catv(port['id'], enabled)
-                                        );
-                                    }).toList()
-                            )
-                        )
-                    ),
-                    Flexible(
-                        child: SectionCard(
-                            icon: Icons.lan,
-                            title: t.ont.section_eth,
-                            child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: eth.isEmpty
-                                    ? [Text(t.ont.no_eth_ports, style: const TextStyle(color: AppColors.secondary))]
-                                    : eth.map<Widget>((port) {
-                                        return PortTile(
-                                            label: t.ont.port('${port['id']}'),
-                                            up: port['actual_status'] == true,
-                                            enabled: port['status'] == true,
-                                            duplex: port['duplex'],
-                                            detail: _eth_detail(port),
-                                            tooltip: _eth_tooltip(port)
-                                        );
-                                    }).toList()
-                            )
-                        )
-                    )
-                ]
-            )
-        );
-    }
-
-    Widget _action_button(String label, IconData icon, bool busy, VoidCallback action) {
-        return ElevatedButton.icon(
-            onPressed: busy || !_loaded || !_online? null : action,
-            label: busy
-                ? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator())
-                : Text(label),
-            icon: busy? null : Icon(icon)
-        );
-    }
 
     @override
     Widget build(BuildContext context) {
-        final bool can_act = _loaded && _online;
+        final bool can_act = ont != null && _online;
+        final online_stops = ont != null? get_ont_online_stops(parse_api_date(ont!['last_down']), parse_api_date(ont!['last_up'])) : null;
 
         return AlertDialog(
             title: DialogHeader(
@@ -455,23 +242,233 @@ class _OntDialogState extends State<OntDialog> {
             content: SelectionArea(
                 child: SizedBox(
                     width: 600,
-                    child: !_loaded? const Center(child: AngularProgressBar()) : SingleChildScrollView(
+                    child: ont == null? const Center(child: AngularProgressBar()) : SingleChildScrollView(
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             spacing: 8,
                             children: [
-                                if (data!['olt'] != null) _olt_section(),
-                                _ping_section(),
-                                _ont_section(),
-                                _ports_section(),
+                                if (ont!['olt'] != null)
+                                SectionCard(
+                                    icon: Icons.dns_rounded,
+                                    title: t.ont.section_olt,
+                                    online: ont!['olt']['online'],
+                                    child: Column(
+                                        children: [
+                                            InfoTile(title: t.ont.olt_name, value: ont!['olt']['name']),
+                                            InfoTile(title: t.ont.olt_location, value: ont!['olt']['location']),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                                children: [
+                                                    Expanded(
+                                                        child: StatCard(
+                                                            label: t.ont.rx,
+                                                            value: ont!['rx_olt']?.toStringAsFixed(2) ?? t.common.empty,
+                                                            color: ont!['rx_olt'] == null? AppColors.neo : get_rx_color(ont!['rx_olt'])
+                                                        )
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                        child: StatCard(
+                                                            label: t.ont.tx,
+                                                            value: ont!['tx_olt']?.toStringAsFixed(2) ?? t.common.empty,
+                                                            color: ont!['tx_olt'] == null? AppColors.neo : get_tx_color(ont!['tx_olt'])
+                                                        )
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ),
+                                SectionCard(
+                                    title: t.ont.ping,
+                                    child: olt_ping == null? const Center(child: AngularProgressBar()) : Row(
+                                        spacing: 8,
+                                        children: [
+                                            Expanded(
+                                                child: StatCard(
+                                                    label: t.ont.this_ont,
+                                                    value: my_ping != null? '${my_ping!.toString()}${t.ont.milliseconds}' : '-',
+                                                    color: get_ping_color(my_ping)
+                                                )
+                                            ),
+                                            Expanded(
+                                                child: StatCard(
+                                                    label: t.ont.neighbour_ont,
+                                                    value: neighbour_ping != null? '${neighbour_ping!.toString()}${t.ont.milliseconds}' : '-',
+                                                    color: get_ping_color(neighbour_ping)
+                                                )
+                                            ),
+                                            Expanded(
+                                                child: StatCard(
+                                                    label: t.ont.olt,
+                                                    value: olt_ping != null? '${olt_ping!.toString()}${t.ont.milliseconds}' : '-',
+                                                    color: get_ping_color(olt_ping)
+                                                )
+                                            )
+                                        ]
+                                    )
+                                ),
+                                SectionCard(
+                                    icon: Icons.memory,
+                                    title: t.ont.section_ont,
+                                    online: ont!['online'],
+                                    child: Column(
+                                        children: [
+                                            InfoTile(title: t.ont.sn, value: widget.sn),
+                                            InfoTile(title: t.ont.ip, value: ont!['ip']),
+
+                                            if (_uptime() != null)
+                                            InfoTile(title: t.ont.uptime, value: _uptime()),
+
+                                            if (ont!['distance'] != null)
+                                            InfoTile(
+                                                title: t.ont.distance,
+                                                value: (ont!['distance'] as int).meter
+                                                    .toString(targetUnit: LengthUnit.kilometer, format: const QuantityFormat(fractionDigits: 3))
+                                                    .replaceAll('km', t.ont.kilometers)
+                                            ),
+
+                                            if (ont!['online'] && ont!['last_up'] != null)
+                                            InfoTile(title: t.ont.last_up, value: _relative_date(ont!['last_up'])),
+
+                                            if (!ont!['online'] && ont!['last_down'] != null)
+                                            InfoTile(title: t.ont.last_down, value: _relative_date(ont!['last_down'])),
+
+                                            if (!ont!['online'] && ont!['last_down_cause'] != null)
+                                            InfoTile(title: t.ont.last_down_cause, value: '${ont!['last_down_cause']}'),
+
+                                            Container(
+                                                decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                        colors: online_stops!.$1,
+                                                        stops: online_stops.$2
+                                                    ),
+                                                    borderRadius: BorderRadius.circular(4)
+                                                ),
+                                                width: double.maxFinite,
+                                                height: 10,
+                                                margin: const EdgeInsets.only(top: 10, bottom: 8),
+                                                child: Row(
+                                                    children: List.generate(168, (i) => Tooltip(
+                                                        message: online_stops.$3[i],
+                                                        child: const SizedBox(height: 10, width: 3.45)
+                                                    ))
+                                                )
+                                            ),
+
+                                            if (ont!['ping'] != null)
+                                            InfoTile(title: t.ont.ping, value: '${ont!['ping']}'),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                                spacing: 8,
+                                                children: [
+                                                    Expanded(
+                                                        child: StatCard(
+                                                            label: t.ont.rx,
+                                                            value: ont!['rx']?.toStringAsFixed(2) ?? t.common.empty,
+                                                            color: ont!['rx'] == null? AppColors.neo : get_rx_color(ont!['rx'])
+                                                        )
+                                                    ),
+                                                    Expanded(
+                                                        child: StatCard(
+                                                            label: t.ont.tx,
+                                                            value: ont!['tx']?.toStringAsFixed(2) ?? t.common.empty,
+                                                            color: ont!['tx'] == null? AppColors.neo : get_tx_color(ont!['tx'])
+                                                        )
+                                                    ),
+                                                    Expanded(
+                                                        child: StatCard(
+                                                            label: t.ont.temperature,
+                                                            value: '${ont!['temp']?.toStringAsFixed(0) ?? t.common.empty}°C',
+                                                            color: get_temp_color(ont!['temp'])
+                                                        )
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ),
+                                SelectionContainer.disabled(
+                                    child: Row(
+                                        spacing: 4,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                            Flexible(
+                                                child: SectionCard(
+                                                    icon: Icons.tv,
+                                                    title: t.ont.section_catv,
+                                                    child: Wrap(
+                                                        spacing: 8,
+                                                        runSpacing: 8,
+                                                        children: ont!['catv'].isEmpty? [Text(t.ont.no_catv_ports, style: const TextStyle(color: AppColors.secondary))] :
+                                                        ont!['catv'].map<Widget>((port) {
+                                                            final bool enabled = port['status'] == true;
+                                                            return PortTile(
+                                                                label: t.ont.port('${port['id']}'),
+                                                                up: port['actual_status'] == true,
+                                                                enabled: enabled,
+                                                                detail: enabled? t.status.enabled : t.status.disabled,
+                                                                tooltip: t.ont.catv_tooltip(
+                                                                    port['status'] == true? t.status.enabled : t.status.disabled,
+                                                                    port['actual_status'] == true? t.status.online : t.status.offline
+                                                                ),
+                                                                on_tap: () => _toggle_catv(port['id'], enabled)
+                                                            );
+                                                        }).toList()
+                                                    )
+                                                )
+                                            ),
+                                            Flexible(
+                                                child: SectionCard(
+                                                    icon: Icons.lan,
+                                                    title: t.ont.section_eth,
+                                                    child: Wrap(
+                                                        spacing: 8,
+                                                        runSpacing: 8,
+                                                        children: ont!['eth'].isEmpty? [Text(t.ont.no_eth_ports, style: const TextStyle(color: AppColors.secondary))] :
+                                                        ont!['eth'].map<Widget>((port) {
+                                                            return PortTile(
+                                                                label: t.ont.port('${port['id']}'),
+                                                                up: port['actual_status'] == true,
+                                                                enabled: port['status'] == true,
+                                                                duplex: port['duplex'],
+                                                                detail: port['status'] != true? t.ont.port_shutdown : port['actual_status'] != true? t.ont.port_broken : t.ont.port_speed(
+                                                                    '${port['speed'] ?? t.common.empty}', '${port['duplex'] ?? '?'}'
+                                                                ),
+                                                                tooltip: t.ont.eth_tooltip(
+                                                                    port['status'] == true? t.status.enabled : t.status.disabled,
+                                                                    port['actual_status'] == true? t.status.online : t.status.offline,
+                                                                    port['speed'].toString(),
+                                                                    port['duplex'] == 'half'? t.ont.eth_duplex_half : port['duplex'] == 'full'? t.ont.eth_duplex_full : t.ont.eth_duplex_neg,
+                                                                )
+                                                            );
+                                                        }).toList()
+                                                    )
+                                                )
+                                            )
+                                        ]
+                                    )
+                                ),
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     spacing: 8,
                                     children: [
-                                        _action_button(t.ont.restart, Icons.restart_alt, restarting, _restart),
-                                        _action_button(t.ont.rewrite_sn, Icons.save_as, rewriting_sn, _rewrite_sn),
-                                        _action_button(t.ont.rewrite_mac, Icons.settings_ethernet, rewriting_mac, _rewrite_mac)
+                                        ElevatedButton.icon(
+                                            onPressed: restarting || ont == null || !_online? null : _restart,
+                                            label: restarting? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : Text(t.ont.restart),
+                                            icon: restarting? null : const Icon(Icons.restart_alt)
+                                        ),
+                                        ElevatedButton.icon(
+                                            onPressed: rewriting_sn || ont == null || !_online? null : _rewrite_sn,
+                                            label: rewriting_sn? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : Text(t.ont.rewrite_sn),
+                                            icon: rewriting_sn? null : const Icon(Icons.save_as)
+                                        ),
+                                        ElevatedButton.icon(
+                                            onPressed: rewriting_sn || ont == null || !_online? null : _rewrite_mac,
+                                            label: rewriting_sn? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator()) : Text(t.ont.rewrite_mac),
+                                            icon: rewriting_sn? null : const Icon(Icons.settings_ethernet)
+                                        )
                                     ]
                                 )
                             ]
