@@ -65,6 +65,8 @@ class MessagesEn extends Messages {
   String get languageCode => "en";
   AppMessagesEn get app => AppMessagesEn(this);
   CommonMessagesEn get common => CommonMessagesEn(this);
+  IncompatibleVersionMessagesEn get incompatibleVersion =>
+      IncompatibleVersionMessagesEn(this);
   StatusMessagesEn get status => StatusMessagesEn(this);
   LoginMessagesEn get login => LoginMessagesEn(this);
   HomeMessagesEn get home => HomeMessagesEn(this);
@@ -203,6 +205,60 @@ class CommonMessagesEn extends CommonMessages {
   /// "Error open link: Link not clickable"
   /// ```
   String get link_not_clickable => """Error open link: Link not clickable""";
+
+  /// ```dart
+  /// "No connection with server. Please reload page."
+  /// ```
+  String get no_connection =>
+      """No connection with server. Please reload page.""";
+
+  /// ```dart
+  /// "Site under maintenance. Some functions may work as not expected."
+  /// ```
+  String get dev_warning =>
+      """Site under maintenance. Some functions may work as not expected.""";
+
+  /// ```dart
+  /// "Unstable site version. Some functions may work as not expected."
+  /// ```
+  String get unstable_warning =>
+      """Unstable site version. Some functions may work as not expected.""";
+
+  /// ```dart
+  /// "Site under maintenance. Please come later."
+  /// ```
+  String get force_dev => """Site under maintenance. Please come later.""";
+
+  /// ```dart
+  /// "Maintenance"
+  /// ```
+  String get force_dev_title => """Maintenance""";
+}
+
+class IncompatibleVersionMessagesEn extends IncompatibleVersionMessages {
+  final MessagesEn _parent;
+  const IncompatibleVersionMessagesEn(this._parent) : super(_parent);
+
+  /// ```dart
+  /// "Incompitalbe version"
+  /// ```
+  String get title => """Incompitalbe version""";
+
+  /// ```dart
+  /// "Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator."
+  /// ```
+  String get description =>
+      """Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator.""";
+
+  /// ```dart
+  /// "Current version"
+  /// ```
+  String get current => """Current version""";
+
+  /// ```dart
+  /// "Compatible version(s)"
+  /// ```
+  String get compatible => """Compatible version(s)""";
 }
 
 class StatusMessagesEn extends StatusMessages {
@@ -962,11 +1018,6 @@ class OntMessagesEn extends OntMessages {
   String get last_down_cause => """Last down cause""";
 
   /// ```dart
-  /// "Ping"
-  /// ```
-  String get ping => """Ping""";
-
-  /// ```dart
   /// "RX (dBm)"
   /// ```
   String get rx => """RX (dBm)""";
@@ -985,6 +1036,11 @@ class OntMessagesEn extends OntMessages {
   /// "km"
   /// ```
   String get kilometers => """km""";
+
+  /// ```dart
+  /// "ms"
+  /// ```
+  String get milliseconds => """ms""";
 
   /// ```dart
   /// "No CATV ports"
@@ -1030,7 +1086,7 @@ Status: $actual""";
   /// """
   /// State: $state
   /// Status: $actual
-  /// Speed: $speed Мбит/c
+  /// Speed: $speed MBit/s
   /// Duplex: $duplex
   /// """
   /// ```
@@ -1042,7 +1098,7 @@ Status: $actual""";
   ) =>
       """State: $state
 Status: $actual
-Speed: $speed Мбит/c
+Speed: $speed MBit/s
 Duplex: $duplex""";
 
   /// ```dart
@@ -1065,6 +1121,26 @@ Duplex: $duplex""";
   /// ```
   String relative_date(String relative, String absolute) =>
       """$relative ($absolute)""";
+
+  /// ```dart
+  /// "Ping"
+  /// ```
+  String get ping => """Ping""";
+
+  /// ```dart
+  /// "This ONT"
+  /// ```
+  String get this_ont => """This ONT""";
+
+  /// ```dart
+  /// "Neighbour ONT"
+  /// ```
+  String get neighbour_ont => """Neighbour ONT""";
+
+  /// ```dart
+  /// "OLT"
+  /// ```
+  String get olt => """OLT""";
 }
 
 class CatvMessagesEn extends CatvMessages {
@@ -1535,6 +1611,19 @@ Map<String, String> get messagesEnMap => {
   """common.preview""": """Preview""",
   """common.preview_tooltip""": """Function in development""",
   """common.link_not_clickable""": """Error open link: Link not clickable""",
+  """common.no_connection""":
+      """No connection with server. Please reload page.""",
+  """common.dev_warning""":
+      """Site under maintenance. Some functions may work as not expected.""",
+  """common.unstable_warning""":
+      """Unstable site version. Some functions may work as not expected.""",
+  """common.force_dev""": """Site under maintenance. Please come later.""",
+  """common.force_dev_title""": """Maintenance""",
+  """incompatibleVersion.title""": """Incompitalbe version""",
+  """incompatibleVersion.description""":
+      """Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator.""",
+  """incompatibleVersion.current""": """Current version""",
+  """incompatibleVersion.compatible""": """Compatible version(s)""",
   """status.active""": """Active""",
   """status.paused""": """Pause""",
   """status.inactive""": """Inactive""",
@@ -1669,11 +1758,11 @@ Map<String, String> get messagesEnMap => {
   """ont.last_up""": """Last up""",
   """ont.last_down""": """Last down""",
   """ont.last_down_cause""": """Last down cause""",
-  """ont.ping""": """Ping""",
   """ont.rx""": """RX (dBm)""",
   """ont.tx""": """TX (dBm)""",
   """ont.temperature""": """Temperature""",
   """ont.kilometers""": """km""",
+  """ont.milliseconds""": """ms""",
   """ont.no_catv_ports""": """No CATV ports""",
   """ont.no_eth_ports""": """No ETH ports""",
   """ont.port_broken""": """Not working""",
@@ -1681,6 +1770,10 @@ Map<String, String> get messagesEnMap => {
   """ont.eth_duplex_full""": """Full""",
   """ont.eth_duplex_half""": """Half""",
   """ont.eth_duplex_neg""": """Unknown""",
+  """ont.ping""": """Ping""",
+  """ont.this_ont""": """This ONT""",
+  """ont.neighbour_ont""": """Neighbour ONT""",
+  """ont.olt""": """OLT""",
   """catv.enable_title""": """Enabling CATV""",
   """catv.disable_title""": """Disabling CATV""",
   """catv.enable_confirm""": """Are you sure to enable CATV?""",

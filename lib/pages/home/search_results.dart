@@ -4,7 +4,6 @@ import 'package:smartlink/theme.dart';
 import 'package:smartlink/widgets/angular_progress_bar.dart';
 import 'package:smartlink/widgets/tappable.dart';
 
-/// Список найденных абонентов под строкой поиска.
 class SearchResults extends StatelessWidget {
     const SearchResults({
         required this.customers,

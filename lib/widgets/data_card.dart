@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartlink/theme.dart';
 
-/// Карточка главного экрана: цветная полоса состояния слева, заголовок
-/// с иконкой, ряд мини-кнопок справа и произвольное содержимое.
 class DataCard extends StatelessWidget {
     const DataCard({
         required this.line_color,
@@ -15,14 +13,12 @@ class DataCard extends StatelessWidget {
         this.mini_buttons = const []
     });
 
-    /// Цвет вертикальной полосы слева — сводный индикатор состояния карточки.
     final Color line_color;
 
     final IconData? icon;
     final String title;
     final Widget child;
 
-    /// Последняя карточка в ряду — без отступа справа.
     final bool last;
 
     final int flex;

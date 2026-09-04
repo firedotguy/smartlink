@@ -24,6 +24,17 @@ common:
     preview_tooltip: Function in development
     som(String amount): "$amount som"
     link_not_clickable: "Error open link: Link not clickable"
+    no_connection: 'No connection with server. Please reload page.'
+    dev_warning: 'Site under maintenance. Some functions may work as not expected.'
+    unstable_warning: 'Unstable site version. Some functions may work as not expected.'
+    force_dev: 'Site under maintenance. Please come later.'
+    force_dev_title: 'Maintenance'
+
+incompatibleVersion:
+    title: 'Incompitalbe version'
+    description: 'Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator.'
+    current: 'Current version'
+    compatible: 'Compatible version(s)'
 
 status:
     active: Active
@@ -183,11 +194,11 @@ ont:
     last_up: Last up
     last_down: Last down
     last_down_cause: Last down cause
-    ping: Ping
     rx: RX (dBm)
     tx: TX (dBm)
     temperature: Temperature
     kilometers: km
+    milliseconds: ms
     no_catv_ports: No CATV ports
     no_eth_ports: No ETH ports
     port(String id): "Port $id"
@@ -195,11 +206,15 @@ ont:
     port_shutdown: Disabled
     port_speed(String speed, String duplex): "$speed MBit/s  $duplex"
     catv_tooltip(String state, String actual): "State: $state\nStatus: $actual"
-    eth_tooltip(String state, String actual, String speed, String duplex): "State: $state\nStatus: $actual\nSpeed: $speed Мбит/c\nDuplex: $duplex"
+    eth_tooltip(String state, String actual, String speed, String duplex): "State: $state\nStatus: $actual\nSpeed: $speed MBit/s\nDuplex: $duplex"
     eth_duplex_full: Full
     eth_duplex_half: Half
     eth_duplex_neg: Unknown
     relative_date(String relative, String absolute): "$relative ($absolute)"
+    ping: Ping
+    this_ont: "This ONT"
+    neighbour_ont: "Neighbour ONT"
+    olt: OLT
 
 catv:
     enable_title: Enabling CATV

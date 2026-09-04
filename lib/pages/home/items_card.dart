@@ -7,7 +7,6 @@ import 'package:smartlink/widgets/data_card.dart';
 import 'package:smartlink/widgets/icon_action.dart';
 import 'package:smartlink/widgets/table_header.dart';
 
-/// Карточка «Оборудование».
 class ItemsCard extends StatelessWidget {
     const ItemsCard({
         required this.items,

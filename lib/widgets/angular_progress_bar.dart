@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartlink/theme.dart';
 
-/// Полоса загрузки со скошенными краями и бегущим индикатором.
 class AngularProgressBar extends StatefulWidget {
-    /// Creates an angular progress bar with customizable dimensions and colors.
     const AngularProgressBar({
         super.key,
         this.width = 200,
@@ -11,13 +9,9 @@ class AngularProgressBar extends StatefulWidget {
         this.background_color = AppColors.main,
         this.color = AppColors.neo,
     });
-    /// Width of the progress bar. Defaults to 200.
     final double width;
-    /// Height of the progress bar. Defaults to 10.
     final double height;
-    /// Background color of the progress bar.
     final Color background_color;
-    /// Color of the animated runner.
     final Color color;
 
     @override
@@ -82,7 +76,6 @@ class _AngularProgressBarState extends State<AngularProgressBar>
     }
 }
 
-/// Строит шестиугольный контур полосы загрузки.
 Path _bar_path(Size size) {
     final double w = size.width;
     final double h = size.height;

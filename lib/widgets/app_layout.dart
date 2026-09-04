@@ -54,13 +54,13 @@ class _AppLayoutState extends State<AppLayout> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                    title: const Text('Несовместимая версия'),
+                    title: Text(t.incompatibleVersion.title),
                     content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                            const Text('Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.'),
-                            InfoTile(title: 'Текущая версия', value: version),
-                            InfoTile(title: 'Требуемая версия', value: platform['compatible_versions'].join(' / '))
+                            Text(t.incompatibleVersion.description),
+                            InfoTile(title: t.incompatibleVersion.current, value: version),
+                            InfoTile(title: t.incompatibleVersion.compatible, value: platform['compatible_versions'].join(' / '))
                         ],
                     )
                 )
@@ -72,12 +72,12 @@ class _AppLayoutState extends State<AppLayout> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                    title: const Text('Тех. работы'),
+                    title: Text(t.common.force_dev_title),
                     content: GestureDetector(
                         onTertiaryLongPress: () {
                             Navigator.pop(context);
                         },
-                        child: const Text('На сайте проходят технические работы. Зайдите позже.')
+                        child: Text(t.common.force_dev)
                     )
                 )
             );
@@ -95,7 +95,7 @@ class _AppLayoutState extends State<AppLayout> {
                                 prefs.setString('last_announce', platform['announcement']['title']);
                                 Navigator.pop(context);
                             },
-                            child: const Text('Закрыть')
+                            child: Text(t.common.close)
                         )
                     ],
                 )
@@ -171,7 +171,7 @@ class _AppLayoutState extends State<AppLayout> {
                                                     )
                                                 ),
                                             ),
-                                            Text(!connection? 'Нет соединения с сервером. Перезагрзуите страницу.' : is_dev? 'Технические работы. Часть функционала может не работать.' : 'Нестабильная версия. Возможны ошибки или неправильная работа части функционала.', style: const TextStyle(color: Colors.black, fontSize: 16))
+                                            Text(!connection? t.common.no_connection : is_dev? t.common.dev_warning : t.common.unstable_warning, style: const TextStyle(color: Colors.black, fontSize: 16))
                                         ]
                                     )
                                 ),

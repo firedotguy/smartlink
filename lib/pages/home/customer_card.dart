@@ -10,7 +10,6 @@ import 'package:smartlink/widgets/info_tile.dart';
 import 'package:smartlink/widgets/sub_heading.dart';
 import 'package:smartlink/widgets/tappable.dart';
 
-/// Карточка «Абонент».
 class CustomerCard extends StatelessWidget {
     const CustomerCard({
         required this.customer,
@@ -21,8 +20,6 @@ class CustomerCard extends StatelessWidget {
         super.key
     });
     final Map? customer;
-
-    /// Нужна только для предупреждения «Проблемы в коробке».
     final Map? building;
 
     final VoidCallback on_refresh;
@@ -124,7 +121,7 @@ class CustomerCard extends StatelessWidget {
             _Warning(
                 icon: Icons.access_time,
                 text: t.customer.last_activity_warning(
-                    FlutterDateFormatter.formatRelativeDateTime(parse_api_date(last_active)!, locale: 'ru')
+                    FlutterDateFormatter.formatRelativeDateTime(parse_api_date(last_active)!)
                 ),
                 color: AppColors.error
             ),

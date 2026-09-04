@@ -82,6 +82,10 @@ class _OntDialogState extends State<OntDialog> {
         }
     }
     Future<void> _ping_me() async {
+        if (data?['ip'] == null) {
+            l.e('ont has not ip');
+            return;
+        }
         final pings = await ping(data!['ip']);
         if (pings != null) {
             my_ping = average(List<double>.from(pings));
@@ -90,9 +94,9 @@ class _OntDialogState extends State<OntDialog> {
     }
 
     Future<void> _ping() async {
-        _ping_olt();
         _ping_neighbour();
         _ping_me();
+        _ping_olt();
     }
 
     Future<void> _load() async {
@@ -238,7 +242,7 @@ class _OntDialogState extends State<OntDialog> {
         if (last_up == null) return null;
 
         return DateTime.now().difference(last_up).pretty(
-            locale: DurationLocale.fromLanguageCode('ru')!,
+            locale: DurationLocale.fromLanguageCode(current_locale)!,
             tersity: DurationTersity.minute
         );
     }
@@ -265,7 +269,7 @@ class _OntDialogState extends State<OntDialog> {
             port['status'] == true? t.status.enabled : t.status.disabled,
             port['actual_status'] == true? t.status.online : t.status.offline,
             port['speed'].toString(),
-            port['duplex'],
+            port['duplex'] == 'half'? t.ont.eth_duplex_half : port['duplex'] == 'full'? t.ont.eth_duplex_full : t.ont.eth_duplex_neg,
         );
     }
 
@@ -359,7 +363,7 @@ class _OntDialogState extends State<OntDialog> {
     Widget _ping_section() {
         return SectionCard(
             title: t.ont.ping,
-            child: my_ping == null || olt_ping == null? const Center(child: AngularProgressBar()) : Row(
+            child: olt_ping == null? const Center(child: AngularProgressBar()) : Row(
                 spacing: 8,
                 children: [
                     Expanded(

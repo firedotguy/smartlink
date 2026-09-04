@@ -64,6 +64,8 @@ class Messages {
   String get languageCode => "en";
   AppMessages get app => AppMessages(this);
   CommonMessages get common => CommonMessages(this);
+  IncompatibleVersionMessages get incompatibleVersion =>
+      IncompatibleVersionMessages(this);
   StatusMessages get status => StatusMessages(this);
   LoginMessages get login => LoginMessages(this);
   HomeMessages get home => HomeMessages(this);
@@ -203,6 +205,61 @@ class CommonMessages {
   /// ```
   String get link_not_clickable =>
       """Ошибка открытия ссылки: Ссылка некликабельна""";
+
+  /// ```dart
+  /// "Нет соединения с сервером. Перезагрузите страницу."
+  /// ```
+  String get no_connection =>
+      """Нет соединения с сервером. Перезагрузите страницу.""";
+
+  /// ```dart
+  /// "Технические работы. Часть функционала может не работать."
+  /// ```
+  String get dev_warning =>
+      """Технические работы. Часть функционала может не работать.""";
+
+  /// ```dart
+  /// "Нестабильная версия. Возможны ошибки или неправильная работа части функционала."
+  /// ```
+  String get unstable_warning =>
+      """Нестабильная версия. Возможны ошибки или неправильная работа части функционала.""";
+
+  /// ```dart
+  /// "На сайте проходят технические работы. Зайдите позже."
+  /// ```
+  String get force_dev =>
+      """На сайте проходят технические работы. Зайдите позже.""";
+
+  /// ```dart
+  /// "Тех. работы"
+  /// ```
+  String get force_dev_title => """Тех. работы""";
+}
+
+class IncompatibleVersionMessages {
+  final Messages _parent;
+  const IncompatibleVersionMessages(this._parent);
+
+  /// ```dart
+  /// "Несовместимая версия"
+  /// ```
+  String get title => """Несовместимая версия""";
+
+  /// ```dart
+  /// "Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору."
+  /// ```
+  String get description =>
+      """Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.""";
+
+  /// ```dart
+  /// "Текущая версия"
+  /// ```
+  String get current => """Текущая версия""";
+
+  /// ```dart
+  /// "Требуемая версия"
+  /// ```
+  String get compatible => """Требуемая версия""";
 }
 
 class StatusMessages {
@@ -1580,6 +1637,20 @@ Map<String, String> get messagesMap => {
   """common.preview_tooltip""": """Функция в разработке""",
   """common.link_not_clickable""":
       """Ошибка открытия ссылки: Ссылка некликабельна""",
+  """common.no_connection""":
+      """Нет соединения с сервером. Перезагрузите страницу.""",
+  """common.dev_warning""":
+      """Технические работы. Часть функционала может не работать.""",
+  """common.unstable_warning""":
+      """Нестабильная версия. Возможны ошибки или неправильная работа части функционала.""",
+  """common.force_dev""":
+      """На сайте проходят технические работы. Зайдите позже.""",
+  """common.force_dev_title""": """Тех. работы""",
+  """incompatibleVersion.title""": """Несовместимая версия""",
+  """incompatibleVersion.description""":
+      """Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.""",
+  """incompatibleVersion.current""": """Текущая версия""",
+  """incompatibleVersion.compatible""": """Требуемая версия""",
   """status.active""": """Активен""",
   """status.paused""": """Пауза""",
   """status.inactive""": """Отключен""",
