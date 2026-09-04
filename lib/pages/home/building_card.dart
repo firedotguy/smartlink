@@ -54,16 +54,12 @@ class BuildingCard extends StatelessWidget {
                 IconAction(
                     tooltip: t.building.open_tooltip,
                     icon: Icons.open_in_browser,
-                    on_pressed: building != null
-                        ? () => open_in_userside(context, 'building', building!['building_id'])
-                        : null
+                    on_pressed: building != null? () => open_in_userside(context, 'building', building!['building_id']) : null
                 ),
                 IconAction(
                     tooltip: t.building.copy_tooltip,
                     icon: Icons.copy,
-                    on_pressed: building != null
-                        ? () => copy_userside_link(context, 'building', building!['building_id'])
-                        : null
+                    on_pressed: building != null? () => copy_userside_link(context, 'building', building!['building_id']) : null
                 ),
                 IconAction(
                     tooltip: t.common.refresh,
@@ -71,9 +67,7 @@ class BuildingCard extends StatelessWidget {
                     on_pressed: building != null? on_refresh : null
                 )
             ],
-            child: building == null && !not_found
-                ? const Center(child: AngularProgressBar())
-                : Column(
+            child: building == null && !not_found? const Center(child: AngularProgressBar()) : Column(
                     children: [
                         if (not_found)
                         Center(
@@ -102,12 +96,8 @@ class BuildingCard extends StatelessWidget {
                             InfoTile(
                                 title: t.building.open_tasks,
                                 value: tasks?.length.toString() ?? '0',
-                                value_color: tasks == null
-                                    ? AppColors.main
-                                    : tasks.isEmpty? AppColors.success : AppColors.error,
-                                on_tap: tasks == null || tasks.isEmpty
-                                    ? null
-                                    : () => on_open_tasks(List<int>.from(tasks))
+                                value_color: tasks == null? AppColors.main : tasks.isEmpty? AppColors.success : AppColors.error,
+                                on_tap: tasks == null || tasks.isEmpty? null : () => on_open_tasks(List<int>.from(tasks))
                             ),
 
                             const SizedBox(height: 6),

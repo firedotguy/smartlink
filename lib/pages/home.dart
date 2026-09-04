@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
+import 'package:smartlink/dialogs/customer_phones.dart';
 import 'package:smartlink/dialogs/new_task.dart';
 import 'package:smartlink/dialogs/ont.dart';
 import 'package:smartlink/dialogs/task.dart';
 import 'package:smartlink/dialogs/tasks.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/pages/home/building_card.dart';
 import 'package:smartlink/pages/home/customer_card.dart';
@@ -58,7 +60,7 @@ class _HomePageState extends State<HomePage> {
     }
 
 
-    Future<void> _get_settings() async {
+    Future _get_settings() async {
         l.i('get settings data');
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         debounce = prefs.getInt('debounce') ?? 300;
@@ -71,7 +73,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
     }
 
-    Future<void> _load_building() async {
+    Future _load_building() async {
         try {
             l.i('load building data');
             setState(() {
@@ -105,13 +107,12 @@ class _HomePageState extends State<HomePage> {
         }
     }
 
-    Future<void> _load_tasks({int? customer_id}) async {
+    Future _load_tasks({int? customer_id}) async {
         try {
             l.i('load tasks');
-            setState(() {
-                tasks = null;
-            });
-            tasks = await get_customer_tasks(customer_id ?? customer!['id']);
+            setState(() => tasks = null);
+            tasks = await guard(context, () => get_customer_tasks(customer_id ?? customer!['id']));
+            if (!mounted) return;
             setState(() {});
         } catch (e) {
             l.e('error loading tasks: $e');
@@ -119,13 +120,13 @@ class _HomePageState extends State<HomePage> {
         }
     }
 
-    Future<void> _load_items({int? customer_id}) async {
+    Future _load_items({int? customer_id}) async {
         try {
             l.i('load items');
             setState(() {
                 items = null;
             });
-            items = await get_customer_items(customer_id ?? customer!['id']);
+            items = await guard(context, () => get_customer_items(customer_id ?? customer!['id']));
             setState(() {});
         } catch (e) {
             l.e('error loading items: $e');
@@ -139,43 +140,36 @@ class _HomePageState extends State<HomePage> {
             return;
         }
 
-        try {
-            l.i('load customer $id');
-            search_controller.clear();
-            setState(() {
-                load = true;
-                customer = null;
-                if (load_all){
-                    no_building = false;
-                    items = null;
-                    building = null;
-                    tasks = null;
-                }
-                search = false;
-                searching = false;
-                customers.clear();
-            });
-
-            get_customer(id).then((value){
-                customer = value;
-                setState(() {
-                    load = false;
-                });
-                _load_building();
-            });
-
-            if (load_all){
-                _load_tasks(customer_id: id);
-                _load_items(customer_id: id);
+        l.i('load customer $id');
+        search_controller.clear();
+        setState(() {
+            load = true;
+            customer = null;
+            if (load_all) {
+                no_building = false;
+                items = null;
+                building = null;
+                tasks = null;
             }
-        } catch (e) {
-            l.e('error getting customer data: $e');
-            if (mounted) show_error(context, t.home.customer_error('$e'), replace: true);
+            search = false;
+            searching = false;
+            customers.clear();
+        });
+
+        guard(context, () => get_customer(id)).then((value) {
+            customer = value;
+            if (customer == null) return;
+            setState(() {
+                load = false;
+            });
+            _load_building();
+        });
+
+        if (load_all){
+            guard(context, () => _load_tasks(customer_id: id));
+            guard(context, () => _load_items(customer_id: id));
         }
     }
-
-
-    // поиск
 
     void _on_search_submit(String value) {
         l.i('search submitted - value: $value');
@@ -213,7 +207,8 @@ class _HomePageState extends State<HomePage> {
             });
 
             try {
-                final List<Map> found = await search_customers(value);
+                final List<Map>? found = await guard(context, () => search_customers(value));
+                if (found == null || !mounted) return;
                 if (version != search_version) {
                     l.w('ignored outdated search response');
                     return;
@@ -318,12 +313,10 @@ class _HomePageState extends State<HomePage> {
     }
 
 
-    // интерфейс
-
     Widget _search_field() {
         return Row(
             children: [
-                const Expanded(child: SizedBox()), // выравнивание по центральной карточке
+                const Expanded(child: SizedBox()),
                 Expanded(
                     child: Padding(
                         padding: const EdgeInsets.only(right: 16),
@@ -357,7 +350,6 @@ class _HomePageState extends State<HomePage> {
                             children: [
                                 _search_field(),
                                 const SizedBox(height: 10),
-
                                 if (search)
                                 SizedBox(
                                     width: 450,
@@ -392,7 +384,16 @@ class _HomePageState extends State<HomePage> {
                                                 building: building,
                                                 on_refresh: () => _load_customer(customer!['id'], load_all: false),
                                                 on_open_ont: _open_ont,
-                                                on_new_task: _open_new_task
+                                                on_new_task: _open_new_task,
+                                                on_phone_update: () async {
+                                                    final res = await showDialog(
+                                                        context: context,
+                                                        builder: (_) => CustomerPhonesDialog(customer_id: customer!['id'], phones: List<int>.from(customer!['phones']))
+                                                    );
+                                                    if (res != null) {
+                                                        setState(() => customer!['phones'] = res);
+                                                    }
+                                                },
                                             ),
                                             Expanded(
                                                 child: Column(

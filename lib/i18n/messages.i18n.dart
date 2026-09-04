@@ -79,6 +79,7 @@ class Messages {
   TasksMessages get tasks => TasksMessages(this);
   NewTaskMessages get newTask => NewTaskMessages(this);
   SettingsMessages get settings => SettingsMessages(this);
+  CustomerPhonesMessages get customerPhones => CustomerPhonesMessages(this);
 }
 
 class AppMessages {
@@ -96,24 +97,24 @@ class AppMessages {
   String get name => """SmartLinkViewer""";
 
   /// ```dart
-  /// "© 2026 «НеоТелеком»"
+  /// "© 2026 «NeoTelecom»"
   /// ```
-  String get legalese => """© 2026 «НеоТелеком»""";
+  String get legalese => """© 2026 «NeoTelecom»""";
 
   /// ```dart
-  /// "WASM движок включен"
+  /// "WASM renderer enabled"
   /// ```
-  String get renderer_warning => """WASM движок включен""";
+  String get renderer_warning => """WASM renderer enabled""";
 
   /// ```dart
-  /// "Исходный код"
+  /// "View source code"
   /// ```
-  String get source_code => """Исходный код""";
+  String get source_code => """View source code""";
 
   /// ```dart
-  /// "Исходный код API"
+  /// "View API source code"
   /// ```
-  String get api_source_code => """Исходный код API""";
+  String get api_source_code => """View API source code""";
 
   /// ```dart
   /// "v$version (API $api)"
@@ -126,9 +127,9 @@ class AppMessages {
   String version_badge(String version) => """SmartLinkViewer v$version [γ]""";
 
   /// ```dart
-  /// "Настройки"
+  /// "Settings"
   /// ```
-  String get settings_tooltip => """Настройки""";
+  String get settings_tooltip => """Settings""";
 }
 
 class CommonMessages {
@@ -141,49 +142,49 @@ class CommonMessages {
   String get empty => """-""";
 
   /// ```dart
-  /// "Ок"
+  /// "Ok"
   /// ```
-  String get ok => """Ок""";
+  String get ok => """Ok""";
 
   /// ```dart
-  /// "Отмена"
+  /// "Cancel"
   /// ```
-  String get cancel => """Отмена""";
+  String get cancel => """Cancel""";
 
   /// ```dart
-  /// "Закрыть"
+  /// "Close"
   /// ```
-  String get close => """Закрыть""";
+  String get close => """Close""";
 
   /// ```dart
-  /// "Закрыть диалог"
+  /// "Close dialog"
   /// ```
-  String get close_dialog => """Закрыть диалог""";
+  String get close_dialog => """Close dialog""";
 
   /// ```dart
-  /// "Создать"
+  /// "Create"
   /// ```
-  String get create => """Создать""";
+  String get create => """Create""";
 
   /// ```dart
-  /// "Обновить данные"
+  /// "Refresh data"
   /// ```
-  String get refresh => """Обновить данные""";
+  String get refresh => """Refresh data""";
 
   /// ```dart
-  /// "Открыть в UserSide"
+  /// "Open in UserSide"
   /// ```
-  String get open_in_userside => """Открыть в UserSide""";
+  String get open_in_userside => """Open in UserSide""";
 
   /// ```dart
-  /// "Скопировать ссылку в UserSide"
+  /// "Copy UserSide link"
   /// ```
-  String get copy_userside_link => """Скопировать ссылку в UserSide""";
+  String get copy_userside_link => """Copy UserSide link""";
 
   /// ```dart
-  /// "Ссылка скопирована"
+  /// "Link copied"
   /// ```
-  String get link_copied => """Ссылка скопирована""";
+  String get link_copied => """Link copied""";
 
   /// ```dart
   /// "Preview"
@@ -191,49 +192,52 @@ class CommonMessages {
   String get preview => """Preview""";
 
   /// ```dart
-  /// "Функция в разработке"
+  /// "Function in development"
   /// ```
-  String get preview_tooltip => """Функция в разработке""";
+  String get preview_tooltip => """Function in development""";
 
   /// ```dart
-  /// "$amount сом"
+  /// "$amount som"
   /// ```
-  String som(String amount) => """$amount сом""";
+  String som(String amount) => """$amount som""";
 
   /// ```dart
-  /// "Ошибка открытия ссылки: Ссылка некликабельна"
+  /// "Error open link: Link not clickable"
   /// ```
-  String get link_not_clickable =>
-      """Ошибка открытия ссылки: Ссылка некликабельна""";
+  String get link_not_clickable => """Error open link: Link not clickable""";
 
   /// ```dart
-  /// "Нет соединения с сервером. Перезагрузите страницу."
+  /// "No connection with server. Please reload page."
   /// ```
   String get no_connection =>
-      """Нет соединения с сервером. Перезагрузите страницу.""";
+      """No connection with server. Please reload page.""";
 
   /// ```dart
-  /// "Технические работы. Часть функционала может не работать."
+  /// "Site under maintenance. Some functions may work as not expected."
   /// ```
   String get dev_warning =>
-      """Технические работы. Часть функционала может не работать.""";
+      """Site under maintenance. Some functions may work as not expected.""";
 
   /// ```dart
-  /// "Нестабильная версия. Возможны ошибки или неправильная работа части функционала."
+  /// "Unstable site version. Some functions may work as not expected."
   /// ```
   String get unstable_warning =>
-      """Нестабильная версия. Возможны ошибки или неправильная работа части функционала.""";
+      """Unstable site version. Some functions may work as not expected.""";
 
   /// ```dart
-  /// "На сайте проходят технические работы. Зайдите позже."
+  /// "Site under maintenance. Please come later."
   /// ```
-  String get force_dev =>
-      """На сайте проходят технические работы. Зайдите позже.""";
+  String get force_dev => """Site under maintenance. Please come later.""";
 
   /// ```dart
-  /// "Тех. работы"
+  /// "Maintenance"
   /// ```
-  String get force_dev_title => """Тех. работы""";
+  String get force_dev_title => """Maintenance""";
+
+  /// ```dart
+  /// "Error: $error"
+  /// ```
+  String error(String error) => """Error: $error""";
 }
 
 class IncompatibleVersionMessages {
@@ -241,25 +245,25 @@ class IncompatibleVersionMessages {
   const IncompatibleVersionMessages(this._parent);
 
   /// ```dart
-  /// "Несовместимая версия"
+  /// "Incompitalbe version"
   /// ```
-  String get title => """Несовместимая версия""";
+  String get title => """Incompitalbe version""";
 
   /// ```dart
-  /// "Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору."
+  /// "Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator."
   /// ```
   String get description =>
-      """Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.""";
+      """Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator.""";
 
   /// ```dart
-  /// "Текущая версия"
+  /// "Current version"
   /// ```
-  String get current => """Текущая версия""";
+  String get current => """Current version""";
 
   /// ```dart
-  /// "Требуемая версия"
+  /// "Compatible version(s)"
   /// ```
-  String get compatible => """Требуемая версия""";
+  String get compatible => """Compatible version(s)""";
 }
 
 class StatusMessages {
@@ -267,39 +271,39 @@ class StatusMessages {
   const StatusMessages(this._parent);
 
   /// ```dart
-  /// "Активен"
+  /// "Active"
   /// ```
-  String get active => """Активен""";
+  String get active => """Active""";
 
   /// ```dart
-  /// "Пауза"
+  /// "Pause"
   /// ```
-  String get paused => """Пауза""";
+  String get paused => """Pause""";
 
   /// ```dart
-  /// "Отключен"
+  /// "Inactive"
   /// ```
-  String get inactive => """Отключен""";
+  String get inactive => """Inactive""";
 
   /// ```dart
-  /// "Включен"
+  /// "Enabled"
   /// ```
-  String get enabled => """Включен""";
+  String get enabled => """Enabled""";
 
   /// ```dart
-  /// "Выключен"
+  /// "Disabled"
   /// ```
-  String get disabled => """Выключен""";
+  String get disabled => """Disabled""";
 
   /// ```dart
-  /// "Онлайн"
+  /// "Online"
   /// ```
-  String get online => """Онлайн""";
+  String get online => """Online""";
 
   /// ```dart
-  /// "Оффлайн"
+  /// "Offline"
   /// ```
-  String get offline => """Оффлайн""";
+  String get offline => """Offline""";
 
   /// ```dart
   /// "ONLINE"
@@ -317,40 +321,39 @@ class LoginMessages {
   const LoginMessages(this._parent);
 
   /// ```dart
-  /// "Авторизация"
+  /// "Authorization"
   /// ```
-  String get title => """Авторизация""";
+  String get title => """Authorization""";
 
   /// ```dart
-  /// "Логин"
+  /// "Login"
   /// ```
-  String get username => """Логин""";
+  String get username => """Login""";
 
   /// ```dart
-  /// "Пароль"
+  /// "Password"
   /// ```
-  String get password => """Пароль""";
+  String get password => """Password""";
 
   /// ```dart
-  /// "Войти"
+  /// "Login"
   /// ```
-  String get submit => """Войти""";
+  String get submit => """Login""";
 
   /// ```dart
-  /// "Успешная авторизация"
+  /// "Successful authorization"
   /// ```
-  String get success => """Успешная авторизация""";
+  String get success => """Successful authorization""";
 
   /// ```dart
-  /// "Ошибка авторизации: неверный логин или пароль"
+  /// "Auth error: invalid login or password"
   /// ```
-  String get wrong_credentials =>
-      """Ошибка авторизации: неверный логин или пароль""";
+  String get wrong_credentials => """Auth error: invalid login or password""";
 
   /// ```dart
-  /// "Ошибка авторизации"
+  /// "Auth error"
   /// ```
-  String get error => """Ошибка авторизации""";
+  String get error => """Auth error""";
 }
 
 class HomeMessages {
@@ -358,73 +361,71 @@ class HomeMessages {
   const HomeMessages(this._parent);
 
   /// ```dart
-  /// "ФИО, ЛС, SN или телефон абонента"
+  /// "Name, agreement, SN or phone"
   /// ```
-  String get search_hint => """ФИО, ЛС, SN или телефон абонента""";
+  String get search_hint => """Name, agreement, SN or phone""";
 
   /// ```dart
-  /// "Нет результатов"
+  /// "No results"
   /// ```
-  String get no_results => """Нет результатов""";
+  String get no_results => """No results""";
 
   /// ```dart
-  /// "Абонент не выбран"
+  /// "Customer not selected"
   /// ```
-  String get customer_not_selected => """Абонент не выбран""";
+  String get customer_not_selected => """Customer not selected""";
 
   /// ```dart
-  /// "Ошибка получения абонентов"
+  /// "Error fetching customers"
   /// ```
-  String get customers_error => """Ошибка получения абонентов""";
+  String get customers_error => """Error fetching customers""";
 
   /// ```dart
-  /// "Ошибка: user id не найден"
+  /// "Error: user id not found"
   /// ```
-  String get user_id_missing => """Ошибка: user id не найден""";
+  String get user_id_missing => """Error: user id not found""";
 
   /// ```dart
-  /// "Ошибка получения данных абонента: $error"
+  /// "Error fetching customer data: $error"
   /// ```
   String customer_error(String error) =>
-      """Ошибка получения данных абонента: $error""";
+      """Error fetching customer data: $error""";
 
   /// ```dart
-  /// "Ошибка получения данных коробки: $error"
+  /// "Error fetching building data: $error"
   /// ```
   String building_error(String error) =>
-      """Ошибка получения данных коробки: $error""";
+      """Error fetching building data: $error""";
 
   /// ```dart
-  /// "Ошибка получения данных задания: $error"
+  /// "Error fetching task data: $error"
   /// ```
-  String tasks_error(String error) =>
-      """Ошибка получения данных задания: $error""";
+  String tasks_error(String error) => """Error fetching task data: $error""";
 
   /// ```dart
-  /// "Ошибка получения данных оборудования: $error"
+  /// "Error fetching items: $error"
   /// ```
-  String items_error(String error) =>
-      """Ошибка получения данных оборудования: $error""";
+  String items_error(String error) => """Error fetching items: $error""";
 
   /// ```dart
-  /// "Дождитесь загрузки абонента"
+  /// "Wait until customer load"
   /// ```
-  String get wait_customer => """Дождитесь загрузки абонента""";
+  String get wait_customer => """Wait until customer load""";
 
   /// ```dart
-  /// "Абонент не загружен"
+  /// "Customer not loaded"
   /// ```
-  String get customer_not_loaded => """Абонент не загружен""";
+  String get customer_not_loaded => """Customer not loaded""";
 
   /// ```dart
-  /// "У абонента нет ТМЦ с SN"
+  /// "Customer has not items with SN"
   /// ```
-  String get no_sn => """У абонента нет ТМЦ с SN""";
+  String get no_sn => """Customer has not items with SN""";
 
   /// ```dart
-  /// "OLT не найден"
+  /// "OLT not found"
   /// ```
-  String get no_olt => """OLT не найден""";
+  String get no_olt => """OLT not found""";
 }
 
 class BuildingMessages {
@@ -432,119 +433,119 @@ class BuildingMessages {
   const BuildingMessages(this._parent);
 
   /// ```dart
-  /// "Коробка"
+  /// "Building"
   /// ```
-  String get title => """Коробка""";
+  String get title => """Building""";
 
   /// ```dart
-  /// "Коробка не найдена"
+  /// "Building not found"
   /// ```
-  String get not_found => """Коробка не найдена""";
+  String get not_found => """Building not found""";
 
   /// ```dart
-  /// "Название"
+  /// "Name"
   /// ```
-  String get name => """Название""";
+  String get name => """Name""";
 
   /// ```dart
-  /// "Тип"
+  /// "Type"
   /// ```
-  String get type => """Тип""";
+  String get type => """Type""";
 
   /// ```dart
-  /// "Координаты"
+  /// "Coordinates"
   /// ```
-  String get coordinates => """Координаты""";
+  String get coordinates => """Coordinates""";
 
   /// ```dart
-  /// "Тип установки"
+  /// "Install type"
   /// ```
-  String get install_type => """Тип установки""";
+  String get install_type => """Install type""";
 
   /// ```dart
-  /// "Статус строительства"
+  /// "Build status"
   /// ```
-  String get build_status => """Статус строительства""";
+  String get build_status => """Build status""";
 
   /// ```dart
-  /// "Открытые задания"
+  /// "Open tasks"
   /// ```
-  String get open_tasks => """Открытые задания""";
+  String get open_tasks => """Open tasks""";
 
   /// ```dart
-  /// "Создать задание (Магистральный ремонт)"
+  /// "Create task (magistral repair)"
   /// ```
-  String get new_task_tooltip => """Создать задание (Магистральный ремонт)""";
+  String get new_task_tooltip => """Create task (magistral repair)""";
 
   /// ```dart
-  /// "Показать на карте"
+  /// "Show on map"
   /// ```
-  String get show_on_map => """Показать на карте""";
+  String get show_on_map => """Show on map""";
 
   /// ```dart
-  /// "Открыть коробку в UserSide"
+  /// "Open in UserSide"
   /// ```
-  String get open_tooltip => """Открыть коробку в UserSide""";
+  String get open_tooltip => """Open in UserSide""";
 
   /// ```dart
-  /// "Копировать ссылку на коробку в UserSide"
+  /// "Copy UserSide link"
   /// ```
-  String get copy_tooltip => """Копировать ссылку на коробку в UserSide""";
+  String get copy_tooltip => """Copy UserSide link""";
 
   /// ```dart
-  /// "Многоквартирный дом"
+  /// "Multiflat house"
   /// ```
-  String get type_multiflat => """Многоквартирный дом""";
+  String get type_multiflat => """Multiflat house""";
 
   /// ```dart
-  /// "Частный дом"
+  /// "Private house"
   /// ```
-  String get type_private => """Частный дом""";
+  String get type_private => """Private house""";
 
   /// ```dart
-  /// "Офисное здание"
+  /// "Office"
   /// ```
-  String get type_office => """Офисное здание""";
+  String get type_office => """Office""";
 
   /// ```dart
-  /// "Новостройки"
+  /// "New house"
   /// ```
-  String get type_new => """Новостройки""";
+  String get type_new => """New house""";
 
   /// ```dart
-  /// "Равшан"
+  /// "Ravshan"
   /// ```
-  String get type_ravshan => """Равшан""";
+  String get type_ravshan => """Ravshan""";
 
   /// ```dart
-  /// "Соседи"
+  /// "Neighbours"
   /// ```
-  String get neighbours => """Соседи""";
+  String get neighbours => """Neighbours""";
 
   /// ```dart
-  /// "У абонента нет соседей"
+  /// "Customer has not neighbours"
   /// ```
-  String get no_neighbours => """У абонента нет соседей""";
+  String get no_neighbours => """Customer has not neighbours""";
 
   /// ```dart
-  /// "ЛС"
+  /// "Agree"
   /// ```
-  String get column_agreement => """ЛС""";
+  String get column_agreement => """Agree""";
 
   /// ```dart
-  /// "Имя"
+  /// "Name"
   /// ```
-  String get column_name => """Имя""";
+  String get column_name => """Name""";
 
   /// ```dart
-  /// "Активность"
+  /// "Activity"
   /// ```
-  String get column_activity => """Активность""";
+  String get column_activity => """Activity""";
 
   /// ```dart
-  /// "Статус"
+  /// "Status"
   /// ```
-  String get column_status => """Статус""";
+  String get column_status => """Status""";
 
   /// ```dart
   /// "rx"
@@ -557,179 +558,179 @@ class CustomerMessages {
   const CustomerMessages(this._parent);
 
   /// ```dart
-  /// "Абонент"
+  /// "Customer"
   /// ```
-  String get title => """Абонент""";
+  String get title => """Customer""";
 
   /// ```dart
-  /// "Открыть данные по ONT"
+  /// "Open ONT data"
   /// ```
-  String get ont_tooltip => """Открыть данные по ONT""";
+  String get ont_tooltip => """Open ONT data""";
 
   /// ```dart
-  /// "Открыть вложения абонента и его заданий"
+  /// "Open attachments"
   /// ```
-  String get attachs_tooltip => """Открыть вложения абонента и его заданий""";
+  String get attachs_tooltip => """Open attachments""";
 
   /// ```dart
-  /// "Создать задание (Выезд на ремонт)"
+  /// "Create task (customer repair)"
   /// ```
-  String get new_task_tooltip => """Создать задание (Выезд на ремонт)""";
+  String get new_task_tooltip => """Create task (customer repair)""";
 
   /// ```dart
-  /// "Открыть абонента в UserSide"
+  /// "Open in UserSide"
   /// ```
-  String get open_tooltip => """Открыть абонента в UserSide""";
+  String get open_tooltip => """Open in UserSide""";
 
   /// ```dart
-  /// "Копировать ссылку на абонента в UserSide"
+  /// "Copy UserSide link"
   /// ```
-  String get copy_tooltip => """Копировать ссылку на абонента в UserSide""";
+  String get copy_tooltip => """Copy UserSide link""";
 
   /// ```dart
-  /// "Потенциальный абонент"
+  /// "Potential customer"
   /// ```
-  String get is_potential => """Потенциальный абонент""";
+  String get is_potential => """Potential customer""";
 
   /// ```dart
-  /// "Юридическое лицо"
+  /// "Organization"
   /// ```
-  String get is_corporate => """Юридическое лицо""";
+  String get is_corporate => """Organization""";
 
   /// ```dart
-  /// "Нет в биллинге"
+  /// "Not in billing"
   /// ```
-  String get no_billing => """Нет в биллинге""";
+  String get no_billing => """Not in billing""";
 
   /// ```dart
-  /// "Абонент не коммутирован"
+  /// "Not commutated"
   /// ```
-  String get not_switched => """Абонент не коммутирован""";
+  String get not_switched => """Not commutated""";
 
   /// ```dart
-  /// "Абонент отключен"
+  /// "Inactive customer"
   /// ```
-  String get is_inactive => """Абонент отключен""";
+  String get is_inactive => """Inactive customer""";
 
   /// ```dart
-  /// "Абонент на паузе"
+  /// "Paused customer"
   /// ```
-  String get is_paused => """Абонент на паузе""";
+  String get is_paused => """Paused customer""";
 
   /// ```dart
-  /// "Последняя активность $when"
+  /// "Last activity was $when"
   /// ```
-  String last_activity_warning(String when) => """Последняя активность $when""";
+  String last_activity_warning(String when) => """Last activity was $when""";
 
   /// ```dart
-  /// "Проблемы в коробке"
+  /// "Problems in building"
   /// ```
-  String get building_problems => """Проблемы в коробке""";
+  String get building_problems => """Problems in building""";
 
   /// ```dart
-  /// "ФИО"
+  /// "Name"
   /// ```
-  String get name => """ФИО""";
+  String get name => """Name""";
 
   /// ```dart
-  /// "Лицевой счёт"
+  /// "Agreement"
   /// ```
-  String get agreement => """Лицевой счёт""";
+  String get agreement => """Agreement""";
 
   /// ```dart
-  /// "Баланс"
+  /// "Balance"
   /// ```
-  String get balance => """Баланс""";
+  String get balance => """Balance""";
 
   /// ```dart
-  /// "Статус"
+  /// "Status"
   /// ```
-  String get status => """Статус""";
+  String get status => """Status""";
 
   /// ```dart
-  /// "Дата подключения"
+  /// "Connect date"
   /// ```
-  String get connected_at => """Дата подключения""";
+  String get connected_at => """Connect date""";
 
   /// ```dart
-  /// "Группа"
+  /// "Group"
   /// ```
-  String get group => """Группа""";
+  String get group => """Group""";
 
   /// ```dart
-  /// "Последняя активность"
+  /// "Last activity"
   /// ```
-  String get last_activity => """Последняя активность""";
+  String get last_activity => """Last activity""";
 
   /// ```dart
-  /// "Номер телефона"
+  /// "Phone number"
   /// ```
-  String get phone => """Номер телефона""";
+  String get phone => """Phone number""";
 
   /// ```dart
-  /// "Номера телефонов"
+  /// "Phone numbers"
   /// ```
-  String get phones => """Номера телефонов""";
+  String get phones => """Phone numbers""";
 
   /// ```dart
-  /// "Тариф"
+  /// "Tariff"
   /// ```
-  String get tariff => """Тариф""";
+  String get tariff => """Tariff""";
 
   /// ```dart
-  /// "Тарифы"
+  /// "Tariffs"
   /// ```
-  String get tariffs => """Тарифы""";
+  String get tariffs => """Tariffs""";
 
   /// ```dart
-  /// "Плановая дата отключения"
+  /// "Planned disconnect"
   /// ```
-  String get will_disconnect_at => """Плановая дата отключения""";
+  String get will_disconnect_at => """Planned disconnect""";
 
   /// ```dart
-  /// "Геоданные"
+  /// "Geo data"
   /// ```
-  String get geodata => """Геоданные""";
+  String get geodata => """Geo data""";
 
   /// ```dart
-  /// "Адрес"
+  /// "Address"
   /// ```
-  String get address => """Адрес""";
+  String get address => """Address""";
 
   /// ```dart
-  /// "Открыть в 2GIS"
+  /// "Open in 2GIS"
   /// ```
-  String get open_in_2gis => """Открыть в 2GIS""";
+  String get open_in_2gis => """Open in 2GIS""";
 
   /// ```dart
-  /// "Открыть на карте Neotelecom"
+  /// "Open in Neotelecom maps"
   /// ```
-  String get map_neotelecom => """Открыть на карте Neotelecom""";
+  String get map_neotelecom => """Open in Neotelecom maps""";
 
   /// ```dart
-  /// "Открыть на карте 2GIS"
+  /// "Open in 2GIS"
   /// ```
-  String get map_2gis => """Открыть на карте 2GIS""";
+  String get map_2gis => """Open in 2GIS""";
 
   /// ```dart
-  /// "Координаты"
+  /// "Coordinates"
   /// ```
-  String get coordinates => """Координаты""";
+  String get coordinates => """Coordinates""";
 
   /// ```dart
-  /// "Подъезд"
+  /// "Entrance"
   /// ```
-  String get entrance => """Подъезд""";
+  String get entrance => """Entrance""";
 
   /// ```dart
-  /// "Этаж"
+  /// "Floor"
   /// ```
-  String get floor => """Этаж""";
+  String get floor => """Floor""";
 
   /// ```dart
-  /// "Квартира"
+  /// "Apratment"
   /// ```
-  String get apartment => """Квартира""";
+  String get apartment => """Apratment""";
 }
 
 class TasksCardMessages {
@@ -737,14 +738,14 @@ class TasksCardMessages {
   const TasksCardMessages(this._parent);
 
   /// ```dart
-  /// "Задания абонента"
+  /// "Tasks"
   /// ```
-  String get title => """Задания абонента""";
+  String get title => """Tasks""";
 
   /// ```dart
-  /// "У абонента нет заданий"
+  /// "Customer has not tasks"
   /// ```
-  String get empty => """У абонента нет заданий""";
+  String get empty => """Customer has not tasks""";
 
   /// ```dart
   /// "ID"
@@ -752,19 +753,19 @@ class TasksCardMessages {
   String get column_id => """ID""";
 
   /// ```dart
-  /// "Тип задания"
+  /// "Type"
   /// ```
-  String get column_type => """Тип задания""";
+  String get column_type => """Type""";
 
   /// ```dart
-  /// "Дата создания"
+  /// "Create date"
   /// ```
-  String get column_created => """Дата создания""";
+  String get column_created => """Create date""";
 
   /// ```dart
-  /// "Статус"
+  /// "Status"
   /// ```
-  String get column_status => """Статус""";
+  String get column_status => """Status""";
 }
 
 class ItemsMessages {
@@ -772,24 +773,24 @@ class ItemsMessages {
   const ItemsMessages(this._parent);
 
   /// ```dart
-  /// "Оборудование"
+  /// "Items"
   /// ```
-  String get title => """Оборудование""";
+  String get title => """Items""";
 
   /// ```dart
-  /// "У абонента нет оборудования"
+  /// "Customer has not items"
   /// ```
-  String get empty => """У абонента нет оборудования""";
+  String get empty => """Customer has not items""";
 
   /// ```dart
-  /// "Название"
+  /// "Name"
   /// ```
-  String get column_name => """Название""";
+  String get column_name => """Name""";
 
   /// ```dart
-  /// "Тип"
+  /// "Type"
   /// ```
-  String get column_type => """Тип""";
+  String get column_type => """Type""";
 
   /// ```dart
   /// "SN"
@@ -797,14 +798,14 @@ class ItemsMessages {
   String get column_sn => """SN""";
 
   /// ```dart
-  /// "Количество"
+  /// "Amount"
   /// ```
-  String get column_amount => """Количество""";
+  String get column_amount => """Amount""";
 
   /// ```dart
-  /// "Кабель"
+  /// "Cable"
   /// ```
-  String get type_cable => """Кабель""";
+  String get type_cable => """Cable""";
 
   /// ```dart
   /// "OLT"
@@ -822,19 +823,19 @@ class ItemsMessages {
   String get type_ont => """ONT""";
 
   /// ```dart
-  /// "Зажим"
+  /// "Clamp"
   /// ```
-  String get type_clamp => """Зажим""";
+  String get type_clamp => """Clamp""";
 
   /// ```dart
-  /// "Коммутатор"
+  /// "Commutator"
   /// ```
-  String get type_commutator => """Коммутатор""";
+  String get type_commutator => """Commutator""";
 
   /// ```dart
-  /// "Муфта"
+  /// "Coupling"
   /// ```
-  String get type_coupling => """Муфта""";
+  String get type_coupling => """Coupling""";
 
   /// ```dart
   /// "ODF"
@@ -842,34 +843,34 @@ class ItemsMessages {
   String get type_odf => """ODF""";
 
   /// ```dart
-  /// "Патчкорд"
+  /// "Patchcord"
   /// ```
-  String get type_patchcord => """Патчкорд""";
+  String get type_patchcord => """Patchcord""";
 
   /// ```dart
-  /// "Прочее"
+  /// "Other"
   /// ```
-  String get type_other => """Прочее""";
+  String get type_other => """Other""";
 
   /// ```dart
-  /// "Распред. коробка"
+  /// "Junction"
   /// ```
-  String get type_junction => """Распред. коробка""";
+  String get type_junction => """Junction""";
 
   /// ```dart
-  /// "Роутер"
+  /// "Router"
   /// ```
-  String get type_router => """Роутер""";
+  String get type_router => """Router""";
 
   /// ```dart
-  /// "Разделитель"
+  /// "Splitter"
   /// ```
-  String get type_splitter => """Разделитель""";
+  String get type_splitter => """Splitter""";
 
   /// ```dart
-  /// "Умный дом"
+  /// "Smart home"
   /// ```
-  String get type_smart_home => """Умный дом""";
+  String get type_smart_home => """Smart home""";
 
   /// ```dart
   /// "Cisco"
@@ -912,79 +913,79 @@ class OntMessages {
   String get section_eth => """ETH/LAN""";
 
   /// ```dart
-  /// "Перезагрузить ONT"
+  /// "Restart ONT"
   /// ```
-  String get restart => """Перезагрузить ONT""";
+  String get restart => """Restart ONT""";
 
   /// ```dart
-  /// "Перезаписать SN"
+  /// "Rewrite SN"
   /// ```
-  String get rewrite_sn => """Перезаписать SN""";
+  String get rewrite_sn => """Rewrite SN""";
 
   /// ```dart
-  /// "Перезаписать MAC"
+  /// "Rewrite MAC"
   /// ```
-  String get rewrite_mac => """Перезаписать MAC""";
+  String get rewrite_mac => """Rewrite MAC""";
 
   /// ```dart
-  /// "Ошибка получения данных ONT: $error"
+  /// "Error fetching ONT: $error"
   /// ```
-  String load_error(String error) => """Ошибка получения данных ONT: $error""";
+  String load_error(String error) => """Error fetching ONT: $error""";
 
   /// ```dart
-  /// "Ошибка перезапуска ONT: $error"
+  /// "Error restarting ONT: $error"
   /// ```
-  String restart_error(String error) => """Ошибка перезапуска ONT: $error""";
+  String restart_error(String error) => """Error restarting ONT: $error""";
 
   /// ```dart
-  /// "Ошибка перезапуска ONT"
+  /// "Error restarting ONT"
   /// ```
-  String get restart_failed => """Ошибка перезапуска ONT""";
+  String get restart_failed => """Error restarting ONT""";
 
   /// ```dart
-  /// "ONT перезапущен"
+  /// "ONT restarted"
   /// ```
-  String get restarted => """ONT перезапущен""";
+  String get restarted => """ONT restarted""";
 
   /// ```dart
-  /// "Ошибка перезаписи SN: $error"
+  /// "Error rewriting SN: $error"
   /// ```
-  String rewrite_sn_error(String error) => """Ошибка перезаписи SN: $error""";
+  String rewrite_sn_error(String error) => """Error rewriting SN: $error""";
 
   /// ```dart
-  /// "Ошибка перезаписи SN"
+  /// "Error rewriting SN"
   /// ```
-  String get rewrite_sn_failed => """Ошибка перезаписи SN""";
+  String get rewrite_sn_failed => """Error rewriting SN""";
 
   /// ```dart
-  /// "SN перезаписан"
+  /// "SN rewritten"
   /// ```
-  String get sn_rewritten => """SN перезаписан""";
+  String get sn_rewritten => """SN rewritten""";
 
   /// ```dart
-  /// "Ошибка перезаписи MAC: $error"
+  /// "Error rewriting MAC: $error"
   /// ```
-  String rewrite_mac_error(String error) => """Ошибка перезаписи MAC: $error""";
+  String rewrite_mac_error(String error) => """Error rewriting MAC: $error""";
 
   /// ```dart
-  /// "Ошибка перезаписи MAC"
+  /// "Error rewriting MAC"
   /// ```
-  String get rewrite_mac_failed => """Ошибка перезаписи MAC""";
+  String get rewrite_mac_failed => """Error rewriting MAC""";
 
   /// ```dart
-  /// "MAC перезаписан"
+  /// "MAC rewritten"
   /// ```
-  String get mac_rewritten => """MAC перезаписан""";
+  String get mac_rewritten => """MAC rewritten""";
 
   /// ```dart
-  /// "Имя"
+  /// "Name"
   /// ```
-  String get olt_name => """Имя""";
+  String get olt_name => """Name""";
 
   /// ```dart
-  /// "Локация"
+  /// "Location"
   /// ```
-  String get olt_location => """Локация""";
+  String get olt_location => """Location""";
 
   /// ```dart
   /// "SN"
@@ -997,29 +998,29 @@ class OntMessages {
   String get ip => """IP""";
 
   /// ```dart
-  /// "Аптайм"
+  /// "Uptime"
   /// ```
-  String get uptime => """Аптайм""";
+  String get uptime => """Uptime""";
 
   /// ```dart
-  /// "Дистанция"
+  /// "Distance"
   /// ```
-  String get distance => """Дистанция""";
+  String get distance => """Distance""";
 
   /// ```dart
-  /// "Последнее включение"
+  /// "Last up"
   /// ```
-  String get last_up => """Последнее включение""";
+  String get last_up => """Last up""";
 
   /// ```dart
-  /// "Последнее отключение"
+  /// "Last down"
   /// ```
-  String get last_down => """Последнее отключение""";
+  String get last_down => """Last down""";
 
   /// ```dart
-  /// "Причина отключения"
+  /// "Last down cause"
   /// ```
-  String get last_down_cause => """Причина отключения""";
+  String get last_down_cause => """Last down cause""";
 
   /// ```dart
   /// "RX (dBm)"
@@ -1032,66 +1033,66 @@ class OntMessages {
   String get tx => """TX (dBm)""";
 
   /// ```dart
-  /// "Температура"
+  /// "Temperature"
   /// ```
-  String get temperature => """Температура""";
+  String get temperature => """Temperature""";
 
   /// ```dart
-  /// "км"
+  /// "km"
   /// ```
-  String get kilometers => """км""";
+  String get kilometers => """km""";
 
   /// ```dart
-  /// "мс"
+  /// "ms"
   /// ```
-  String get milliseconds => """мс""";
+  String get milliseconds => """ms""";
 
   /// ```dart
-  /// "Нет CATV портов"
+  /// "No CATV ports"
   /// ```
-  String get no_catv_ports => """Нет CATV портов""";
+  String get no_catv_ports => """No CATV ports""";
 
   /// ```dart
-  /// "Нет ETH портов"
+  /// "No ETH ports"
   /// ```
-  String get no_eth_ports => """Нет ETH портов""";
+  String get no_eth_ports => """No ETH ports""";
 
   /// ```dart
-  /// "Порт $id"
+  /// "Port $id"
   /// ```
-  String port(String id) => """Порт $id""";
+  String port(String id) => """Port $id""";
 
   /// ```dart
-  /// "Не работает"
+  /// "Not working"
   /// ```
-  String get port_broken => """Не работает""";
+  String get port_broken => """Not working""";
 
   /// ```dart
-  /// "Отключен"
+  /// "Disabled"
   /// ```
-  String get port_shutdown => """Отключен""";
+  String get port_shutdown => """Disabled""";
 
   /// ```dart
-  /// "$speed МБит/c  $duplex"
+  /// "$speed MBit/s  $duplex"
   /// ```
   String port_speed(String speed, String duplex) =>
-      """$speed МБит/c  $duplex""";
+      """$speed MBit/s  $duplex""";
 
   /// ```dart
   /// """
-  /// Состояние: $state
-  /// Статус: $actual
+  /// State: $state
+  /// Status: $actual
   /// """
   /// ```
-  String catv_tooltip(String state, String actual) => """Состояние: $state
-Статус: $actual""";
+  String catv_tooltip(String state, String actual) => """State: $state
+Status: $actual""";
 
   /// ```dart
   /// """
-  /// Состояние: $state
-  /// Статус: $actual
-  /// Скорость: $speed Мбит/c
-  /// Дуплекс: $duplex
+  /// State: $state
+  /// Status: $actual
+  /// Speed: $speed MBit/s
+  /// Duplex: $duplex
   /// """
   /// ```
   String eth_tooltip(
@@ -1100,25 +1101,25 @@ class OntMessages {
     String speed,
     String duplex,
   ) =>
-      """Состояние: $state
-Статус: $actual
-Скорость: $speed Мбит/c
-Дуплекс: $duplex""";
+      """State: $state
+Status: $actual
+Speed: $speed MBit/s
+Duplex: $duplex""";
 
   /// ```dart
-  /// "Двойной"
+  /// "Full"
   /// ```
-  String get eth_duplex_full => """Двойной""";
+  String get eth_duplex_full => """Full""";
 
   /// ```dart
-  /// "Одинарный"
+  /// "Half"
   /// ```
-  String get eth_duplex_half => """Одинарный""";
+  String get eth_duplex_half => """Half""";
 
   /// ```dart
-  /// "Неизвестно"
+  /// "Unknown"
   /// ```
-  String get eth_duplex_neg => """Неизвестно""";
+  String get eth_duplex_neg => """Unknown""";
 
   /// ```dart
   /// "$relative ($absolute)"
@@ -1127,31 +1128,31 @@ class OntMessages {
       """$relative ($absolute)""";
 
   /// ```dart
-  /// "Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов"
+  /// "Unable to ping neighbour: Buildding not found or there are not any active customers"
   /// ```
   String get neighbour_not_found =>
-      """Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов""";
+      """Unable to ping neighbour: Buildding not found or there are not any active customers""";
 
   /// ```dart
-  /// "Невозможно пингануть соседа: IP не найден"
+  /// "Unable to ping neighbour: IP not found"
   /// ```
   String get neighbour_has_not_ip =>
-      """Невозможно пингануть соседа: IP не найден""";
+      """Unable to ping neighbour: IP not found""";
 
   /// ```dart
-  /// "Пинг"
+  /// "Ping"
   /// ```
-  String get ping => """Пинг""";
+  String get ping => """Ping""";
 
   /// ```dart
-  /// "Этот ONT"
+  /// "This ONT"
   /// ```
-  String get this_ont => """Этот ONT""";
+  String get this_ont => """This ONT""";
 
   /// ```dart
-  /// "Соседский ONT"
+  /// "Neighbour ONT"
   /// ```
-  String get neighbour_ont => """Соседский ONT""";
+  String get neighbour_ont => """Neighbour ONT""";
 
   /// ```dart
   /// "OLT"
@@ -1164,34 +1165,34 @@ class CatvMessages {
   const CatvMessages(this._parent);
 
   /// ```dart
-  /// "Включение CATV"
+  /// "Enabling CATV"
   /// ```
-  String get enable_title => """Включение CATV""";
+  String get enable_title => """Enabling CATV""";
 
   /// ```dart
-  /// "Выключение CATV"
+  /// "Disabling CATV"
   /// ```
-  String get disable_title => """Выключение CATV""";
+  String get disable_title => """Disabling CATV""";
 
   /// ```dart
-  /// "Вы уверены что хотите включить CATV?"
+  /// "Are you sure to enable CATV?"
   /// ```
-  String get enable_confirm => """Вы уверены что хотите включить CATV?""";
+  String get enable_confirm => """Are you sure to enable CATV?""";
 
   /// ```dart
-  /// "Вы уверены что хотите выключить CATV?"
+  /// "Are you sure to disable CATV?"
   /// ```
-  String get disable_confirm => """Вы уверены что хотите выключить CATV?""";
+  String get disable_confirm => """Are you sure to disable CATV?""";
 
   /// ```dart
-  /// "Переключить состояние"
+  /// "Toggle state"
   /// ```
-  String get toggle_tooltip => """Переключить состояние""";
+  String get toggle_tooltip => """Toggle state""";
 
   /// ```dart
-  /// "Состояние порта"
+  /// "Port state"
   /// ```
-  String get port_state => """Состояние порта""";
+  String get port_state => """Port state""";
 
   /// ```dart
   /// "SN"
@@ -1209,35 +1210,35 @@ class CatvMessages {
   String get catv_id => """CATV ID""";
 
   /// ```dart
-  /// "Невозможно включить CATV: Абонент неактивный."
+  /// "Unable toggle CATV: Customer is inactive."
   /// ```
   String get customer_inactive =>
-      """Невозможно включить CATV: Абонент неактивный.""";
+      """Unable toggle CATV: Customer is inactive.""";
 
   /// ```dart
-  /// "Включить"
+  /// "Enable"
   /// ```
-  String get enable => """Включить""";
+  String get enable => """Enable""";
 
   /// ```dart
-  /// "Выключить"
+  /// "Disable"
   /// ```
-  String get disable => """Выключить""";
+  String get disable => """Disable""";
 
   /// ```dart
-  /// "CATV успешно переключен"
+  /// "CATV successfully toggled"
   /// ```
-  String get toggled => """CATV успешно переключен""";
+  String get toggled => """CATV successfully toggled""";
 
   /// ```dart
-  /// "Ошибка переключения CATV: $error"
+  /// "Error toggling CATV: $error"
   /// ```
-  String toggle_error(String error) => """Ошибка переключения CATV: $error""";
+  String toggle_error(String error) => """Error toggling CATV: $error""";
 
   /// ```dart
-  /// "Ошибка переключения CATV"
+  /// "Error toggling CATV"
   /// ```
-  String get toggle_failed => """Ошибка переключения CATV""";
+  String get toggle_failed => """Error toggling CATV""";
 }
 
 class TaskMessages {
@@ -1245,145 +1246,144 @@ class TaskMessages {
   const TaskMessages(this._parent);
 
   /// ```dart
-  /// "Задание"
+  /// "Task"
   /// ```
-  String get title => """Задание""";
+  String get title => """Task""";
 
   /// ```dart
-  /// "Скопировать ссылку на задание в UserSide"
+  /// "Copy UserSide link"
   /// ```
-  String get copy_tooltip => """Скопировать ссылку на задание в UserSide""";
+  String get copy_tooltip => """Copy UserSide link""";
 
   /// ```dart
-  /// "Ошибка загрузки задания: $error"
+  /// "Error loading task: $error"
   /// ```
-  String load_error(String error) => """Ошибка загрузки задания: $error""";
+  String load_error(String error) => """Error loading task: $error""";
 
   /// ```dart
-  /// "Ошибка отправки комментария: $error"
+  /// "Error sending comment: $error"
   /// ```
-  String comment_error(String error) =>
-      """Ошибка отправки комментария: $error""";
+  String comment_error(String error) => """Error sending comment: $error""";
 
   /// ```dart
-  /// "Основные данные"
+  /// "Main data"
   /// ```
-  String get section_main => """Основные данные""";
+  String get section_main => """Main data""";
 
   /// ```dart
-  /// "Комментарии"
+  /// "Comments"
   /// ```
-  String get section_comments => """Комментарии""";
+  String get section_comments => """Comments""";
 
   /// ```dart
-  /// "Тип"
+  /// "Type"
   /// ```
-  String get type => """Тип""";
+  String get type => """Type""";
 
   /// ```dart
-  /// "Статус"
+  /// "Status"
   /// ```
-  String get status => """Статус""";
+  String get status => """Status""";
 
   /// ```dart
-  /// "Адрес"
+  /// "Address"
   /// ```
-  String get address => """Адрес""";
+  String get address => """Address""";
 
   /// ```dart
-  /// "Автор задания"
+  /// "Task author"
   /// ```
-  String get author => """Автор задания""";
+  String get author => """Task author""";
 
   /// ```dart
-  /// "Назначенные сотрудники"
+  /// "Assigned employees"
   /// ```
-  String get employees => """Назначенные сотрудники""";
+  String get employees => """Assigned employees""";
 
   /// ```dart
-  /// "Назначенные бригады"
+  /// "Assigned divisions"
   /// ```
-  String get divisions => """Назначенные бригады""";
+  String get divisions => """Assigned divisions""";
 
   /// ```dart
-  /// "Причина"
+  /// "Reason"
   /// ```
-  String get appeal_reason => """Причина""";
+  String get appeal_reason => """Reason""";
 
   /// ```dart
-  /// "Решение"
+  /// "Solve"
   /// ```
-  String get solve => """Решение""";
+  String get solve => """Solve""";
 
   /// ```dart
-  /// "Телефон обратившегося"
+  /// "Appeal phone"
   /// ```
-  String get appeal_phone => """Телефон обратившегося""";
+  String get appeal_phone => """Appeal phone""";
 
   /// ```dart
-  /// "Тип обращения"
+  /// "Appeal type"
   /// ```
-  String get appeal_type => """Тип обращения""";
+  String get appeal_type => """Appeal type""";
 
   /// ```dart
-  /// "Стоимость работ"
+  /// "Work price"
   /// ```
-  String get price => """Стоимость работ""";
+  String get price => """Work price""";
 
   /// ```dart
-  /// "Тариф"
+  /// "Tariff"
   /// ```
-  String get tariff => """Тариф""";
+  String get tariff => """Tariff""";
 
   /// ```dart
-  /// "Координаты"
+  /// "Coordinates"
   /// ```
-  String get coordinates => """Координаты""";
+  String get coordinates => """Coordinates""";
 
   /// ```dart
-  /// "Тип подключения"
+  /// "Connect type"
   /// ```
-  String get connect_type => """Тип подключения""";
+  String get connect_type => """Connect type""";
 
   /// ```dart
-  /// "Дата создания"
+  /// "Create date"
   /// ```
-  String get created_at => """Дата создания""";
+  String get created_at => """Create date""";
 
   /// ```dart
-  /// "Дата обновления"
+  /// "Update date"
   /// ```
-  String get updated_at => """Дата обновления""";
+  String get updated_at => """Update date""";
 
   /// ```dart
-  /// "Плановая дата выполнения"
+  /// "Planned to complete date"
   /// ```
-  String get planned_to => """Плановая дата выполнения""";
+  String get planned_to => """Planned to complete date""";
 
   /// ```dart
-  /// "Дата выполнения"
+  /// "Complete date"
   /// ```
-  String get completed_at => """Дата выполнения""";
+  String get completed_at => """Complete date""";
 
   /// ```dart
-  /// "Комментариев нет"
+  /// "No comments"
   /// ```
-  String get no_comments => """Комментариев нет""";
+  String get no_comments => """No comments""";
 
   /// ```dart
-  /// "Написать комментарий..."
+  /// "Write comments..."
   /// ```
-  String get comment_hint => """Написать комментарий...""";
+  String get comment_hint => """Write comments...""";
 
   /// ```dart
-  /// "Отправить"
+  /// "Send"
   /// ```
-  String get send => """Отправить""";
+  String get send => """Send""";
 
   /// ```dart
-  /// "только что"
+  /// "Just now"
   /// ```
-  String get just_now => """только что""";
+  String get just_now => """Just now""";
 }
 
 class TasksMessages {
@@ -1391,14 +1391,14 @@ class TasksMessages {
   const TasksMessages(this._parent);
 
   /// ```dart
-  /// "Задания"
+  /// "Tasks"
   /// ```
-  String get title => """Задания""";
+  String get title => """Tasks""";
 
   /// ```dart
-  /// "Нет заданий"
+  /// "No tasks"
   /// ```
-  String get empty => """Нет заданий""";
+  String get empty => """No tasks""";
 
   /// ```dart
   /// "ID: $id"
@@ -1406,19 +1406,19 @@ class TasksMessages {
   String id(String id) => """ID: $id""";
 
   /// ```dart
-  /// "Создано: $date"
+  /// "Created: $date"
   /// ```
-  String created(String date) => """Создано: $date""";
+  String created(String date) => """Created: $date""";
 
   /// ```dart
-  /// "Выполнено: $date"
+  /// "Completed: $date"
   /// ```
-  String completed(String date) => """Выполнено: $date""";
+  String completed(String date) => """Completed: $date""";
 
   /// ```dart
-  /// "Автор: $name"
+  /// "Author: $name"
   /// ```
-  String author(String name) => """Автор: $name""";
+  String author(String name) => """Author: $name""";
 }
 
 class NewTaskMessages {
@@ -1426,131 +1426,125 @@ class NewTaskMessages {
   const NewTaskMessages(this._parent);
 
   /// ```dart
-  /// "Создать задание"
+  /// "Create task"
   /// ```
-  String get title => """Создать задание""";
+  String get title => """Create task""";
 
   /// ```dart
-  /// "Ремонт"
+  /// "Repair"
   /// ```
-  String get tab_repair => """Ремонт""";
+  String get tab_repair => """Repair""";
 
   /// ```dart
-  /// "Магистральный ремонт"
+  /// "Magistral repair"
   /// ```
-  String get tab_building => """Магистральный ремонт""";
+  String get tab_building => """Magistral repair""";
 
   /// ```dart
-  /// "Ошибка загрузки данных"
+  /// "Error fetching data"
   /// ```
-  String get load_error => """Ошибка загрузки данных""";
+  String get load_error => """Error fetching data""";
 
   /// ```dart
-  /// "Ошибка при создании задания: ID автора не найден. Пожалуйста, авторизуйтесь"
+  /// "Task created"
   /// ```
-  String get no_author =>
-      """Ошибка при создании задания: ID автора не найден. Пожалуйста, авторизуйтесь""";
+  String get created => """Task created""";
 
   /// ```dart
-  /// "Задание создано"
+  /// "Error creating task"
   /// ```
-  String get created => """Задание создано""";
+  String get create_error => """Error creating task""";
 
   /// ```dart
-  /// "Ошибка при создании задания"
+  /// "Task type"
   /// ```
-  String get create_error => """Ошибка при создании задания""";
+  String get type => """Task type""";
 
   /// ```dart
-  /// "Тип задания"
+  /// "Repair"
   /// ```
-  String get type => """Тип задания""";
+  String get type_repair => """Repair""";
 
   /// ```dart
-  /// "Выезд на ремонт"
+  /// "Uninstall"
   /// ```
-  String get type_repair => """Выезд на ремонт""";
+  String get type_uninstall => """Uninstall""";
 
   /// ```dart
-  /// "Демонтаж оборудование"
+  /// "Drive to inactive customer"
   /// ```
-  String get type_uninstall => """Демонтаж оборудование""";
+  String get type_inactive => """Drive to inactive customer""";
 
   /// ```dart
-  /// "Выезд к неактивным абонентам"
+  /// "Repair (Ravshan)"
   /// ```
-  String get type_inactive => """Выезд к неактивным абонентам""";
+  String get type_ravshan => """Repair (Ravshan)""";
 
   /// ```dart
-  /// "Выезд на ремонт (Равшан)"
+  /// "Magistral repair"
   /// ```
-  String get type_ravshan => """Выезд на ремонт (Равшан)""";
+  String get type_building_repair => """Magistral repair""";
 
   /// ```dart
-  /// "Магистраль выезд на ремонт"
+  /// "Magistral install / uninstall"
   /// ```
-  String get type_building_repair => """Магистраль выезд на ремонт""";
+  String get type_building_mount => """Magistral install / uninstall""";
 
   /// ```dart
-  /// "Магистраль-демонтаж/монтаж"
+  /// "Phone"
   /// ```
-  String get type_building_mount => """Магистраль-демонтаж/монтаж""";
+  String get phone => """Phone""";
 
   /// ```dart
-  /// "Номер телефона обратившегося"
+  /// "Enter phone number"
   /// ```
-  String get phone => """Номер телефона обратившегося""";
+  String get phone_hint => """Enter phone number""";
 
   /// ```dart
-  /// "Введите номер телефона"
+  /// "or select below"
   /// ```
-  String get phone_hint => """Введите номер телефона""";
+  String get phone_choose => """or select below""";
 
   /// ```dart
-  /// "или выберите из следующих"
+  /// "Reason"
   /// ```
-  String get phone_choose => """или выберите из следующих""";
+  String get reason => """Reason""";
 
   /// ```dart
-  /// "Причина обращения"
+  /// "Appeal type"
   /// ```
-  String get reason => """Причина обращения""";
+  String get appeal_type => """Appeal type""";
 
   /// ```dart
-  /// "Тип обращения"
+  /// "Description"
   /// ```
-  String get appeal_type => """Тип обращения""";
+  String get description => """Description""";
 
   /// ```dart
-  /// "Описание"
+  /// "Enter description (not required)"
   /// ```
-  String get description => """Описание""";
+  String get description_hint => """Enter description (not required)""";
 
   /// ```dart
-  /// "Введите описание (необязательно)"
+  /// "Employees"
   /// ```
-  String get description_hint => """Введите описание (необязательно)""";
+  String get executors => """Employees""";
 
   /// ```dart
-  /// "Исполнители"
+  /// "Building not found"
   /// ```
-  String get executors => """Исполнители""";
+  String get no_building => """Building not found""";
 
   /// ```dart
-  /// "Коробка не найдена"
-  /// ```
-  String get no_building => """Коробка не найдена""";
-
-  /// ```dart
-  /// "Если коробка существует, дождитесь загрузки данных и переоткройте диалог"
+  /// "Building not found. If it exists, wait until it load and open again."
   /// ```
   String get no_building_hint =>
-      """Если коробка существует, дождитесь загрузки данных и переоткройте диалог""";
+      """Building not found. If it exists, wait until it load and open again.""";
 
   /// ```dart
-  /// "Не выполнено"
+  /// "Not completed"
   /// ```
-  String get default_status => """Не выполнено""";
+  String get default_status => """Not completed""";
 }
 
 class SettingsMessages {
@@ -1558,209 +1552,229 @@ class SettingsMessages {
   const SettingsMessages(this._parent);
 
   /// ```dart
-  /// "Настройки"
+  /// "Settings"
   /// ```
-  String get title => """Настройки""";
+  String get title => """Settings""";
 
   /// ```dart
-  /// "Тема"
+  /// "Theme"
   /// ```
-  String get theme => """Тема""";
+  String get theme => """Theme""";
 
   /// ```dart
-  /// "Язык"
+  /// "Language"
   /// ```
-  String get language => """Язык""";
+  String get language => """Language""";
 
   /// ```dart
-  /// "Отключено"
+  /// "Disabled"
   /// ```
-  String get disabled => """Отключено""";
+  String get disabled => """Disabled""";
 
   /// ```dart
-  /// "Задержка при вводе"
+  /// "Debounce while typing"
   /// ```
-  String get debounce => """Задержка при вводе""";
+  String get debounce => """Debounce while typing""";
 
   /// ```dart
-  /// "Время ожидания после поиска перед загрузкой абонентов"
+  /// "Duration after search before load customers"
   /// ```
-  String get debounce_hint =>
-      """Время ожидания после поиска перед загрузкой абонентов""";
+  String get debounce_hint => """Duration after search before load customers""";
 
   /// ```dart
-  /// "мс"
+  /// "ms"
   /// ```
-  String get debounce_unit => """мс""";
+  String get debounce_unit => """ms""";
 
   /// ```dart
-  /// "Неправильное значение"
+  /// "Invalid value"
   /// ```
-  String get debounce_error => """Неправильное значение""";
+  String get debounce_error => """Invalid value""";
 
   /// ```dart
-  /// "Выйти из аккаунта"
+  /// "Log out"
   /// ```
-  String get log_out => """Выйти из аккаунта""";
+  String get log_out => """Log out""";
 
   /// ```dart
-  /// "Вы вышли из аккаунта"
+  /// "You logged out"
   /// ```
-  String get logged_out => """Вы вышли из аккаунта""";
+  String get logged_out => """You logged out""";
 
   /// ```dart
-  /// "Для применения изменений перезагрузите страницу"
+  /// "Reload page to apply changes"
   /// ```
-  String get reload_required =>
-      """Для применения изменений перезагрузите страницу""";
+  String get reload_required => """Reload page to apply changes""";
+}
+
+class CustomerPhonesMessages {
+  final Messages _parent;
+  const CustomerPhonesMessages(this._parent);
+
+  /// ```dart
+  /// "Customer phones"
+  /// ```
+  String get title => """Customer phones""";
+
+  /// ```dart
+  /// "Main phone number"
+  /// ```
+  String get main => """Main phone number""";
+
+  /// ```dart
+  /// "Additional phone number"
+  /// ```
+  String get additional => """Additional phone number""";
+
+  /// ```dart
+  /// "Save"
+  /// ```
+  String get save => """Save""";
 }
 
 Map<String, String> get messagesMap => {
   """app.title""": """SmartLink""",
   """app.name""": """SmartLinkViewer""",
-  """app.legalese""": """© 2026 «НеоТелеком»""",
-  """app.renderer_warning""": """WASM движок включен""",
-  """app.source_code""": """Исходный код""",
-  """app.api_source_code""": """Исходный код API""",
-  """app.settings_tooltip""": """Настройки""",
+  """app.legalese""": """© 2026 «NeoTelecom»""",
+  """app.renderer_warning""": """WASM renderer enabled""",
+  """app.source_code""": """View source code""",
+  """app.api_source_code""": """View API source code""",
+  """app.settings_tooltip""": """Settings""",
   """common.empty""": """-""",
-  """common.ok""": """Ок""",
-  """common.cancel""": """Отмена""",
-  """common.close""": """Закрыть""",
-  """common.close_dialog""": """Закрыть диалог""",
-  """common.create""": """Создать""",
-  """common.refresh""": """Обновить данные""",
-  """common.open_in_userside""": """Открыть в UserSide""",
-  """common.copy_userside_link""": """Скопировать ссылку в UserSide""",
-  """common.link_copied""": """Ссылка скопирована""",
+  """common.ok""": """Ok""",
+  """common.cancel""": """Cancel""",
+  """common.close""": """Close""",
+  """common.close_dialog""": """Close dialog""",
+  """common.create""": """Create""",
+  """common.refresh""": """Refresh data""",
+  """common.open_in_userside""": """Open in UserSide""",
+  """common.copy_userside_link""": """Copy UserSide link""",
+  """common.link_copied""": """Link copied""",
   """common.preview""": """Preview""",
-  """common.preview_tooltip""": """Функция в разработке""",
-  """common.link_not_clickable""":
-      """Ошибка открытия ссылки: Ссылка некликабельна""",
+  """common.preview_tooltip""": """Function in development""",
+  """common.link_not_clickable""": """Error open link: Link not clickable""",
   """common.no_connection""":
-      """Нет соединения с сервером. Перезагрузите страницу.""",
+      """No connection with server. Please reload page.""",
   """common.dev_warning""":
-      """Технические работы. Часть функционала может не работать.""",
+      """Site under maintenance. Some functions may work as not expected.""",
   """common.unstable_warning""":
-      """Нестабильная версия. Возможны ошибки или неправильная работа части функционала.""",
-  """common.force_dev""":
-      """На сайте проходят технические работы. Зайдите позже.""",
-  """common.force_dev_title""": """Тех. работы""",
-  """incompatibleVersion.title""": """Несовместимая версия""",
+      """Unstable site version. Some functions may work as not expected.""",
+  """common.force_dev""": """Site under maintenance. Please come later.""",
+  """common.force_dev_title""": """Maintenance""",
+  """incompatibleVersion.title""": """Incompitalbe version""",
   """incompatibleVersion.description""":
-      """Обнаружена несовместимая версия API.\nЧтобы обновить версию, нажмите Ctrl+F5. Если это не помогло, сообщите админстратору.""",
-  """incompatibleVersion.current""": """Текущая версия""",
-  """incompatibleVersion.compatible""": """Требуемая версия""",
-  """status.active""": """Активен""",
-  """status.paused""": """Пауза""",
-  """status.inactive""": """Отключен""",
-  """status.enabled""": """Включен""",
-  """status.disabled""": """Выключен""",
-  """status.online""": """Онлайн""",
-  """status.offline""": """Оффлайн""",
+      """Incompatible API version detected.\nTo update version, press Ctrl+F5. If this not helps, report problem to administrator.""",
+  """incompatibleVersion.current""": """Current version""",
+  """incompatibleVersion.compatible""": """Compatible version(s)""",
+  """status.active""": """Active""",
+  """status.paused""": """Pause""",
+  """status.inactive""": """Inactive""",
+  """status.enabled""": """Enabled""",
+  """status.disabled""": """Disabled""",
+  """status.online""": """Online""",
+  """status.offline""": """Offline""",
   """status.online_badge""": """ONLINE""",
   """status.offline_badge""": """OFFLINE""",
-  """login.title""": """Авторизация""",
-  """login.username""": """Логин""",
-  """login.password""": """Пароль""",
-  """login.submit""": """Войти""",
-  """login.success""": """Успешная авторизация""",
-  """login.wrong_credentials""":
-      """Ошибка авторизации: неверный логин или пароль""",
-  """login.error""": """Ошибка авторизации""",
-  """home.search_hint""": """ФИО, ЛС, SN или телефон абонента""",
-  """home.no_results""": """Нет результатов""",
-  """home.customer_not_selected""": """Абонент не выбран""",
-  """home.customers_error""": """Ошибка получения абонентов""",
-  """home.user_id_missing""": """Ошибка: user id не найден""",
-  """home.wait_customer""": """Дождитесь загрузки абонента""",
-  """home.customer_not_loaded""": """Абонент не загружен""",
-  """home.no_sn""": """У абонента нет ТМЦ с SN""",
-  """home.no_olt""": """OLT не найден""",
-  """building.title""": """Коробка""",
-  """building.not_found""": """Коробка не найдена""",
-  """building.name""": """Название""",
-  """building.type""": """Тип""",
-  """building.coordinates""": """Координаты""",
-  """building.install_type""": """Тип установки""",
-  """building.build_status""": """Статус строительства""",
-  """building.open_tasks""": """Открытые задания""",
-  """building.new_task_tooltip""": """Создать задание (Магистральный ремонт)""",
-  """building.show_on_map""": """Показать на карте""",
-  """building.open_tooltip""": """Открыть коробку в UserSide""",
-  """building.copy_tooltip""": """Копировать ссылку на коробку в UserSide""",
-  """building.type_multiflat""": """Многоквартирный дом""",
-  """building.type_private""": """Частный дом""",
-  """building.type_office""": """Офисное здание""",
-  """building.type_new""": """Новостройки""",
-  """building.type_ravshan""": """Равшан""",
-  """building.neighbours""": """Соседи""",
-  """building.no_neighbours""": """У абонента нет соседей""",
-  """building.column_agreement""": """ЛС""",
-  """building.column_name""": """Имя""",
-  """building.column_activity""": """Активность""",
-  """building.column_status""": """Статус""",
+  """login.title""": """Authorization""",
+  """login.username""": """Login""",
+  """login.password""": """Password""",
+  """login.submit""": """Login""",
+  """login.success""": """Successful authorization""",
+  """login.wrong_credentials""": """Auth error: invalid login or password""",
+  """login.error""": """Auth error""",
+  """home.search_hint""": """Name, agreement, SN or phone""",
+  """home.no_results""": """No results""",
+  """home.customer_not_selected""": """Customer not selected""",
+  """home.customers_error""": """Error fetching customers""",
+  """home.user_id_missing""": """Error: user id not found""",
+  """home.wait_customer""": """Wait until customer load""",
+  """home.customer_not_loaded""": """Customer not loaded""",
+  """home.no_sn""": """Customer has not items with SN""",
+  """home.no_olt""": """OLT not found""",
+  """building.title""": """Building""",
+  """building.not_found""": """Building not found""",
+  """building.name""": """Name""",
+  """building.type""": """Type""",
+  """building.coordinates""": """Coordinates""",
+  """building.install_type""": """Install type""",
+  """building.build_status""": """Build status""",
+  """building.open_tasks""": """Open tasks""",
+  """building.new_task_tooltip""": """Create task (magistral repair)""",
+  """building.show_on_map""": """Show on map""",
+  """building.open_tooltip""": """Open in UserSide""",
+  """building.copy_tooltip""": """Copy UserSide link""",
+  """building.type_multiflat""": """Multiflat house""",
+  """building.type_private""": """Private house""",
+  """building.type_office""": """Office""",
+  """building.type_new""": """New house""",
+  """building.type_ravshan""": """Ravshan""",
+  """building.neighbours""": """Neighbours""",
+  """building.no_neighbours""": """Customer has not neighbours""",
+  """building.column_agreement""": """Agree""",
+  """building.column_name""": """Name""",
+  """building.column_activity""": """Activity""",
+  """building.column_status""": """Status""",
   """building.column_rx""": """rx""",
-  """customer.title""": """Абонент""",
-  """customer.ont_tooltip""": """Открыть данные по ONT""",
-  """customer.attachs_tooltip""": """Открыть вложения абонента и его заданий""",
-  """customer.new_task_tooltip""": """Создать задание (Выезд на ремонт)""",
-  """customer.open_tooltip""": """Открыть абонента в UserSide""",
-  """customer.copy_tooltip""": """Копировать ссылку на абонента в UserSide""",
-  """customer.is_potential""": """Потенциальный абонент""",
-  """customer.is_corporate""": """Юридическое лицо""",
-  """customer.no_billing""": """Нет в биллинге""",
-  """customer.not_switched""": """Абонент не коммутирован""",
-  """customer.is_inactive""": """Абонент отключен""",
-  """customer.is_paused""": """Абонент на паузе""",
-  """customer.building_problems""": """Проблемы в коробке""",
-  """customer.name""": """ФИО""",
-  """customer.agreement""": """Лицевой счёт""",
-  """customer.balance""": """Баланс""",
-  """customer.status""": """Статус""",
-  """customer.connected_at""": """Дата подключения""",
-  """customer.group""": """Группа""",
-  """customer.last_activity""": """Последняя активность""",
-  """customer.phone""": """Номер телефона""",
-  """customer.phones""": """Номера телефонов""",
-  """customer.tariff""": """Тариф""",
-  """customer.tariffs""": """Тарифы""",
-  """customer.will_disconnect_at""": """Плановая дата отключения""",
-  """customer.geodata""": """Геоданные""",
-  """customer.address""": """Адрес""",
-  """customer.open_in_2gis""": """Открыть в 2GIS""",
-  """customer.map_neotelecom""": """Открыть на карте Neotelecom""",
-  """customer.map_2gis""": """Открыть на карте 2GIS""",
-  """customer.coordinates""": """Координаты""",
-  """customer.entrance""": """Подъезд""",
-  """customer.floor""": """Этаж""",
-  """customer.apartment""": """Квартира""",
-  """tasksCard.title""": """Задания абонента""",
-  """tasksCard.empty""": """У абонента нет заданий""",
+  """customer.title""": """Customer""",
+  """customer.ont_tooltip""": """Open ONT data""",
+  """customer.attachs_tooltip""": """Open attachments""",
+  """customer.new_task_tooltip""": """Create task (customer repair)""",
+  """customer.open_tooltip""": """Open in UserSide""",
+  """customer.copy_tooltip""": """Copy UserSide link""",
+  """customer.is_potential""": """Potential customer""",
+  """customer.is_corporate""": """Organization""",
+  """customer.no_billing""": """Not in billing""",
+  """customer.not_switched""": """Not commutated""",
+  """customer.is_inactive""": """Inactive customer""",
+  """customer.is_paused""": """Paused customer""",
+  """customer.building_problems""": """Problems in building""",
+  """customer.name""": """Name""",
+  """customer.agreement""": """Agreement""",
+  """customer.balance""": """Balance""",
+  """customer.status""": """Status""",
+  """customer.connected_at""": """Connect date""",
+  """customer.group""": """Group""",
+  """customer.last_activity""": """Last activity""",
+  """customer.phone""": """Phone number""",
+  """customer.phones""": """Phone numbers""",
+  """customer.tariff""": """Tariff""",
+  """customer.tariffs""": """Tariffs""",
+  """customer.will_disconnect_at""": """Planned disconnect""",
+  """customer.geodata""": """Geo data""",
+  """customer.address""": """Address""",
+  """customer.open_in_2gis""": """Open in 2GIS""",
+  """customer.map_neotelecom""": """Open in Neotelecom maps""",
+  """customer.map_2gis""": """Open in 2GIS""",
+  """customer.coordinates""": """Coordinates""",
+  """customer.entrance""": """Entrance""",
+  """customer.floor""": """Floor""",
+  """customer.apartment""": """Apratment""",
+  """tasksCard.title""": """Tasks""",
+  """tasksCard.empty""": """Customer has not tasks""",
   """tasksCard.column_id""": """ID""",
-  """tasksCard.column_type""": """Тип задания""",
-  """tasksCard.column_created""": """Дата создания""",
-  """tasksCard.column_status""": """Статус""",
-  """items.title""": """Оборудование""",
-  """items.empty""": """У абонента нет оборудования""",
-  """items.column_name""": """Название""",
-  """items.column_type""": """Тип""",
+  """tasksCard.column_type""": """Type""",
+  """tasksCard.column_created""": """Create date""",
+  """tasksCard.column_status""": """Status""",
+  """items.title""": """Items""",
+  """items.empty""": """Customer has not items""",
+  """items.column_name""": """Name""",
+  """items.column_type""": """Type""",
   """items.column_sn""": """SN""",
-  """items.column_amount""": """Количество""",
-  """items.type_cable""": """Кабель""",
+  """items.column_amount""": """Amount""",
+  """items.type_cable""": """Cable""",
   """items.type_olt""": """OLT""",
   """items.type_edfa""": """EDFA""",
   """items.type_ont""": """ONT""",
-  """items.type_clamp""": """Зажим""",
-  """items.type_commutator""": """Коммутатор""",
-  """items.type_coupling""": """Муфта""",
+  """items.type_clamp""": """Clamp""",
+  """items.type_commutator""": """Commutator""",
+  """items.type_coupling""": """Coupling""",
   """items.type_odf""": """ODF""",
-  """items.type_patchcord""": """Патчкорд""",
-  """items.type_other""": """Прочее""",
-  """items.type_junction""": """Распред. коробка""",
-  """items.type_router""": """Роутер""",
-  """items.type_splitter""": """Разделитель""",
-  """items.type_smart_home""": """Умный дом""",
+  """items.type_patchcord""": """Patchcord""",
+  """items.type_other""": """Other""",
+  """items.type_junction""": """Junction""",
+  """items.type_router""": """Router""",
+  """items.type_splitter""": """Splitter""",
+  """items.type_smart_home""": """Smart home""",
   """items.type_cisco""": """Cisco""",
   """items.type_cambium""": """Cambium""",
   """ont.title""": """ONT / OLT""",
@@ -1768,125 +1782,124 @@ Map<String, String> get messagesMap => {
   """ont.section_ont""": """ONT""",
   """ont.section_catv""": """CATV""",
   """ont.section_eth""": """ETH/LAN""",
-  """ont.restart""": """Перезагрузить ONT""",
-  """ont.rewrite_sn""": """Перезаписать SN""",
-  """ont.rewrite_mac""": """Перезаписать MAC""",
-  """ont.restart_failed""": """Ошибка перезапуска ONT""",
-  """ont.restarted""": """ONT перезапущен""",
-  """ont.rewrite_sn_failed""": """Ошибка перезаписи SN""",
-  """ont.sn_rewritten""": """SN перезаписан""",
-  """ont.rewrite_mac_failed""": """Ошибка перезаписи MAC""",
-  """ont.mac_rewritten""": """MAC перезаписан""",
-  """ont.olt_name""": """Имя""",
-  """ont.olt_location""": """Локация""",
+  """ont.restart""": """Restart ONT""",
+  """ont.rewrite_sn""": """Rewrite SN""",
+  """ont.rewrite_mac""": """Rewrite MAC""",
+  """ont.restart_failed""": """Error restarting ONT""",
+  """ont.restarted""": """ONT restarted""",
+  """ont.rewrite_sn_failed""": """Error rewriting SN""",
+  """ont.sn_rewritten""": """SN rewritten""",
+  """ont.rewrite_mac_failed""": """Error rewriting MAC""",
+  """ont.mac_rewritten""": """MAC rewritten""",
+  """ont.olt_name""": """Name""",
+  """ont.olt_location""": """Location""",
   """ont.sn""": """SN""",
   """ont.ip""": """IP""",
-  """ont.uptime""": """Аптайм""",
-  """ont.distance""": """Дистанция""",
-  """ont.last_up""": """Последнее включение""",
-  """ont.last_down""": """Последнее отключение""",
-  """ont.last_down_cause""": """Причина отключения""",
+  """ont.uptime""": """Uptime""",
+  """ont.distance""": """Distance""",
+  """ont.last_up""": """Last up""",
+  """ont.last_down""": """Last down""",
+  """ont.last_down_cause""": """Last down cause""",
   """ont.rx""": """RX (dBm)""",
   """ont.tx""": """TX (dBm)""",
-  """ont.temperature""": """Температура""",
-  """ont.kilometers""": """км""",
-  """ont.milliseconds""": """мс""",
-  """ont.no_catv_ports""": """Нет CATV портов""",
-  """ont.no_eth_ports""": """Нет ETH портов""",
-  """ont.port_broken""": """Не работает""",
-  """ont.port_shutdown""": """Отключен""",
-  """ont.eth_duplex_full""": """Двойной""",
-  """ont.eth_duplex_half""": """Одинарный""",
-  """ont.eth_duplex_neg""": """Неизвестно""",
+  """ont.temperature""": """Temperature""",
+  """ont.kilometers""": """km""",
+  """ont.milliseconds""": """ms""",
+  """ont.no_catv_ports""": """No CATV ports""",
+  """ont.no_eth_ports""": """No ETH ports""",
+  """ont.port_broken""": """Not working""",
+  """ont.port_shutdown""": """Disabled""",
+  """ont.eth_duplex_full""": """Full""",
+  """ont.eth_duplex_half""": """Half""",
+  """ont.eth_duplex_neg""": """Unknown""",
   """ont.neighbour_not_found""":
-      """Невозможно пингануть соседа: Коробка не найдена или в ней нету активных абонентов""",
-  """ont.neighbour_has_not_ip""":
-      """Невозможно пингануть соседа: IP не найден""",
-  """ont.ping""": """Пинг""",
-  """ont.this_ont""": """Этот ONT""",
-  """ont.neighbour_ont""": """Соседский ONT""",
+      """Unable to ping neighbour: Buildding not found or there are not any active customers""",
+  """ont.neighbour_has_not_ip""": """Unable to ping neighbour: IP not found""",
+  """ont.ping""": """Ping""",
+  """ont.this_ont""": """This ONT""",
+  """ont.neighbour_ont""": """Neighbour ONT""",
   """ont.olt""": """OLT""",
-  """catv.enable_title""": """Включение CATV""",
-  """catv.disable_title""": """Выключение CATV""",
-  """catv.enable_confirm""": """Вы уверены что хотите включить CATV?""",
-  """catv.disable_confirm""": """Вы уверены что хотите выключить CATV?""",
-  """catv.toggle_tooltip""": """Переключить состояние""",
-  """catv.port_state""": """Состояние порта""",
+  """catv.enable_title""": """Enabling CATV""",
+  """catv.disable_title""": """Disabling CATV""",
+  """catv.enable_confirm""": """Are you sure to enable CATV?""",
+  """catv.disable_confirm""": """Are you sure to disable CATV?""",
+  """catv.toggle_tooltip""": """Toggle state""",
+  """catv.port_state""": """Port state""",
   """catv.sn""": """SN""",
   """catv.olt_id""": """OLT ID""",
   """catv.catv_id""": """CATV ID""",
-  """catv.customer_inactive""":
-      """Невозможно включить CATV: Абонент неактивный.""",
-  """catv.enable""": """Включить""",
-  """catv.disable""": """Выключить""",
-  """catv.toggled""": """CATV успешно переключен""",
-  """catv.toggle_failed""": """Ошибка переключения CATV""",
-  """task.title""": """Задание""",
-  """task.copy_tooltip""": """Скопировать ссылку на задание в UserSide""",
-  """task.section_main""": """Основные данные""",
-  """task.section_comments""": """Комментарии""",
-  """task.type""": """Тип""",
-  """task.status""": """Статус""",
-  """task.address""": """Адрес""",
-  """task.author""": """Автор задания""",
-  """task.employees""": """Назначенные сотрудники""",
-  """task.divisions""": """Назначенные бригады""",
-  """task.appeal_reason""": """Причина""",
-  """task.solve""": """Решение""",
-  """task.appeal_phone""": """Телефон обратившегося""",
-  """task.appeal_type""": """Тип обращения""",
-  """task.price""": """Стоимость работ""",
-  """task.tariff""": """Тариф""",
-  """task.coordinates""": """Координаты""",
-  """task.connect_type""": """Тип подключения""",
-  """task.created_at""": """Дата создания""",
-  """task.updated_at""": """Дата обновления""",
-  """task.planned_to""": """Плановая дата выполнения""",
-  """task.completed_at""": """Дата выполнения""",
-  """task.no_comments""": """Комментариев нет""",
-  """task.comment_hint""": """Написать комментарий...""",
-  """task.send""": """Отправить""",
-  """task.just_now""": """только что""",
-  """tasks.title""": """Задания""",
-  """tasks.empty""": """Нет заданий""",
-  """newTask.title""": """Создать задание""",
-  """newTask.tab_repair""": """Ремонт""",
-  """newTask.tab_building""": """Магистральный ремонт""",
-  """newTask.load_error""": """Ошибка загрузки данных""",
-  """newTask.no_author""":
-      """Ошибка при создании задания: ID автора не найден. Пожалуйста, авторизуйтесь""",
-  """newTask.created""": """Задание создано""",
-  """newTask.create_error""": """Ошибка при создании задания""",
-  """newTask.type""": """Тип задания""",
-  """newTask.type_repair""": """Выезд на ремонт""",
-  """newTask.type_uninstall""": """Демонтаж оборудование""",
-  """newTask.type_inactive""": """Выезд к неактивным абонентам""",
-  """newTask.type_ravshan""": """Выезд на ремонт (Равшан)""",
-  """newTask.type_building_repair""": """Магистраль выезд на ремонт""",
-  """newTask.type_building_mount""": """Магистраль-демонтаж/монтаж""",
-  """newTask.phone""": """Номер телефона обратившегося""",
-  """newTask.phone_hint""": """Введите номер телефона""",
-  """newTask.phone_choose""": """или выберите из следующих""",
-  """newTask.reason""": """Причина обращения""",
-  """newTask.appeal_type""": """Тип обращения""",
-  """newTask.description""": """Описание""",
-  """newTask.description_hint""": """Введите описание (необязательно)""",
-  """newTask.executors""": """Исполнители""",
-  """newTask.no_building""": """Коробка не найдена""",
+  """catv.customer_inactive""": """Unable toggle CATV: Customer is inactive.""",
+  """catv.enable""": """Enable""",
+  """catv.disable""": """Disable""",
+  """catv.toggled""": """CATV successfully toggled""",
+  """catv.toggle_failed""": """Error toggling CATV""",
+  """task.title""": """Task""",
+  """task.copy_tooltip""": """Copy UserSide link""",
+  """task.section_main""": """Main data""",
+  """task.section_comments""": """Comments""",
+  """task.type""": """Type""",
+  """task.status""": """Status""",
+  """task.address""": """Address""",
+  """task.author""": """Task author""",
+  """task.employees""": """Assigned employees""",
+  """task.divisions""": """Assigned divisions""",
+  """task.appeal_reason""": """Reason""",
+  """task.solve""": """Solve""",
+  """task.appeal_phone""": """Appeal phone""",
+  """task.appeal_type""": """Appeal type""",
+  """task.price""": """Work price""",
+  """task.tariff""": """Tariff""",
+  """task.coordinates""": """Coordinates""",
+  """task.connect_type""": """Connect type""",
+  """task.created_at""": """Create date""",
+  """task.updated_at""": """Update date""",
+  """task.planned_to""": """Planned to complete date""",
+  """task.completed_at""": """Complete date""",
+  """task.no_comments""": """No comments""",
+  """task.comment_hint""": """Write comments...""",
+  """task.send""": """Send""",
+  """task.just_now""": """Just now""",
+  """tasks.title""": """Tasks""",
+  """tasks.empty""": """No tasks""",
+  """newTask.title""": """Create task""",
+  """newTask.tab_repair""": """Repair""",
+  """newTask.tab_building""": """Magistral repair""",
+  """newTask.load_error""": """Error fetching data""",
+  """newTask.created""": """Task created""",
+  """newTask.create_error""": """Error creating task""",
+  """newTask.type""": """Task type""",
+  """newTask.type_repair""": """Repair""",
+  """newTask.type_uninstall""": """Uninstall""",
+  """newTask.type_inactive""": """Drive to inactive customer""",
+  """newTask.type_ravshan""": """Repair (Ravshan)""",
+  """newTask.type_building_repair""": """Magistral repair""",
+  """newTask.type_building_mount""": """Magistral install / uninstall""",
+  """newTask.phone""": """Phone""",
+  """newTask.phone_hint""": """Enter phone number""",
+  """newTask.phone_choose""": """or select below""",
+  """newTask.reason""": """Reason""",
+  """newTask.appeal_type""": """Appeal type""",
+  """newTask.description""": """Description""",
+  """newTask.description_hint""": """Enter description (not required)""",
+  """newTask.executors""": """Employees""",
+  """newTask.no_building""": """Building not found""",
   """newTask.no_building_hint""":
-      """Если коробка существует, дождитесь загрузки данных и переоткройте диалог""",
-  """newTask.default_status""": """Не выполнено""",
-  """settings.title""": """Настройки""",
-  """settings.theme""": """Тема""",
-  """settings.language""": """Язык""",
-  """settings.disabled""": """Отключено""",
-  """settings.debounce""": """Задержка при вводе""",
+      """Building not found. If it exists, wait until it load and open again.""",
+  """newTask.default_status""": """Not completed""",
+  """settings.title""": """Settings""",
+  """settings.theme""": """Theme""",
+  """settings.language""": """Language""",
+  """settings.disabled""": """Disabled""",
+  """settings.debounce""": """Debounce while typing""",
   """settings.debounce_hint""":
-      """Время ожидания после поиска перед загрузкой абонентов""",
-  """settings.debounce_unit""": """мс""",
-  """settings.debounce_error""": """Неправильное значение""",
-  """settings.log_out""": """Выйти из аккаунта""",
-  """settings.logged_out""": """Вы вышли из аккаунта""",
-  """settings.reload_required""":
-      """Для применения изменений перезагрузите страницу""",
+      """Duration after search before load customers""",
+  """settings.debounce_unit""": """ms""",
+  """settings.debounce_error""": """Invalid value""",
+  """settings.log_out""": """Log out""",
+  """settings.logged_out""": """You logged out""",
+  """settings.reload_required""": """Reload page to apply changes""",
+  """customerPhones.title""": """Customer phones""",
+  """customerPhones.main""": """Main phone number""",
+  """customerPhones.additional""": """Additional phone number""",
+  """customerPhones.save""": """Save""",
 };

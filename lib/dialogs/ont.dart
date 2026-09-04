@@ -5,6 +5,7 @@ import 'package:flutter_date_formatter/flutter_date_formatter.dart';
 import 'package:quantify/quantify.dart';
 import 'package:smartlink/api.dart';
 import 'package:smartlink/dialogs/catv_toggle.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
@@ -56,9 +57,10 @@ class _OntDialogState extends State<OntDialog> {
     }
 
     Future<void> _ping_olt() async {
-        final pings = await ping(data!['olt']['ip']);
+        final pings = await guard(context, () => ping(data!['olt']['ip']));
         if (pings != null){
             olt_ping = average(List<double>.from(pings));
+            if (!mounted) return;
             setState(() {});
         }
     }
@@ -68,16 +70,18 @@ class _OntDialogState extends State<OntDialog> {
             show_error(context, t.ont.neighbour_not_found);
             return;
         }
-        final neighbour = await get_customer(widget.neighbour_id!, full: false);
-        if (neighbour['ip'] == null) {
+        final neighbour = await guard(context, () => get_customer(widget.neighbour_id!, full: false));
+        if (neighbour?['ip'] == null) {
             l.e('neighbour has not ip');
             if (!mounted) return;
             show_error(context, t.ont.neighbour_has_not_ip);
             return;
         }
-        final pings = await ping(neighbour['ip']);
+        if (!mounted) return;
+        final pings = await guard(context, () => ping(neighbour!['ip']));
         if (pings != null) {
             neighbour_ping = average(List<double>.from(pings));
+            if (!mounted) return;
             setState(() {});
         }
     }
@@ -86,9 +90,10 @@ class _OntDialogState extends State<OntDialog> {
             l.e('ont has not ip');
             return;
         }
-        final pings = await ping(data!['ip']);
+        final pings = await guard(context, () => ping(data!['ip']));
         if (pings != null) {
             my_ping = average(List<double>.from(pings));
+            if (!mounted) return;
             setState(() {});
         }
     }
@@ -129,92 +134,41 @@ class _OntDialogState extends State<OntDialog> {
         }
     }
 
-    Future<void> _restart() async {
-        if (restarting) return;
-        setState(() {
-            restarting = true;
-        });
+    Future _restart() async {
+        setState(() => restarting = true);
 
-        try {
-            final res = await restart_ont(widget.sn, widget.olt_id);
+        final res = await guard(context, () => restart_ont(widget.sn, widget.olt_id));
+        if (!mounted) return;
+        setState(() => restarting = false);
+        if (res == null) return;
 
-            if (res?['detail'] != null) {
-                l.e('error restarting ont: ${res['detail']}');
-                if (mounted) show_error(context, t.ont.restart_error('${res['detail']}'));
-                return;
-            }
-
-            _mark_offline();
-            if (mounted) show_success(context, t.ont.restarted);
-        } catch (e) {
-            l.e('error restarting ont: $e');
-            if (mounted) show_error(context, t.ont.restart_failed);
-        } finally {
-            if (mounted) {
-                setState(() {
-                    restarting = false;
-                });
-            }
-        }
+        _mark_offline();
+        show_success(context, t.ont.restarted);
     }
 
-    Future<void> _rewrite_sn() async {
-        if (rewriting_sn) return;
-        setState(() {
-            rewriting_sn = true;
-        });
+    Future _rewrite_sn() async {
+        setState(() => rewriting_sn = true);
 
-        try {
-            final res = await rewrite_sn(widget.sn, widget.customer_id, widget.agreement);
+        final res = await guard(context, () => rewrite_sn(widget.sn, widget.customer_id, widget.agreement));
+        if (!mounted) return;
+        setState(() => rewriting_sn = false);
+        if (res == null) return;
 
-            if (!mounted) return;
-            if (res?['detail'] != null){
-                l.e('error rewriting sn: ${res['detail']}');
-                show_error(context, t.ont.rewrite_sn_error('${res['detail']}'));
-            } else {
-                show_success(context, t.ont.sn_rewritten);
-            }
-        } catch (e) {
-            l.e('error rewriting sn: $e');
-            if (mounted) show_error(context, t.ont.rewrite_sn_failed);
-        } finally {
-            if (mounted) {
-                setState(() {
-                    rewriting_sn = false;
-                });
-            }
-        }
+        show_success(context, t.ont.sn_rewritten);
     }
 
-    Future<void> _rewrite_mac() async {
-        if (rewriting_mac) return;
-        setState(() {
-            rewriting_mac = true;
-        });
+    Future _rewrite_mac() async {
+        setState(() => rewriting_mac = true);
 
-        try {
-            final res = await rewrite_mac(widget.customer_id, widget.agreement);
+        final res = await guard(context, () => rewrite_mac(widget.customer_id, widget.agreement));
+        if (!mounted) return;
+        setState(() => rewriting_mac = false);
+        if (res == null) return;
 
-            if (!mounted) return;
-            if (res?['detail'] != null){
-                l.e('error rewriting mac: ${res['detail']}');
-                show_error(context, t.ont.rewrite_mac_error('${res['detail']}'));
-            } else {
-                show_success(context, t.ont.mac_rewritten);
-            }
-        } catch (e) {
-            l.e('error rewriting mac: $e');
-            if (mounted) show_error(context, t.ont.rewrite_mac_failed);
-        } finally {
-            if (mounted) {
-                setState(() {
-                    rewriting_mac = false;
-                });
-            }
-        }
+        show_success(context, t.ont.mac_rewritten);
     }
 
-    Future<void> _toggle_catv(int id, bool state) async {
+    Future _toggle_catv(int id, bool state) async {
         final bool? toggled = await showDialog(
             context: context,
             builder: (context) => CatvToggleDialog(

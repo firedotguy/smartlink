@@ -29,7 +29,7 @@ class InfoTile extends StatelessWidget {
     final Widget? action;
 
     Widget _value_text() {
-        return Text(
+        return child ?? Text(
             value ?? t.common.empty,
             textAlign: TextAlign.right,
             style: TextStyle(color: value_color ?? AppColors.main)
@@ -37,8 +37,6 @@ class InfoTile extends StatelessWidget {
     }
 
     Widget _build_value() {
-        if (child != null) return child!;
-
         if (on_tap != null) {
             return Tappable(
                 on_tap: on_tap,

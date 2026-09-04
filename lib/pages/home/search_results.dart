@@ -29,9 +29,7 @@ class SearchResults extends StatelessWidget {
             itemCount: customers.length,
             itemBuilder: (context, index) {
                 final Map customer = customers[index];
-                final String label = customer['agreement'] == null
-                    ? customer['name']
-                    : '${customer['agreement']}: ${customer['name']}';
+                final String label = customer['agreement'] == null? customer['name'] : '${customer['agreement']}: ${customer['name']}';
 
                 return Tappable(
                     on_tap: () => on_select(customer['id']),

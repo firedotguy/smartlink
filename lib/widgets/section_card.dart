@@ -3,8 +3,6 @@ import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/widgets/app_chip.dart';
 
-/// Блок-секция внутри диалога: заголовок, необязательная иконка,
-/// необязательная метка ONLINE/OFFLINE и содержимое.
 class SectionCard extends StatelessWidget {
     const SectionCard({
         required this.title,
@@ -17,7 +15,6 @@ class SectionCard extends StatelessWidget {
     final Widget child;
     final IconData? icon;
 
-    /// Если задано — справа от заголовка рисуется метка состояния.
     final bool? online;
 
     @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
@@ -44,25 +45,11 @@ class _TaskDialogState extends State<TaskDialog> {
     Future<void> _load() async {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         employee_id = prefs.getInt('userId');
+        if (!mounted) return;
 
-        if (task != null){
-            setState(() {
-                load = false;
-            });
-            return;
-        }
-
-        try {
-            final Map<String, dynamic> data = await get_task(widget.id!);
-            setState(() {
-                task = data;
-                load = false;
-            });
-        } catch (e) {
-            if (!mounted) return;
-            Navigator.pop(context);
-            show_error(context, t.task.load_error('$e'));
-        }
+        setState(() => load = true);
+        task = await guard(context, () => get_task(widget.id!));
+        setState(() => load = false);
     }
 
     Future<void> _add_comment() async {
@@ -92,9 +79,6 @@ class _TaskDialogState extends State<TaskDialog> {
             }
         }
     }
-
-
-    // ─── интерфейс ───────────────────────────────────────────────────────────
 
     Widget _main_section() {
         final List employees = task?['employees'] ?? const [];

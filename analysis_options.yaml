@@ -5,6 +5,13 @@ analyzer:
   exclude:
     # сгенерированный build_runner код
     - "**/*.i18n.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
   # language:
   #   strict-casts: true

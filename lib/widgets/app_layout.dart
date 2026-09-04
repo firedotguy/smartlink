@@ -47,7 +47,7 @@ class _AppLayoutState extends State<AppLayout> {
         is_dev = platform['dev'];
         is_stable = platform['stable'];
 
-        if (!platform['compatible_versions'].contains(version)) {
+        if (!platform['smartlink_compatible_versions'].contains(version)) {
             l.e('version not compatible');
             if (!mounted) return;
             showDialog(
@@ -60,7 +60,7 @@ class _AppLayoutState extends State<AppLayout> {
                         children: [
                             Text(t.incompatibleVersion.description),
                             InfoTile(title: t.incompatibleVersion.current, value: version),
-                            InfoTile(title: t.incompatibleVersion.compatible, value: platform['compatible_versions'].join(' / '))
+                            InfoTile(title: t.incompatibleVersion.compatible, value: platform['smartlink_compatible_versions'].join(' / '))
                         ],
                     )
                 )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartlink/api.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/pages/home.dart';
 import 'package:smartlink/theme.dart';
@@ -27,42 +28,24 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     Future<void> _login() async {
-        l.i('login button clicked - login: ${login_controller.text}');
-        setState(() {
-            load = true;
-        });
+        setState(() => load = true);
+        final res = await guard(context, () => login(login_controller.text, password_controller.text));
 
-        try {
-            final Map result = await login(login_controller.text, password_controller.text);
-
-            if (result['detail'] == null){
-                final SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString('login', login_controller.text);
-                await prefs.setInt('userId', result['id']);
-
-                if (!mounted) return;
-                l.i('logined successfully');
-                show_success(context, t.login.success);
-                l.i('push to home page, reason: login in');
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AppLayout(child: HomePage()))
-                );
-                return;
-            }
-
-            setState(() {
-                load = false;
-            });
-            l.w('wrong login or password');
-            if (mounted) show_warning(context, t.login.wrong_credentials);
-        } catch (e) {
-            setState(() {
-                load = false;
-            });
-            l.e('error while login: $e');
-            if (mounted) show_error(context, t.login.error);
+        if (!mounted || res == null) return;
+        if (res['detail'] == 'invalid login or password') {
+            show_warning(context, t.login.wrong_credentials);
+            return;
         }
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('login', login_controller.text);
+        await prefs.setInt('userId', res['id']);
+
+        if (!mounted) return;
+        show_success(context, t.login.success);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AppLayout(child: HomePage()))
+        );
     }
 
     @override

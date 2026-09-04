@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartlink/api.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
@@ -7,7 +8,6 @@ import 'package:smartlink/widgets/dialog_header.dart';
 import 'package:smartlink/widgets/icon_action.dart';
 import 'package:smartlink/widgets/info_tile.dart';
 
-/// Подтверждение переключения CATV-порта.
 class CatvToggleDialog extends StatefulWidget {
     const CatvToggleDialog({
         required this.state,
@@ -18,7 +18,6 @@ class CatvToggleDialog extends StatefulWidget {
         this.is_customer_active = false
     });
 
-    /// Текущее состояние порта.
     final bool state;
 
     final int olt_id;
@@ -39,24 +38,11 @@ class _CatvToggleDialogState extends State<CatvToggleDialog> {
             toggling = true;
         });
 
-        bool toggled = false;
-        try {
-            final res = await toggle_catv(widget.sn, widget.olt_id, widget.catv_id, !widget.state);
+        final res = await guard(context, () => toggle_catv(widget.sn, widget.olt_id, widget.catv_id, !widget.state));
+        if (!mounted) return;
 
-            if (res?['detail'] != null){
-                l.e('error toggling catv: ${res['detail']}');
-                if (mounted) show_error(context, t.catv.toggle_error('${res['detail']}'));
-            } else {
-                l.i('catv toggled');
-                toggled = true;
-                if (mounted) show_success(context, t.catv.toggled);
-            }
-        } catch (e) {
-            l.e('error toggling catv: $e');
-            if (mounted) show_error(context, t.catv.toggle_failed);
-        } finally {
-            if (mounted) Navigator.pop(context, toggled);
-        }
+        if (res != null) show_success(context, t.catv.toggled);
+        Navigator.pop(context, true);
     }
 
     @override

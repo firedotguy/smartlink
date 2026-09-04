@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_date_formatter/flutter_date_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:smartlink/api.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
 import 'package:smartlink/widgets/angular_progress_bar.dart';
 import 'package:smartlink/widgets/divisions_picker.dart';
 
-/// Тип задания и его цвет в выпадающем списке.
 typedef TaskTypeOption = (int id, Color color);
 
 const List<TaskTypeOption> _repair_types = [
@@ -22,10 +22,8 @@ const List<TaskTypeOption> _building_types = [
     (48, Color(0xFF3a538a))
 ];
 
-/// Набор правил видимости полей: у ремонта и магистрали они разные.
 enum TaskFormVariant { repair, building }
 
-/// Значения, собранные формой к моменту отправки.
 class TaskFormValue {
     const TaskFormValue({
         required this.type,
@@ -57,7 +55,6 @@ class NewTaskDialog extends StatefulWidget {
     final int? address_id;
     final List phones;
 
-    /// Открыть сразу на вкладке магистрального ремонта.
     final bool building;
 
     @override
@@ -136,7 +133,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> with SingleTickerProvider
 
 
         try {
-            final int id = await create_task(
+            final int? id = await guard(context, () => create_task(
                 value.type,
                 is_building? null : widget.customer_id,
                 value.reason,
@@ -145,10 +142,10 @@ class _NewTaskDialogState extends State<NewTaskDialog> with SingleTickerProvider
                 value.divisions,
                 value.phone,
                 value.appeal_type
-            );
+            ));
+            if (!mounted || id == null) return;
             l.i('task created successfully, id: $id');
 
-            if (!mounted) return;
             final String now = DateTime.now().format(pattern: 'yyyy.MM.dd HH:mm:ss').replaceAll('-', '.');
             Navigator.pop(context, {
                 'building': is_building,
@@ -235,10 +232,6 @@ class _NewTaskDialogState extends State<NewTaskDialog> with SingleTickerProvider
 }
 
 
-/// Тело вкладки: само хранит выбранные значения и правила видимости полей.
-///
-/// Родитель читает результат через `GlobalKey<_TaskFormState>().currentState.value`
-/// и готовность к отправке через `.is_valid`.
 class _TaskForm extends StatefulWidget {
     const _TaskForm({
         required this.variant,
@@ -310,7 +303,6 @@ class _TaskFormState extends State<_TaskForm> with AutomaticKeepAliveClientMixin
         TaskFormVariant.building => type != 48
     };
 
-    /// Телефон обязателен везде, где он показан.
     bool get is_valid => !_show_phone || phone_controller.text.isNotEmpty;
 
     TaskFormValue get value => TaskFormValue(
@@ -440,7 +432,6 @@ class _TaskFormState extends State<_TaskForm> with AutomaticKeepAliveClientMixin
     }
 }
 
-/// Подпись над полем формы.
 class _Label extends StatelessWidget {
     const _Label(this.text, {this.bold = true});
     final String text;
@@ -452,15 +443,12 @@ class _Label extends StatelessWidget {
             alignment: Alignment.topLeft,
             child: Text(
                 text,
-                style: bold
-                    ? const TextStyle(fontWeight: FontWeight.bold)
-                    : const TextStyle(color: AppColors.secondary)
+                style: bold? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(color: AppColors.secondary)
             )
         );
     }
 }
 
-/// Поле формы фиксированной высоты.
 class _Field extends StatelessWidget {
     const _Field({required this.child});
     final Widget child;

@@ -7,7 +7,6 @@ import 'package:smartlink/widgets/data_card.dart';
 import 'package:smartlink/widgets/icon_action.dart';
 import 'package:smartlink/widgets/table_header.dart';
 
-/// Карточка «Задания абонента».
 class TasksCard extends StatelessWidget {
     const TasksCard({
         required this.tasks,
@@ -44,7 +43,7 @@ class TasksCard extends StatelessWidget {
                             TableColumn(7, t.tasksCard.column_type, align: TextAlign.center),
                             TableColumn(6, t.tasksCard.column_created, align: TextAlign.center),
                             TableColumn(5, t.tasksCard.column_status, align: TextAlign.center),
-                            const TableColumn(2, null) // место под кнопку «открыть»
+                            const TableColumn(2, null)
                         ]),
                         Expanded(
                             child: ListView.builder(

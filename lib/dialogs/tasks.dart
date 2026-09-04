@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartlink/api.dart';
 import 'package:smartlink/dialogs/task.dart';
+import 'package:smartlink/exception.dart';
 import 'package:smartlink/i18n.dart';
 import 'package:smartlink/theme.dart';
 import 'package:smartlink/utils.dart';
@@ -8,7 +9,6 @@ import 'package:smartlink/widgets/angular_progress_bar.dart';
 import 'package:smartlink/widgets/app_chip.dart';
 import 'package:smartlink/widgets/dialog_header.dart';
 
-/// Список заданий: открывается, когда у объекта их несколько.
 class TasksDialog extends StatefulWidget {
     const TasksDialog({required this.tasks, super.key});
     final List<int> tasks;
@@ -27,7 +27,6 @@ class _TasksDialogState extends State<TasksDialog> {
         _load();
     }
 
-    /// Пустой список закрывает диалог, единственное задание открывается напрямую.
     void _check_count() {
         if (widget.tasks.isEmpty){
             show_warning(context, t.tasks.empty);
@@ -44,12 +43,16 @@ class _TasksDialogState extends State<TasksDialog> {
         }
     }
 
-    Future<void> _load() async {
+    Future _load() async {
         tasks.clear();
         for (final int id in widget.tasks){
-            tasks.add(await get_task(id));
+            final res = await guard(context, () => get_task(id));
+            if (res != null) {
+                tasks.add(res);
+            }
         }
-        if (mounted) setState(() {});
+        if (!mounted) return;
+        setState(() {});
     }
 
     Widget _task_card(Map<String, dynamic> task) {
